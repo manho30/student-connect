@@ -120,15 +120,26 @@
         :loading="submitting"
         class="!px-5 !rounded-xl"
       >
-        <i class="fi fi-rr-plus mr-1.5"></i>
-        Create Study Group
+        <i :class="isEdit ? 'fi fi-rr-check' : 'fi fi-rr-plus'" class="mr-1.5"></i>
+        {{ isEdit ? 'Save Changes' : 'Create Study Group' }}
       </el-button>
     </div>
   </form>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
+
+const props = defineProps({
+  initialData: {
+    type: Object,
+    default: null
+  },
+  isEdit: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const emit = defineEmits(['submit', 'cancel'])
 
@@ -155,6 +166,45 @@ const errors = reactive({
   time: ''
 })
 
+/**
+ * Pre-populates the form with existing study group data if editing.
+ *
+ * @param {Object|null} data - Study group data object.
+ * @returns {void}
+ */
+function populateForm(data) {
+  if (data) {
+    form.name = data.name || ''
+    form.subject = data.subject || ''
+    form.description = data.description || ''
+    form.date = data.date || today
+    form.time = data.time || '02:00 PM'
+    form.location = data.location || 'Campus Library'
+    form.maxMembers = Number(data.maxMembers) || 8
+  } else {
+    form.name = ''
+    form.subject = ''
+    form.description = ''
+    form.date = today
+    form.time = '02:00 PM'
+    form.location = 'Campus Library'
+    form.maxMembers = 8
+  }
+}
+
+watch(
+  () => props.initialData,
+  (val) => {
+    populateForm(val)
+  },
+  { immediate: true }
+)
+
+/**
+ * Validates the study group creation form and emits the submit event.
+ *
+ * @returns {void}
+ */
 function handleSubmit() {
   errors.name = ''
   errors.subject = ''
@@ -189,7 +239,8 @@ function handleSubmit() {
   }
 
   submitting.value = true
-  emit('submit', { ...form })
+  emit('submit', { ...form, maxMembers: Number(form.maxMembers) })
   submitting.value = false
 }
 </script>
+

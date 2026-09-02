@@ -105,7 +105,7 @@
           <span>{{ isLoading ? 'Signing In...' : 'Sign In' }}</span>
         </button>
 
-        <!-- Don't have an account / Create account -->
+        <!-- Switch to Register -->
         <div class="text-center text-xs text-slate-500 pt-1">
           <span>New student? </span>
           <button
@@ -242,7 +242,7 @@
           <span>{{ isLoading ? 'Creating Account...' : 'Register Student Account' }}</span>
         </button>
 
-        <!-- Switch to login -->
+        <!-- Switch to Sign In -->
         <div class="text-center text-xs text-slate-500 pt-1">
           <span>Already have an account? </span>
           <button
@@ -280,11 +280,11 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import database from '../database'
+import studentConnect from '@/api'
 
 const router = useRouter()
 const isLoading = ref(false)
-const mode = ref('login') // 'login' or 'register'
+const mode = ref('login')
 
 const loginForm = reactive({
   email: '',
@@ -311,6 +311,12 @@ const registerErrors = reactive({
   confirmPassword: ''
 })
 
+/**
+ * Toggles the authentication form between Sign In and Registration modes.
+ *
+ * @param {'login'|'register'} newMode - The mode to activate.
+ * @returns {void}
+ */
 function switchMode(newMode) {
   mode.value = newMode
   loginErrors.email = ''
@@ -321,11 +327,22 @@ function switchMode(newMode) {
   registerErrors.confirmPassword = ''
 }
 
+/**
+ * Validates an email address against standard format requirements.
+ *
+ * @param {string} email - Email address string to test.
+ * @returns {boolean} True if email format is valid.
+ */
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return re.test(String(email).toLowerCase())
 }
 
+/**
+ * Pre-fills the login form with demo student test credentials.
+ *
+ * @returns {void}
+ */
 function fillDemoAccount() {
   loginForm.email = 'student@student.com'
   loginForm.password = '123456'
@@ -338,6 +355,13 @@ function fillDemoAccount() {
   })
 }
 
+/**
+ * Handles submission of the student login form.
+ *
+ * Calls the centralized Student Connect API to authenticate the student.
+ *
+ * @returns {Promise<void>}
+ */
 async function handleLogin() {
   loginErrors.email = ''
   loginErrors.password = ''
@@ -359,14 +383,19 @@ async function handleLogin() {
   isLoading.value = true
 
   try {
-    const user = await database.auth.login(loginForm.email, loginForm.password)
+    const res = await studentConnect.login({
+      email: loginForm.email.trim(),
+      password: loginForm.password
+    })
+    const user = res.data || res
+
     localStorage.setItem('student_logged_in', 'true')
-    localStorage.setItem('student_user_id', user.id)
-    localStorage.setItem('student_user_name', user.name)
-    localStorage.setItem('student_user_email', user.email)
+    localStorage.setItem('student_user_id', user.id || 'student-001')
+    localStorage.setItem('student_user_name', user.name || 'Student')
+    localStorage.setItem('student_user_email', user.email || loginForm.email.trim())
     localStorage.setItem('student_user_matric', user.matricNo || '')
 
-    ElMessage.success(`Welcome back, ${user.name}!`)
+    ElMessage.success(`Welcome back, ${user.name || 'Student'}!`)
     router.push('/carpool')
   } catch (err) {
     ElMessage.error(err.message || 'Invalid login credentials')
@@ -375,6 +404,13 @@ async function handleLogin() {
   }
 }
 
+/**
+ * Handles submission of the student registration form.
+ *
+ * Validates form parameters and creates an account through the Student Connect API.
+ *
+ * @returns {Promise<void>}
+ */
 async function handleRegister() {
   registerErrors.name = ''
   registerErrors.email = ''
@@ -411,18 +447,19 @@ async function handleRegister() {
   isLoading.value = true
 
   try {
-    const user = await database.auth.register({
-      name: registerForm.name,
-      email: registerForm.email,
+    const res = await studentConnect.register({
+      name: registerForm.name.trim(),
+      email: registerForm.email.trim(),
       password: registerForm.password,
-      matricNo: registerForm.matricNo
+      matricNo: registerForm.matricNo.trim()
     })
+    const user = res.data || res
 
     localStorage.setItem('student_logged_in', 'true')
-    localStorage.setItem('student_user_id', user.id)
-    localStorage.setItem('student_user_name', user.name)
-    localStorage.setItem('student_user_email', user.email)
-    localStorage.setItem('student_user_matric', user.matricNo || '')
+    localStorage.setItem('student_user_id', user.id || 'student-001')
+    localStorage.setItem('student_user_name', user.name || registerForm.name.trim())
+    localStorage.setItem('student_user_email', user.email || registerForm.email.trim())
+    localStorage.setItem('student_user_matric', user.matricNo || registerForm.matricNo.trim())
 
     ElMessage.success(`Account created successfully! Welcome, ${user.name}!`)
     router.push('/carpool')

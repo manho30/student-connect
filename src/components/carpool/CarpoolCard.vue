@@ -2,11 +2,12 @@
   <div
     :id="'carpool-card-' + carpool.id"
     :class="[
-      'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200 relative',
+      'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200 relative cursor-pointer',
       isFull
         ? 'border-slate-200 opacity-85'
         : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
     ]"
+    @click="$emit('select', carpool.id)"
   >
     <div class="space-y-4">
       <!-- Status Badge & Cost & Creator Edit -->
@@ -31,7 +32,7 @@
           </span>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" @click.stop>
           <button
             v-if="isCreator"
             :id="'edit-carpool-btn-' + carpool.id"
@@ -91,7 +92,7 @@
             {{ carpool.joinedStudents.length }} student{{ carpool.joinedStudents.length === 1 ? '' : 's' }} on board
           </div>
         </div>
-        <p v-if="carpool.notes" class="text-xs text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100">
+        <p v-if="carpool.notes" class="text-xs text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100 line-clamp-2">
           <i class="fi fi-rr-info text-slate-400 mr-1"></i>
           {{ carpool.notes }}
         </p>
@@ -99,21 +100,8 @@
     </div>
 
     <!-- Actions -->
-    <div class="mt-6 space-y-2">
-      <!-- Host Broadcast Action: Notify all members if ready -->
-      <button
-        v-if="isCreator"
-        :id="'notify-members-btn-' + carpool.id"
-        type="button"
-        class="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-        title="Send a broadcast notification to all joined students"
-        @click="$emit('notify-ready', carpool)"
-      >
-        <i class="fi fi-rr-bell text-xs"></i>
-        <span>Notify All Members (Ready / Departing)</span>
-      </button>
-
-      <!-- If current user is the creator -->
+    <div class="mt-6 space-y-2" @click.stop>
+      <!-- Host Actions -->
       <div v-if="isCreator" class="grid grid-cols-2 gap-2">
         <button
           :id="'edit-creator-btn-' + carpool.id"
@@ -128,7 +116,7 @@
           class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
           @click="$emit('leave', carpool.id)"
         >
-          <span>Cancel My Spot</span>
+          <span>Cancel Spot</span>
         </button>
       </div>
 
@@ -182,8 +170,13 @@ const props = defineProps({
   }
 })
 
-defineEmits(['join', 'leave', 'edit', 'notify-ready'])
+defineEmits(['join', 'leave', 'edit', 'select'])
 
+/**
+ * Checks if the current logged-in student is the creator/driver of this carpool.
+ *
+ * @type {import('vue').ComputedRef<boolean>}
+ */
 const isCreator = computed(() => {
   if (!props.currentUser) return false
   return (
@@ -193,10 +186,20 @@ const isCreator = computed(() => {
   )
 })
 
+/**
+ * Checks if the carpool has reached its maximum passenger capacity.
+ *
+ * @type {import('vue').ComputedRef<boolean>}
+ */
 const isFull = computed(() => {
   return Number(props.carpool.joined) >= Number(props.carpool.capacity)
 })
 
+/**
+ * Checks if the current logged-in student has already joined this carpool.
+ *
+ * @type {import('vue').ComputedRef<boolean>}
+ */
 const isJoined = computed(() => {
   if (Array.isArray(props.carpool.joinedStudents)) {
     return props.carpool.joinedStudents.includes(props.currentUser)

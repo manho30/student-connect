@@ -178,7 +178,6 @@ const emit = defineEmits(['submit', 'cancel'])
 
 const submitting = ref(false)
 
-// Default to today's date formatted YYYY-MM-DD
 const today = new Date().toISOString().split('T')[0]
 
 const form = reactive({
@@ -199,6 +198,12 @@ const errors = reactive({
   cost: ''
 })
 
+/**
+ * Pre-populates the reactive form state with existing carpool values or resets to defaults.
+ *
+ * @param {Object|null} data - Existing carpool model data for editing.
+ * @returns {void}
+ */
 function populateForm(data) {
   if (data) {
     form.from = data.from || ''
@@ -227,6 +232,11 @@ watch(
   { immediate: true }
 )
 
+/**
+ * Validates form fields and emits the submit event with normalized values.
+ *
+ * @returns {void}
+ */
 function handleSubmit() {
   errors.from = ''
   errors.to = ''
@@ -251,7 +261,6 @@ function handleSubmit() {
     return
   }
 
-  // Strict price validation: prevent silent auto-free bug
   if (form.cost === '' || form.cost === null || form.cost === undefined) {
     errors.cost = 'Please enter price per person (enter 0 if this ride is free)'
     return

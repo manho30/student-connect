@@ -12,6 +12,7 @@
         :current-user="currentUser"
         @join="$emit('join', $event)"
         @leave="$emit('leave', $event)"
+        @select="$emit('select', $event)"
       />
 
       <!-- Prompt card to create a new study group -->
@@ -77,5 +78,5 @@ defineProps({
   }
 })
 
-defineEmits(['join', 'leave', 'open-create'])
+defineEmits(['join', 'leave', 'open-create', 'select'])
 </script>

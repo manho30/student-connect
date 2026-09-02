@@ -41,7 +41,7 @@
           </router-link>
 
           <router-link
-            to="/study-groups"
+            to="/study"
             class="px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-800"
             active-class="!bg-indigo-50 !text-indigo-700 !font-semibold"
           >
@@ -50,29 +50,11 @@
             </svg>
             <span>Study Groups</span>
           </router-link>
-
-          <router-link
-            to="/notify"
-            class="px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-800 relative"
-            active-class="!bg-indigo-50 !text-indigo-700 !font-semibold"
-          >
-            <i class="fi fi-rr-bell text-xs"></i>
-            <span>Notifications</span>
-            <span
-              v-if="unreadNotifCount > 0"
-              class="ml-0.5 px-1.5 py-0.2 bg-rose-500 text-white rounded-full text-[10px] font-bold"
-            >
-              {{ unreadNotifCount > 99 ? '99+' : unreadNotifCount }}
-            </span>
-          </router-link>
         </div>
       </div>
 
-      <!-- Current Student Profile, Notification Center & Dropdown -->
+      <!-- Current Student Profile & Dropdown -->
       <div class="flex items-center gap-2 sm:gap-3.5">
-        <!-- Notification Center Component -->
-        <NotificationCenter ref="notifCenterRef" />
-
         <el-dropdown trigger="click" @command="handleUserMenuCommand">
           <button class="flex items-center gap-2 sm:gap-2.5 px-2 py-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer outline-none border-none bg-transparent">
             <div class="text-right hidden sm:block">
@@ -98,10 +80,6 @@
                 <i class="fi fi-rr-user mr-2 text-indigo-600"></i>
                 <span>Active Profile</span>
               </el-dropdown-item>
-              <el-dropdown-item command="notifications" class="!rounded-lg text-xs font-semibold py-2">
-                <i class="fi fi-rr-bell mr-2 text-indigo-600"></i>
-                <span>Notification Center</span>
-              </el-dropdown-item>
               <el-dropdown-item command="logout" divided class="!rounded-lg text-xs font-semibold text-rose-600 hover:!bg-rose-50 py-2">
                 <i class="fi fi-rr-sign-out-alt mr-2 text-rose-500"></i>
                 <span>Logout</span>
@@ -126,7 +104,7 @@
       </router-view>
     </main>
 
-    <!-- Professional Footer (Hidden on Login Page) -->
+    <!-- Footer (Hidden on Login Page) -->
     <footer
       v-if="isNotLoginPage"
       class="bg-white border-t border-slate-200 px-4 sm:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0 text-xs font-medium text-slate-500"
@@ -134,19 +112,19 @@
       <div class="flex items-center gap-4 text-xs font-medium text-slate-500">
         <span class="flex items-center gap-1.5">
           <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
-          <span>12 Active Rides</span>
+          <span>Student Carpools</span>
         </span>
         <span class="flex items-center gap-1.5">
           <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-          <span>8 Errands Nearby</span>
+          <span>Campus Errands</span>
         </span>
         <span class="hidden sm:flex items-center gap-1.5">
           <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
-          <span>6 Active Study Groups</span>
+          <span>Study Groups</span>
         </span>
       </div>
       <div class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
-        Innovation Prototype v1.0.4
+        Student Connect Frontend
       </div>
     </footer>
 
@@ -155,10 +133,10 @@
       v-if="isNotLoginPage"
       class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg px-2 py-2"
     >
-      <div class="grid grid-cols-4 gap-1 max-w-md mx-auto">
+      <div class="grid grid-cols-3 gap-1 max-w-md mx-auto">
         <router-link
           to="/carpool"
-          class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold text-slate-500 transition-colors"
+          class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[11px] font-semibold text-slate-500 transition-colors"
           active-class="!text-indigo-700 !bg-indigo-50"
         >
           <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,7 +147,7 @@
 
         <router-link
           to="/errands"
-          class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold text-slate-500 transition-colors"
+          class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[11px] font-semibold text-slate-500 transition-colors"
           active-class="!text-indigo-700 !bg-indigo-50"
         >
           <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -179,31 +157,14 @@
         </router-link>
 
         <router-link
-          to="/study-groups"
-          class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold text-slate-500 transition-colors"
+          to="/study"
+          class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[11px] font-semibold text-slate-500 transition-colors"
           active-class="!text-indigo-700 !bg-indigo-50"
         >
           <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
           </svg>
-          <span>Study</span>
-        </router-link>
-
-        <router-link
-          to="/notify"
-          class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl text-[10px] font-semibold text-slate-500 transition-colors relative"
-          active-class="!text-indigo-700 !bg-indigo-50"
-        >
-          <div class="relative">
-            <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-            </svg>
-            <span
-              v-if="unreadNotifCount > 0"
-              class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full ring-2 ring-white"
-            ></span>
-          </div>
-          <span>Alerts</span>
+          <span>Study Groups</span>
         </router-link>
       </div>
     </nav>
@@ -211,24 +172,28 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import NotificationCenter from './components/common/NotificationCenter.vue'
-import database from './database'
 
 const route = useRoute()
 const router = useRouter()
-const notifCenterRef = ref(null)
-const unreadNotifCount = ref(0)
-let pollTimer = null
 
+/**
+ * Determines whether the current view is not the authentication page.
+ *
+ * @type {import('vue').ComputedRef<boolean>}
+ */
 const isNotLoginPage = computed(() => {
   return route.path !== '/login'
 })
 
+/**
+ * Computes current active student profile details from local session storage.
+ *
+ * @type {import('vue').ComputedRef<{name: string, email: string, matric: string, initial: string}>}
+ */
 const currentStudent = computed(() => {
-  // Read dynamically from localStorage whenever route or session changes
   const name = localStorage.getItem('student_user_name') || 'Student'
   const email = localStorage.getItem('student_user_email') || 'student@student.com'
   const matric = localStorage.getItem('student_user_matric') || ''
@@ -242,39 +207,12 @@ const currentStudent = computed(() => {
   }
 })
 
-async function updateUnreadCount() {
-  if (!localStorage.getItem('student_logged_in')) {
-    unreadNotifCount.value = 0
-    return
-  }
-  try {
-    const user = {
-      id: localStorage.getItem('student_user_id') || 'student-001',
-      name: localStorage.getItem('student_user_name') || 'Manho'
-    }
-    const list = await database.notifications.getAll(user)
-    unreadNotifCount.value = list.filter((n) => !n.read).length
-  } catch (e) {
-    // ignore
-  }
-}
-
-watch(
-  () => route.path,
-  () => {
-    updateUnreadCount()
-  }
-)
-
-onMounted(() => {
-  updateUnreadCount()
-  pollTimer = setInterval(updateUnreadCount, 6000)
-})
-
-onUnmounted(() => {
-  if (pollTimer) clearInterval(pollTimer)
-})
-
+/**
+ * Handles dropdown user menu selections such as profile inspection or logging out.
+ *
+ * @param {string} command - Selected action command ('profile' | 'logout').
+ * @returns {void}
+ */
 function handleUserMenuCommand(command) {
   if (command === 'logout') {
     localStorage.removeItem('student_logged_in')
@@ -288,8 +226,6 @@ function handleUserMenuCommand(command) {
       duration: 1500
     })
     router.push('/login')
-  } else if (command === 'notifications') {
-    router.push('/notify')
   } else if (command === 'profile') {
     ElMessage({
       message: `Signed in as ${currentStudent.value.name} (${currentStudent.value.email})`,

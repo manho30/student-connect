@@ -2,11 +2,12 @@
   <div
     :id="'study-group-card-' + group.id"
     :class="[
-      'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200',
+      'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200 cursor-pointer',
       isFull
         ? 'border-slate-200 opacity-80'
         : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
     ]"
+    @click="$emit('select', group.id)"
   >
     <div class="space-y-4">
       <!-- Subject Badge & Member Status -->
@@ -52,7 +53,7 @@
     </div>
 
     <!-- Actions & Footer -->
-    <div class="mt-6 space-y-3">
+    <div class="mt-6 space-y-3" @click.stop>
       <div class="text-xs text-slate-500 flex justify-between items-center px-1">
         <span>Hosted by <strong class="text-slate-700">{{ group.creator || 'Student' }}</strong></span>
         <span class="text-slate-400 text-[11px]">{{ group.members }} of {{ group.maxMembers }} filled</span>
@@ -107,12 +108,22 @@ const props = defineProps({
   }
 })
 
-defineEmits(['join', 'leave'])
+defineEmits(['join', 'leave', 'select'])
 
+/**
+ * Checks if the study group capacity has reached maximum members.
+ *
+ * @type {import('vue').ComputedRef<boolean>}
+ */
 const isFull = computed(() => {
   return Number(props.group.members) >= Number(props.group.maxMembers)
 })
 
+/**
+ * Checks if the current student has joined this study group.
+ *
+ * @type {import('vue').ComputedRef<boolean>}
+ */
 const isJoined = computed(() => {
   if (Array.isArray(props.group.memberList)) {
     return props.group.memberList.includes(props.currentUser)

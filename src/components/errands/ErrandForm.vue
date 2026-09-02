@@ -90,15 +90,26 @@
         :loading="submitting"
         class="!px-5 !rounded-xl"
       >
-        <i class="fi fi-rr-plus mr-1.5"></i>
-        Post Errand
+        <i :class="isEdit ? 'fi fi-rr-check' : 'fi fi-rr-plus'" class="mr-1.5"></i>
+        {{ isEdit ? 'Save Changes' : 'Post Errand' }}
       </el-button>
     </div>
   </form>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
+
+const props = defineProps({
+  initialData: {
+    type: Object,
+    default: null
+  },
+  isEdit: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const emit = defineEmits(['submit', 'cancel'])
 
@@ -121,6 +132,41 @@ const errors = reactive({
   deadline: ''
 })
 
+/**
+ * Pre-populates the form with existing errand values if editing.
+ *
+ * @param {Object|null} data - Errand data object.
+ * @returns {void}
+ */
+function populateForm(data) {
+  if (data) {
+    form.title = data.title || ''
+    form.description = data.description || ''
+    form.location = data.location || ''
+    form.deadline = data.deadline || `${today} 06:00 PM`
+    form.category = data.category || 'Parcel'
+  } else {
+    form.title = ''
+    form.description = ''
+    form.location = ''
+    form.deadline = `${today} 06:00 PM`
+    form.category = 'Parcel'
+  }
+}
+
+watch(
+  () => props.initialData,
+  (val) => {
+    populateForm(val)
+  },
+  { immediate: true }
+)
+
+/**
+ * Validates the errand form fields and emits the submit event.
+ *
+ * @returns {void}
+ */
 function handleSubmit() {
   errors.title = ''
   errors.description = ''
@@ -149,3 +195,4 @@ function handleSubmit() {
   submitting.value = false
 }
 </script>
+

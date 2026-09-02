@@ -13,10 +13,10 @@
         @join="$emit('join', $event)"
         @leave="$emit('leave', $event)"
         @edit="$emit('edit', $event)"
-        @notify-ready="$emit('notify-ready', $event)"
+        @select="$emit('select', $event)"
       />
 
-      <!-- Prompt card to create a new ride (matches Professional Polish design template) -->
+      <!-- Prompt card to create a new ride -->
       <div class="bg-white rounded-2xl p-6 border-2 border-dashed border-slate-200 shadow-xs flex flex-col justify-between bg-slate-50/50 group hover:border-indigo-300 transition-all min-h-[220px]">
         <div class="flex-1 flex flex-col items-center justify-center text-center space-y-4">
           <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-xs border border-slate-100 group-hover:scale-110 transition-transform">
@@ -79,5 +79,5 @@ defineProps({
   }
 })
 
-defineEmits(['join', 'leave', 'open-create', 'edit', 'notify-ready'])
+defineEmits(['join', 'leave', 'open-create', 'edit', 'select'])
 </script>

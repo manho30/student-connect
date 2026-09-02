@@ -1,100 +1,101 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header Section -->
-    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-      <div class="space-y-1">
-        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Post & fulfill student errands</h1>
-        <p class="text-slate-500 text-sm sm:text-base">Need a favor or heading to the store? Help a campus peer today.</p>
-      </div>
-      <button
-        id="open-create-errand-btn"
-        class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap"
-        @click="isDialogOpen = true"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        <span>Post Errand</span>
-      </button>
-    </header>
-
-    <!-- Search & Category Filter Bar -->
-    <section class="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-      <div class="flex-1 relative">
-        <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-        </svg>
-        <input
-          id="errand-search-input"
-          v-model="searchQuery"
-          type="text"
-          placeholder="Search errands by title, description or location..."
-          class="w-full pl-12 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-slate-800 text-sm transition-all"
-        />
-      </div>
-
-      <div class="hidden md:block w-px h-8 bg-slate-200 self-center"></div>
-
-      <!-- Category Filter Pills -->
-      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-        <button
-          v-for="cat in categories"
-          :key="cat.id"
-          :id="'category-tab-' + cat.id"
-          :class="[
-            'px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5',
-            activeCategory === cat.id
-              ? 'bg-indigo-50 text-indigo-700'
-              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-          ]"
-          @click="activeCategory = cat.id"
-        >
-          <i :class="cat.icon" class="text-xs"></i>
-          <span>{{ cat.label }}</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- Errand List Component -->
-    <ErrandList
-      :errands="filteredErrands"
+  <div id="errands-view-root">
+    <!-- DETAIL VIEW (When route.query.id is present) -->
+    <ErrandDetail
+      v-if="errandId"
+      :errand-id="errandId"
       :current-user="currentUser"
-      @accept="handleAccept"
-      @complete="handleComplete"
-      @open-create="isDialogOpen = true"
     />
 
-    <!-- Create Errand Dialog -->
-    <el-dialog
-      v-model="isDialogOpen"
-      title="Post a Student Errand Request"
-      width="90%"
-      class="max-w-lg !rounded-2xl"
-      destroy-on-close
-    >
-      <div class="mb-4 text-xs text-slate-500">
-        Describe what you need help with so a fellow student nearby can assist.
-      </div>
-      <ErrandForm
-        @submit="handleCreate"
-        @cancel="isDialogOpen = false"
+    <!-- LISTING VIEW (When no route.query.id is present) -->
+    <div v-else class="space-y-6">
+      <!-- Header Section -->
+      <header class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <div class="space-y-1">
+          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Post & fulfill student errands</h1>
+          <p class="text-slate-500 text-sm sm:text-base">Need a favor or heading to the store? Help a campus peer today.</p>
+        </div>
+        <button
+          id="open-create-errand-btn"
+          class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap"
+          @click="navigateToCreate"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Post Errand</span>
+        </button>
+      </header>
+
+      <!-- Search & Category Filter Bar -->
+      <section class="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+        <div class="flex-1 relative">
+          <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input
+            id="errand-search-input"
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search errands by title, description or location..."
+            class="w-full pl-12 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-slate-800 text-sm transition-all"
+          />
+        </div>
+
+        <div class="hidden md:block w-px h-8 bg-slate-200 self-center"></div>
+
+        <!-- Category Filter Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
+          <button
+            v-for="cat in categories"
+            :key="cat.id"
+            :id="'category-tab-' + cat.id"
+            :class="[
+              'px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5',
+              activeCategory === cat.id
+                ? 'bg-indigo-50 text-indigo-700'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+            ]"
+            @click="activeCategory = cat.id"
+          >
+            <i :class="cat.icon" class="text-xs"></i>
+            <span>{{ cat.label }}</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Errand List Component -->
+      <ErrandList
+        :errands="filteredErrands"
+        :current-user="currentUser"
+        @accept="handleAccept"
+        @complete="handleComplete"
+        @select="handleSelect"
+        @open-create="navigateToCreate"
       />
-    </el-dialog>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import database from '../database'
+import studentConnect from '@/api'
 import ErrandList from '../components/errands/ErrandList.vue'
-import ErrandForm from '../components/errands/ErrandForm.vue'
+import ErrandDetail from '../components/errands/ErrandDetail.vue'
+
+const route = useRoute()
+const router = useRouter()
 
 const currentUser = ref(localStorage.getItem('student_user_name') || 'Manho')
 const errands = ref([])
 const searchQuery = ref('')
 const activeCategory = ref('all')
-const isDialogOpen = ref(false)
+
+const errandId = computed(() => {
+  return route.query.id ? String(route.query.id) : null
+})
 
 const categories = [
   { id: 'all', label: 'All Tasks', icon: 'fi fi-rr-apps' },
@@ -104,23 +105,41 @@ const categories = [
   { id: 'Stationery', label: 'Stationery', icon: 'fi fi-rr-pencil' }
 ]
 
-function getActiveUserObject() {
-  return {
-    id: localStorage.getItem('student_user_id') || 'student-001',
-    name: currentUser.value || 'Manho',
-    email: localStorage.getItem('student_user_email') || 'student@student.com'
+/**
+ * Loads the latest errands list from the Student Connect API.
+ *
+ * @returns {Promise<void>} Resolves after errands are loaded and local state is updated.
+ */
+async function loadErrands() {
+  currentUser.value = localStorage.getItem('student_user_name') || 'Manho'
+  try {
+    const res = await studentConnect.getAllErrands()
+    errands.value = res.data || res || []
+  } catch (err) {
+    ElMessage.error(err.message || 'Failed to load errands')
   }
 }
 
-async function loadErrands() {
-  currentUser.value = localStorage.getItem('student_user_name') || 'Manho'
-  errands.value = await database.errands.getAll()
-}
-
 onMounted(() => {
-  loadErrands()
+  if (!errandId.value) {
+    loadErrands()
+  }
 })
 
+watch(
+  () => route.query.id,
+  (newId) => {
+    if (!newId) {
+      loadErrands()
+    }
+  }
+)
+
+/**
+ * Computes the list of errands filtered by user search keywords and category tabs.
+ *
+ * @type {import('vue').ComputedRef<Array<Object>>}
+ */
 const filteredErrands = computed(() => {
   let list = errands.value || []
 
@@ -143,73 +162,57 @@ const filteredErrands = computed(() => {
   return list
 })
 
-async function handleCreate(formData) {
-  try {
-    const activeUser = getActiveUserObject()
-    const newErrand = await database.errands.create(formData, activeUser)
-    await loadErrands()
-    isDialogOpen.value = false
-
-    // Post notification
-    await database.notifications.send({
-      type: 'GENERAL',
-      title: 'New Student Errand Posted 📦',
-      message: `${activeUser.name} requested help: "${formData.title}" (${formData.category || 'General'}).`,
-      entityType: 'errand',
-      entityId: newErrand.id,
-      senderId: activeUser.id,
-      senderName: activeUser.name,
-      targetUserId: 'all'
-    })
-
-    ElMessage.success('Errand posted! Nearby students can now see your request.')
-  } catch (err) {
-    ElMessage.error(err.message || 'Failed to post errand')
-  }
+/**
+ * Navigates to the dedicated create errand page.
+ *
+ * @returns {void}
+ */
+function navigateToCreate() {
+  router.push('/errands/new')
 }
 
+/**
+ * Navigates to the detail page for a specific errand.
+ *
+ * @param {string|number} id - Unique errand identifier.
+ * @returns {void}
+ */
+function handleSelect(id) {
+  router.push(`/errands?id=${id}`)
+}
+
+/**
+ * Accepts a student errand.
+ *
+ * @param {string|number} id - Unique identifier of the errand to accept.
+ * @returns {Promise<void>}
+ */
 async function handleAccept(id) {
   try {
-    const activeUser = getActiveUserObject()
-    const updated = await database.errands.accept(id, activeUser)
-    await loadErrands()
+    const currentName = currentUser.value || 'Student'
+    const currentId = localStorage.getItem('student_user_id') || 'student-001'
 
-    // Send notification to errand owner
-    await database.notifications.send({
-      type: 'ERRAND_ACCEPTED',
-      title: 'Errand Accepted! 📦',
-      message: `${activeUser.name} has accepted your errand: "${updated.title}".`,
-      entityType: 'errand',
-      entityId: updated.id,
-      senderId: activeUser.id,
-      senderName: activeUser.name,
-      targetUserId: updated.creatorId || 'all',
-      targetUserName: updated.creator || 'Student'
+    await studentConnect.acceptErrand(id, {
+      userName: currentName,
+      userId: currentId
     })
-
+    await loadErrands()
     ElMessage.success('You accepted this errand! Thank you for helping a peer.')
   } catch (err) {
     ElMessage.error(err.message || 'Could not accept errand')
   }
 }
 
+/**
+ * Marks an accepted errand as completed.
+ *
+ * @param {string|number} id - Unique identifier of the completed errand.
+ * @returns {Promise<void>}
+ */
 async function handleComplete(id) {
   try {
-    const activeUser = getActiveUserObject()
-    const updated = await database.errands.complete(id)
+    await studentConnect.completeErrand(id)
     await loadErrands()
-
-    await database.notifications.send({
-      type: 'ERRAND_COMPLETED',
-      title: 'Errand Completed 🎉',
-      message: `${activeUser.name} marked "${updated.title}" as completed.`,
-      entityType: 'errand',
-      entityId: updated.id,
-      senderId: activeUser.id,
-      senderName: activeUser.name,
-      targetUserId: updated.creatorId || 'all'
-    })
-
     ElMessage.success('Errand marked as completed! Great job.')
   } catch (err) {
     ElMessage.error(err.message || 'Could not complete errand')

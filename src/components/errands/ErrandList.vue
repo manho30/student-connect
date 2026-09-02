@@ -12,6 +12,7 @@
         :current-user="currentUser"
         @accept="$emit('accept', $event)"
         @complete="$emit('complete', $event)"
+        @select="$emit('select', $event)"
       />
 
       <!-- Prompt card to create a new errand -->
@@ -77,5 +78,5 @@ defineProps({
   }
 })
 
-defineEmits(['accept', 'complete', 'open-create'])
+defineEmits(['accept', 'complete', 'open-create', 'select'])
 </script>

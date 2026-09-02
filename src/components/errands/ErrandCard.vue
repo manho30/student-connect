@@ -2,11 +2,12 @@
   <div
     :id="'errand-card-' + errand.id"
     :class="[
-      'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200',
+      'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200 cursor-pointer',
       errand.status === 'completed'
         ? 'border-slate-200 opacity-80'
         : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
     ]"
+    @click="$emit('select', errand.id)"
   >
     <div class="space-y-4">
       <!-- Category & Status Badge -->
@@ -54,7 +55,7 @@
     </div>
 
     <!-- Actions & Footer -->
-    <div class="mt-6 space-y-3">
+    <div class="mt-6 space-y-3" @click.stop>
       <div class="text-xs text-slate-500 flex justify-between items-center px-1">
         <span>By <strong class="text-slate-700">{{ errand.creator || 'Student' }}</strong></span>
         <span v-if="errand.status === 'accepted'" class="text-indigo-600 font-semibold text-[11px]">
@@ -125,12 +126,23 @@ const props = defineProps({
   }
 })
 
-defineEmits(['accept', 'complete'])
+defineEmits(['accept', 'complete', 'select'])
 
+/**
+ * Checks if the current student is the one who accepted this errand.
+ *
+ * @type {import('vue').ComputedRef<boolean>}
+ */
 const isAcceptedByMe = computed(() => {
   return props.errand.acceptedBy === props.currentUser
 })
 
+/**
+ * Returns the matching Flaticon icon class based on the errand category.
+ *
+ * @param {string} category - Errand category name.
+ * @returns {string} Flaticon CSS class.
+ */
 function getCategoryIcon(category) {
   switch (category) {
     case 'Food':
