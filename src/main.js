@@ -23,4 +23,14 @@ app.config.globalProperties.$studentConnect = studentConnect
 app.use(router)
 app.use(ElementPlus)
 
-app.mount('#app')
+/**
+ * Waits for Firebase-aware router navigation to resolve before mounting Vue.
+ *
+ * @returns {Promise<void>} Resolves after the initial route is ready.
+ */
+async function bootstrap() {
+  await router.isReady()
+  app.mount('#app')
+}
+
+bootstrap()

@@ -14,12 +14,12 @@
  * - /errands/edit : Edit existing student errand (?id=xxxxxxx)
  *
  * Study Groups:
- * - /study (and /study-groups) : Study group listing (or detail if ?id=xxxxxxx)
+ * - /study (and /study) : Study group listing (or detail if ?id=xxxxxxx)
  * - /study/new : Create a new study group
  * - /study/edit : Edit existing study group (?id=xxxxxxx)
  *
  * Authentication:
- * - /login : Student authentication and demo access
+ * - /login : Firebase student authentication
  */
 
 import { createRouter, createWebHistory } from 'vue-router'
@@ -31,6 +31,7 @@ import ErrandsView from '../views/ErrandsView.vue'
 import ErrandFormView from '../views/ErrandFormView.vue'
 import StudyGroupsView from '../views/StudyGroupsView.vue'
 import StudyFormView from '../views/StudyFormView.vue'
+import { getCurrentUser, waitForAuthReady } from '@/services/auth'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -50,54 +51,63 @@ const router = createRouter({
     {
       path: '/carpool',
       name: 'carpool',
-      component: CarpoolView
+      component: CarpoolView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/carpool/new',
       name: 'carpool-new',
-      component: CarpoolFormView
+      component: CarpoolFormView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/carpool/edit',
       name: 'carpool-edit',
-      component: CarpoolFormView
+      component: CarpoolFormView,
+      meta: { requiresAuth: true }
     },
 
     // Errands Routes
     {
       path: '/errands',
       name: 'errands',
-      component: ErrandsView
+      component: ErrandsView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/errands/new',
       name: 'errands-new',
-      component: ErrandFormView
+      component: ErrandFormView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/errands/edit',
       name: 'errands-edit',
-      component: ErrandFormView
+      component: ErrandFormView,
+      meta: { requiresAuth: true }
     },
 
     // Study Group Routes
     {
       path: '/study',
       name: 'study',
-      alias: '/study-groups',
-      component: StudyGroupsView
+      alias: '/study',
+      component: StudyGroupsView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/study/new',
       name: 'study-new',
-      alias: '/study-groups/new',
-      component: StudyFormView
+      alias: '/study/new',
+      component: StudyFormView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/study/edit',
       name: 'study-edit',
-      alias: '/study-groups/edit',
-      component: StudyFormView
+      alias: '/study/edit',
+      component: StudyFormView,
+      meta: { requiresAuth: true }
     },
 
     // Fallback redirect
@@ -116,25 +126,26 @@ const router = createRouter({
  *
  * @param {import('vue-router').RouteLocationNormalized} to - Target destination route.
  * @param {import('vue-router').RouteLocationNormalized} from - Origin source route.
- * @param {import('vue-router').NavigationGuardNext} next - Navigation resolution callback.
- * @returns {void}
+ * @returns {Promise<boolean|string|Object>} Navigation decision.
  */
-router.beforeEach((to, from, next) => {
-  const isLoggedIn = localStorage.getItem('student_logged_in') === 'true'
+router.beforeEach(async (to) => {
+  await waitForAuthReady()
+  const isAuthenticated = Boolean(getCurrentUser())
 
-  if (to.path === '/login') {
-    if (isLoggedIn) {
-      next('/carpool')
-    } else {
-      next()
-    }
-  } else {
-    if (!isLoggedIn) {
-      next('/login')
-    } else {
-      next()
+  if (to.path === '/login' && isAuthenticated) {
+    return '/carpool'
+  }
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return {
+      path: '/login',
+      query: {
+        redirect: to.fullPath
+      }
     }
   }
+
+  return true
 })
 
 export default router

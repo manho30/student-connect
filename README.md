@@ -1,122 +1,329 @@
-# Student Connect Frontend
+# 🎓 Student Connect
 
-Frontend repository for the **Student Connect** web application — a lightweight student-to-student platform inspired by *kereta sapu* for campus carpooling, peer errands, and collaborative study groups.
+> **Connect. Share. Help. Learn.**
 
----
+Student Connect is a student-focused community platform designed to help students connect, share resources, and support each other through **Carpool, Errands, and Study**.
 
-## Tech Stack
-
-* **Vue 3** (Composition API, `<script setup>`)
-* **Vite**
-* **Vue Router**
-* **Tailwind CSS**
-* **Element Plus**
-* **Flaticon UI Icons**
-
-> **Note:** Strictly JavaScript only. No backend, database, or server files are included in this frontend repository.
+🚧 **Status:** Innovation Competition Prototype
 
 ---
 
-## Page & Routing Architecture
+## ✨ Features
 
-Each core feature provides dedicated screens for **Listing**, **Detail**, **Create**, and **Edit**:
+### 🚗 Carpool
 
-### 1. Carpool Routes
+* Create and manage carpools
+* Support **4 or 6 passengers**
+* Join or leave a carpool
+* View route, departure time, available seats, and cost
+* Owner-only editing and cancellation
 
-| Route | View / Component | Description |
-|---|---|---|
-| `/carpool` | `CarpoolView.vue` (`CarpoolList.vue`) | Carpool listing with search, filtering, and seat capacity status |
-| `/carpool?id=xxxxxxx` | `CarpoolView.vue` (`CarpoolDetail.vue`) | Full ride details, departure timeline, passenger list, join/leave actions |
-| `/carpool/new` | `CarpoolFormView.vue` | Create a new student carpool ride |
-| `/carpool/edit?id=xxxxxxx` | `CarpoolFormView.vue` | Edit departure, cost, or capacity of an existing carpool |
+### 📦 Errands
 
-### 2. Student Errands Routes
+* Post an errand request
+* Accept errands from other students
+* Requester and helper roles
+* Release an accepted errand
+* Mark errands as completed
+* View activity timeline
 
-| Route | View / Component | Description |
-|---|---|---|
-| `/errands` | `ErrandsView.vue` (`ErrandList.vue`) | Errand tasks feed with category filtering (Food, Parcel, Printing, Stationery) |
-| `/errands?id=xxxxxxx` | `ErrandsView.vue` (`ErrandDetail.vue`) | Detailed instructions, venue spot, deadline, helper status, accept/complete actions |
-| `/errands/new` | `ErrandFormView.vue` | Post a new student errand request |
-| `/errands/edit?id=xxxxxxx` | `ErrandFormView.vue` | Edit an existing uncompleted errand request |
+### 📚 Study
 
-### 3. Study Groups Routes
+* Create study activities
+* Discover available study activities
+* Join study activities
+* Dedicated list, detail, create, and edit interfaces
 
-| Route | View / Component | Description |
-|---|---|---|
-| `/study` | `StudyGroupsView.vue` (`StudyGroupList.vue`) | Study groups listing with search by subject and open slot filters |
-| `/study?id=xxxxxxx` | `StudyGroupsView.vue` (`StudyGroupDetail.vue`) | Agenda, revision topics, meeting pod location, members list, join/leave actions |
-| `/study/new` | `StudyFormView.vue` | Create a new study group pod |
-| `/study/edit?id=xxxxxxx` | `StudyFormView.vue` | Edit schedule, maximum members, or description of a study group |
+### 🔐 Authentication
+
+* Firebase Authentication
+* Login and logout
+* Authenticated user state
+* Protected application workflows
 
 ---
 
-## Centralized API Layer
+## 🛠️ Technology
 
-All HTTP communication with the backend is strictly centralized through `src/api/index.js`:
+| Category          | Technology                 |
+| ----------------- | -------------------------- |
+| 🎨 Framework      | Vue 3                      |
+| ⚡ Build Tool      | Vite                       |
+| 🎨 Styling        | Tailwind CSS               |
+| 🧩 UI Library     | Element Plus               |
+| 🖼️ Icons         | Flaticon                   |
+| 🔀 Routing        | Vue Router                 |
+| 🔐 Authentication | Firebase Authentication    |
+| 🌐 API            | Centralized REST API layer |
+| 💻 Language       | JavaScript                 |
 
-```javascript
-import studentConnect from '@/api'
+> **JavaScript only — no TypeScript.**
+
+---
+
+## 🖥️ Interface
+
+The interface follows a simple and consistent navigation pattern:
+
+```text id="8s5x4e"
+List
+ ↓
+Detail
+ ↓
+Create / Edit
+ ↓
+Save
+ ↓
+Detail
 ```
 
-Vue components and views must never invoke `fetch()` or `axios()` directly.
+### Routes
 
-### Available API Methods
+```text id="j3x9k1"
+/login
 
-#### Carpool
-* `studentConnect.getAllCarPoolList()` — Fetch all carpools
-* `studentConnect.getCarPool(id)` — Fetch a single carpool by ID
-* `studentConnect.createCarPool(data)` — Create a new carpool ride
-* `studentConnect.updateCarPool(id, data)` — Update an existing carpool
-* `studentConnect.joinCarPool(id, data)` — Join a carpool ride
-* `studentConnect.leaveCarPool(id, data)` — Leave a carpool ride
+/carpool
+/carpool?id=car_xxxxx
+/carpool/new
+/carpool/edit?id=car_xxxxx
 
-#### Errands
-* `studentConnect.getAllErrands()` — Fetch all student errands
-* `studentConnect.getErrand(id)` — Fetch a single errand by ID
-* `studentConnect.createErrand(data)` — Post a new errand
-* `studentConnect.updateErrand(id, data)` — Update an existing errand
-* `studentConnect.acceptErrand(id, data)` — Accept an open errand
-* `studentConnect.completeErrand(id)` — Mark an errand as completed
+/errands
+/errands?id=err_xxxxx
+/errands/new
+/errands/edit?id=err_xxxxx
 
-#### Study Groups
-* `studentConnect.getAllStudyGroups()` — Fetch all study groups
-* `studentConnect.getStudyGroup(id)` — Fetch a single study group by ID
-* `studentConnect.createStudyGroup(data)` — Create a new study group
-* `studentConnect.updateStudyGroup(id, data)` — Update an existing study group
-* `studentConnect.joinStudyGroup(id, data)` — Join a study pod
-* `studentConnect.leaveStudyGroup(id, data)` — Leave a study pod
-
-#### Authentication
-* `studentConnect.login(data)` — Student authentication
-* `studentConnect.register(data)` — Student account registration
-
----
-
-## Environment Configuration
-
-Configure the backend server URL in your `.env` file:
-
-```env
-VITE_API_URL=http://localhost:3000
+/study
+/study?id=std_xxxxx
+/study/new
+/study/edit?id=std_xxxxx
 ```
 
-When `VITE_API_URL` is set, all API requests are dispatched directly to the backend service. When running standalone without a backend, mock persistence automatically activates in local storage.
+The interface is designed to be:
+
+* 📱 Responsive
+* 🧭 Easy to navigate
+* 🎯 Focused on clear actions
+* 🧩 Component-based
+* 🎨 Consistent across all modules
 
 ---
 
-## Development & Build
+## 📁 Project Structure
 
-### 1. Install Dependencies
-```bash
+```text id="g8v2mk"
+student-connect-front/
+├── src/
+│   ├── api/
+│   │   └── index.js
+│   ├── components/
+│   │   ├── carpool/
+│   │   ├── errands/
+│   │   └── study/
+│   ├── services/
+│   │   └── auth.js
+│   ├── views/
+│   ├── router/
+│   │   └── index.js
+│   ├── App.vue
+│   ├── main.js
+│   └── style.css
+├── public/
+├── package.json
+└── vite.config.js
+```
+
+---
+
+## 🔌 API Layer
+
+All frontend API communication is centralized in:
+
+```text id="p8y1qz"
+src/api/index.js
+```
+
+The application uses a single API object:
+
+```js id="2f9r1a"
+studentConnect
+```
+
+Components and views communicate with the API layer instead of making direct HTTP requests.
+
+Example:
+
+```js id="q7m3vc"
+studentConnect.getAllCarPoolList()
+studentConnect.getCarPool(id)
+studentConnect.createCarPool(data)
+studentConnect.joinCarPool(id)
+```
+
+This keeps API communication consistent and makes the frontend easier to maintain.
+
+---
+
+## 🔐 Authentication
+
+Firebase Authentication manages the user's authentication state.
+
+The frontend:
+
+* Handles login and logout
+* Maintains the current authenticated user
+* Obtains Firebase ID tokens when communicating with protected APIs
+* Uses the authenticated user's UID for frontend ownership checks
+
+Sensitive authentication credentials are not hard-coded into the application.
+
+---
+
+## 🧭 Application Modules
+
+```text id="z5k2qx"
+Student Connect
+│
+├── 🚗 Carpool
+│   ├── Listing
+│   ├── Detail
+│   ├── Create
+│   └── Edit
+│
+├── 📦 Errands
+│   ├── Listing
+│   ├── Detail
+│   ├── Create
+│   └── Edit
+│
+└── 📚 Study
+    ├── Listing
+    ├── Detail
+    ├── Create
+    └── Edit
+```
+
+Each module is organized into reusable Vue components and views.
+
+---
+
+## 📖 Documentation
+
+The frontend documentation covers:
+
+* 🎯 Project overview and objectives
+* 🖥️ Interface and navigation
+* 🧩 Component structure
+* 🛣️ Vue Router configuration
+* 🔌 API integration
+* 🔐 Authentication
+* 🚗 Carpool workflows
+* 📦 Errand workflows
+* 📚 Study workflows
+* 🧪 Testing checklist
+* ⚙️ Environment configuration
+* 🚀 Development and deployment
+
+---
+
+## 🚀 Getting Started
+
+### Requirements
+
+* Node.js
+* npm
+
+### Installation
+
+```bash id="r4m7nx"
+git clone <repository-url>
+cd student-connect-front
 npm install
 ```
 
-### 2. Run Development Server
-```bash
+### Development
+
+```bash id="v9c2la"
 npm run dev
 ```
 
-### 3. Build for Production
-```bash
+### Production Build
+
+```bash id="b6t1wp"
 npm run build
 ```
+
+The production files will be generated in:
+
+```text id="e3k8mz"
+dist/
+```
+
+---
+
+## ⚙️ Environment
+
+Create a `.env` file for environment-specific configuration.
+
+Example:
+
+```env id="n5q8cx"
+VITE_API_URL=http://localhost:3001/api
+```
+
+Environment variables containing application configuration should be managed separately from source code.
+
+---
+
+## 🧪 Development
+
+Before submitting changes, verify:
+
+* [ ] Login and logout work
+* [ ] Routes work correctly
+* [ ] Carpool create/edit/join/leave flows work
+* [ ] Errand create/edit/accept/release/complete flows work
+* [ ] Study flows work
+* [ ] Ownership restrictions work
+* [ ] Mobile layout remains usable
+* [ ] Production build succeeds
+
+---
+
+## 📊 Project Status
+
+| Module             | Status            |
+| ------------------ | ----------------- |
+| 🔐 Authentication  | ✅ Implemented     |
+| 🚗 Carpool         | ✅ Implemented     |
+| 📦 Errands         | ✅ Implemented     |
+| 📚 Study           | 🚧 In Development |
+| 🖥️ Responsive UI  | ✅ Implemented     |
+| 🔌 API Integration | ✅ Implemented     |
+| 🧪 Testing         | 🚧 Ongoing        |
+
+---
+
+## 👥 Attribution
+
+| Role                          | Contributor |
+| ----------------------------- | ----------- |
+| 👨‍💻 **Author / Developer**  | **Manho**   |
+| 🧪 **QA / Quality Assurance** | **BX Tan**  |
+
+---
+
+## 📄 License
+
+This project is developed as an **innovation competition prototype**.
+
+---
+
+<div align="center">
+
+### 🎓 Student Connect
+
+**Connect. Share. Help. Learn.**
+
+Built for students, by students.
+
+</div>

@@ -38,3 +38,9 @@
   border-radius: 0.5rem !important;
   font-weight: 500;
 }
+
+/* Keep Element Plus date/time picker popups stable while hovering. */
+.carpool-date-picker,
+.carpool-time-picker {
+  will-change: auto !important;
+}

@@ -44,10 +44,10 @@
 
       <!-- Login Form -->
       <form v-if="mode === 'login'" id="student-login-form" @submit.prevent="handleLogin" class="space-y-4">
-        <!-- Student Email -->
+        <!-- Email -->
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5" for="student-email-input">
-            Student Email
+             Email
           </label>
           <el-input
             id="student-email-input"
@@ -105,6 +105,7 @@
           <span>{{ isLoading ? 'Signing In...' : 'Sign In' }}</span>
         </button>
 
+
         <!-- Switch to Register -->
         <div class="text-center text-xs text-slate-500 pt-1">
           <span>New student? </span>
@@ -142,10 +143,10 @@
           </p>
         </div>
 
-        <!-- Student Email -->
+        <!-- Email -->
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5" for="student-register-email">
-            Student Email <span class="text-rose-500">*</span>
+            Email <span class="text-rose-500">*</span>
           </label>
           <el-input
             id="student-register-email"
@@ -162,24 +163,6 @@
             <i class="fi fi-rr-info text-rose-400"></i>
             {{ registerErrors.email }}
           </p>
-        </div>
-
-        <!-- Matric No (Optional) -->
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5" for="student-register-matric">
-            Matric / Student ID (Optional)
-          </label>
-          <el-input
-            id="student-register-matric"
-            v-model="registerForm.matricNo"
-            placeholder="e.g. MS202499"
-            size="large"
-            clearable
-          >
-            <template #prefix>
-              <i class="fi fi-rr-id-badge text-slate-400 mr-1 text-base"></i>
-            </template>
-          </el-input>
         </div>
 
         <!-- Password -->
@@ -255,33 +238,17 @@
         </div>
       </form>
 
-      <!-- Demo Account Quick Hint -->
-      <div v-if="mode === 'login'" class="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs space-y-2">
-        <div class="flex items-center justify-between text-slate-700">
-          <span class="font-bold uppercase tracking-wider text-[10px] text-slate-400">Prototype Demo Credentials</span>
-          <button
-            type="button"
-            class="text-indigo-600 font-semibold hover:underline text-[11px] cursor-pointer"
-            @click="fillDemoAccount"
-          >
-            Quick Fill
-          </button>
-        </div>
-        <div class="font-mono text-slate-700 text-xs bg-white p-2 rounded-lg border border-slate-200 flex flex-col gap-0.5">
-          <div><span class="text-slate-400">Email:</span> student@student.com</div>
-          <div><span class="text-slate-400">Password:</span> 123456</div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import studentConnect from '@/api'
+import { login, register } from '@/services/auth'
 
+const route = useRoute()
 const router = useRouter()
 const isLoading = ref(false)
 const mode = ref('login')
@@ -339,26 +306,9 @@ function validateEmail(email) {
 }
 
 /**
- * Pre-fills the login form with demo student test credentials.
- *
- * @returns {void}
- */
-function fillDemoAccount() {
-  loginForm.email = 'student@student.com'
-  loginForm.password = '123456'
-  loginErrors.email = ''
-  loginErrors.password = ''
-  ElMessage({
-    message: 'Demo credentials loaded!',
-    type: 'info',
-    duration: 1800
-  })
-}
-
-/**
  * Handles submission of the student login form.
  *
- * Calls the centralized Student Connect API to authenticate the student.
+ * Sends credentials directly to Firebase Authentication.
  *
  * @returns {Promise<void>}
  */
@@ -383,22 +333,18 @@ async function handleLogin() {
   isLoading.value = true
 
   try {
-    const res = await studentConnect.login({
-      email: loginForm.email.trim(),
-      password: loginForm.password
-    })
-    const user = res.data || res
+    const credential = await login(
+      loginForm.email.trim(),
+      loginForm.password
+    )
+    const destination = typeof route.query.redirect === 'string'
+      ? route.query.redirect
+      : '/carpool'
 
-    localStorage.setItem('student_logged_in', 'true')
-    localStorage.setItem('student_user_id', user.id || 'student-001')
-    localStorage.setItem('student_user_name', user.name || 'Student')
-    localStorage.setItem('student_user_email', user.email || loginForm.email.trim())
-    localStorage.setItem('student_user_matric', user.matricNo || '')
-
-    ElMessage.success(`Welcome back, ${user.name || 'Student'}!`)
-    router.push('/carpool')
+    ElMessage.success(`Welcome back, ${credential.user.displayName || credential.user.email || 'Student'}!`)
+    await router.push(destination)
   } catch (err) {
-    ElMessage.error(err.message || 'Invalid login credentials')
+    ElMessage.error(getAuthErrorMessage(err))
   } finally {
     isLoading.value = false
   }
@@ -407,7 +353,7 @@ async function handleLogin() {
 /**
  * Handles submission of the student registration form.
  *
- * Validates form parameters and creates an account through the Student Connect API.
+ * Validates form parameters and creates an account through Firebase Authentication.
  *
  * @returns {Promise<void>}
  */
@@ -447,26 +393,39 @@ async function handleRegister() {
   isLoading.value = true
 
   try {
-    const res = await studentConnect.register({
-      name: registerForm.name.trim(),
-      email: registerForm.email.trim(),
-      password: registerForm.password,
-      matricNo: registerForm.matricNo.trim()
-    })
-    const user = res.data || res
+    const credential = await register(
+      registerForm.email.trim(),
+      registerForm.password,
+      registerForm.name.trim()
+    )
+    const destination = typeof route.query.redirect === 'string'
+      ? route.query.redirect
+      : '/carpool'
 
-    localStorage.setItem('student_logged_in', 'true')
-    localStorage.setItem('student_user_id', user.id || 'student-001')
-    localStorage.setItem('student_user_name', user.name || registerForm.name.trim())
-    localStorage.setItem('student_user_email', user.email || registerForm.email.trim())
-    localStorage.setItem('student_user_matric', user.matricNo || registerForm.matricNo.trim())
-
-    ElMessage.success(`Account created successfully! Welcome, ${user.name}!`)
-    router.push('/carpool')
+    ElMessage.success(`Account created successfully! Welcome, ${credential.user.displayName || 'Student'}!`)
+    await router.push(destination)
   } catch (err) {
-    ElMessage.error(err.message || 'Registration failed')
+    ElMessage.error(getAuthErrorMessage(err))
   } finally {
     isLoading.value = false
   }
+}
+
+/**
+ * Converts Firebase Authentication errors into safe user-facing messages.
+ *
+ * @param {Error & {code?: string}} error - Firebase Authentication error.
+ * @returns {string} Friendly error message.
+ */
+function getAuthErrorMessage(error) {
+  const messages = {
+    'auth/invalid-credential': 'Invalid email or password.',
+    'auth/invalid-email': 'Please enter a valid email address.',
+    'auth/email-already-in-use': 'An account already exists for this email.',
+    'auth/weak-password': 'Password must be at least 6 characters.',
+    'auth/too-many-requests': 'Too many attempts. Please try again later.'
+  }
+
+  return messages[error?.code] || 'Unable to sign in. Please try again.'
 }
 </script>

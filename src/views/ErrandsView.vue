@@ -42,26 +42,6 @@
           />
         </div>
 
-        <div class="hidden md:block w-px h-8 bg-slate-200 self-center"></div>
-
-        <!-- Category Filter Pills -->
-        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-          <button
-            v-for="cat in categories"
-            :key="cat.id"
-            :id="'category-tab-' + cat.id"
-            :class="[
-              'px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer flex items-center gap-1.5',
-              activeCategory === cat.id
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            ]"
-            @click="activeCategory = cat.id"
-          >
-            <i :class="cat.icon" class="text-xs"></i>
-            <span>{{ cat.label }}</span>
-          </button>
-        </div>
       </section>
 
       <!-- Errand List Component -->
@@ -84,26 +64,21 @@ import { ElMessage } from 'element-plus'
 import studentConnect from '@/api'
 import ErrandList from '../components/errands/ErrandList.vue'
 import ErrandDetail from '../components/errands/ErrandDetail.vue'
+import { user } from '@/services/auth'
 
 const route = useRoute()
 const router = useRouter()
 
-const currentUser = ref(localStorage.getItem('student_user_name') || 'Manho')
+const currentUser = computed(() => ({
+  id: user.value?.uid || '',
+  name: user.value?.displayName || user.value?.email || 'Student'
+}))
 const errands = ref([])
 const searchQuery = ref('')
-const activeCategory = ref('all')
 
 const errandId = computed(() => {
   return route.query.id ? String(route.query.id) : null
 })
-
-const categories = [
-  { id: 'all', label: 'All Tasks', icon: 'fi fi-rr-apps' },
-  { id: 'Food', label: 'Food', icon: 'fi fi-rr-restaurant' },
-  { id: 'Parcel', label: 'Parcel', icon: 'fi fi-rr-box-alt' },
-  { id: 'Printing', label: 'Printing', icon: 'fi fi-rr-print' },
-  { id: 'Stationery', label: 'Stationery', icon: 'fi fi-rr-pencil' }
-]
 
 /**
  * Loads the latest errands list from the Student Connect API.
@@ -111,7 +86,6 @@ const categories = [
  * @returns {Promise<void>} Resolves after errands are loaded and local state is updated.
  */
 async function loadErrands() {
-  currentUser.value = localStorage.getItem('student_user_name') || 'Manho'
   try {
     const res = await studentConnect.getAllErrands()
     errands.value = res.data || res || []
@@ -136,7 +110,7 @@ watch(
 )
 
 /**
- * Computes the list of errands filtered by user search keywords and category tabs.
+ * Computes the list of errands filtered by user search keywords.
  *
  * @type {import('vue').ComputedRef<Array<Object>>}
  */
@@ -152,11 +126,6 @@ const filteredErrands = computed(() => {
         (item.description && item.description.toLowerCase().includes(q)) ||
         (item.location && item.location.toLowerCase().includes(q))
     )
-  }
-
-  // Category filter
-  if (activeCategory.value !== 'all') {
-    list = list.filter((item) => item.category === activeCategory.value)
   }
 
   return list
@@ -189,13 +158,7 @@ function handleSelect(id) {
  */
 async function handleAccept(id) {
   try {
-    const currentName = currentUser.value || 'Student'
-    const currentId = localStorage.getItem('student_user_id') || 'student-001'
-
-    await studentConnect.acceptErrand(id, {
-      userName: currentName,
-      userId: currentId
-    })
+    await studentConnect.acceptErrand(id)
     await loadErrands()
     ElMessage.success('You accepted this errand! Thank you for helping a peer.')
   } catch (err) {

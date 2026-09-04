@@ -53,16 +53,16 @@
         </div>
       </div>
 
-      <!-- Current Student Profile & Dropdown -->
+      <!-- Current User Profile & Dropdown -->
       <div class="flex items-center gap-2 sm:gap-3.5">
         <el-dropdown trigger="click" @command="handleUserMenuCommand">
           <button class="flex items-center gap-2 sm:gap-2.5 px-2 py-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer outline-none border-none bg-transparent">
             <div class="text-right hidden sm:block">
-              <div class="text-sm font-semibold text-slate-900 leading-tight">{{ currentStudent.name }}</div>
-              <div class="text-[11px] text-slate-500">{{ currentStudent.email }}</div>
+              <div class="text-sm font-semibold text-slate-900 leading-tight">{{ currentUser.name }}</div>
+              <div class="text-[11px] text-slate-500">{{ currentUser.email }}</div>
             </div>
-            <div class="w-8 h-8 sm:w-9 sm:h-9 bg-indigo-100 text-indigo-700 rounded-full border border-indigo-200 overflow-hidden shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">
-              {{ currentStudent.initial }}
+              <div class="w-8 h-8 sm:w-9 sm:h-9 bg-indigo-100 text-indigo-700 rounded-full border border-indigo-200 overflow-hidden shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">
+              {{ currentUser.initial }}
             </div>
             <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -72,9 +72,8 @@
           <template #dropdown>
             <el-dropdown-menu class="!p-1.5 !rounded-xl min-w-[180px]">
               <div class="px-3 py-2 border-b border-slate-100 mb-1">
-                <p class="text-xs font-bold text-slate-800">{{ currentStudent.name }}</p>
-                <p class="text-[11px] text-slate-500 truncate">{{ currentStudent.email }}</p>
-                <p v-if="currentStudent.matric" class="text-[10px] text-indigo-600 font-mono mt-0.5">{{ currentStudent.matric }}</p>
+                <p class="text-xs font-bold text-slate-800">{{ currentUser.name }}</p>
+                <p class="text-[11px] text-slate-500 truncate">{{ currentUser.email }}</p>
               </div>
               <el-dropdown-item command="profile" class="!rounded-lg text-xs font-semibold py-2">
                 <i class="fi fi-rr-user mr-2 text-indigo-600"></i>
@@ -172,12 +171,37 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getIdToken, logout, user } from '@/services/auth'
 
 const route = useRoute()
 const router = useRouter()
+const debugAuthEnabled = import.meta.env.VITE_DEBUG_AUTH_TOKEN === 'true'
+const debugToken = ref('')
+
+/**
+ * Loads the current Firebase ID token for local debugging only.
+ *
+ * The token is kept in Vue memory and is never persisted.
+ *
+ * @returns {Promise<void>} Resolves after the debug token state is refreshed.
+ */
+async function refreshDebugToken() {
+  if (!debugAuthEnabled || !user.value) {
+    debugToken.value = ''
+    return
+  }
+
+  try {
+    debugToken.value = await getIdToken()
+  } catch {
+    debugToken.value = ''
+  }
+}
+
+watch(user, refreshDebugToken, { immediate: true })
 
 /**
  * Determines whether the current view is not the authentication page.
@@ -189,20 +213,18 @@ const isNotLoginPage = computed(() => {
 })
 
 /**
- * Computes current active student profile details from local session storage.
+ * Computes current active user profile details from Firebase Authentication.
  *
- * @type {import('vue').ComputedRef<{name: string, email: string, matric: string, initial: string}>}
+ * @type {import('vue').ComputedRef<{name: string, email: string, initial: string}>}
  */
-const currentStudent = computed(() => {
-  const name = localStorage.getItem('student_user_name') || 'Student'
-  const email = localStorage.getItem('student_user_email') || 'student@student.com'
-  const matric = localStorage.getItem('student_user_matric') || ''
+const currentUser = computed(() => {
+  const name = user.value?.displayName || user.value?.email || 'Unknown User'
+  const email = user.value?.email || ''
   const initial = name ? name.trim().charAt(0).toUpperCase() : 'S'
 
   return {
     name,
     email,
-    matric,
     initial
   }
 })
@@ -211,24 +233,20 @@ const currentStudent = computed(() => {
  * Handles dropdown user menu selections such as profile inspection or logging out.
  *
  * @param {string} command - Selected action command ('profile' | 'logout').
- * @returns {void}
+ * @returns {Promise<void>}
  */
-function handleUserMenuCommand(command) {
+async function handleUserMenuCommand(command) {
   if (command === 'logout') {
-    localStorage.removeItem('student_logged_in')
-    localStorage.removeItem('student_user_id')
-    localStorage.removeItem('student_user_name')
-    localStorage.removeItem('student_user_email')
-    localStorage.removeItem('student_user_matric')
+    await logout()
     ElMessage({
       message: 'Logged out successfully.',
       type: 'info',
       duration: 1500
     })
-    router.push('/login')
+    await router.push('/login')
   } else if (command === 'profile') {
     ElMessage({
-      message: `Signed in as ${currentStudent.value.name} (${currentStudent.value.email})`,
+      message: `Signed in as ${currentUser.value.name} (${currentUser.value.email})`,
       type: 'success',
       duration: 2500
     })

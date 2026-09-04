@@ -323,13 +323,7 @@ function navigateTo(path) {
 async function handleJoin() {
   if (!group.value) return
   try {
-    const currentName = props.currentUser || 'Student'
-    const currentId = localStorage.getItem('student_user_id') || 'student-001'
-
-    const res = await studentConnect.joinStudyGroup(group.value.id, {
-      userName: currentName,
-      userId: currentId
-    })
+    const res = await studentConnect.joinStudyGroup(group.value.id)
     group.value = res.data || res
     ElMessage.success('You joined the study group! Happy studying.')
   } catch (err) {
@@ -345,13 +339,7 @@ async function handleJoin() {
 async function handleLeave() {
   if (!group.value) return
   try {
-    const currentName = props.currentUser || 'Student'
-    const currentId = localStorage.getItem('student_user_id') || 'student-001'
-
-    const res = await studentConnect.leaveStudyGroup(group.value.id, {
-      userName: currentName,
-      userId: currentId
-    })
+    const res = await studentConnect.leaveStudyGroup(group.value.id)
     group.value = res.data || res
     ElMessage.info('You left the study group.')
   } catch (err) {

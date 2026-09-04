@@ -1,20 +1,20 @@
 <template>
   <div
-    :id="'carpool-card-' + carpool.id"
-    :class="[
+      :id="'carpool-card-' + carpool.id"
+      :class="[
       'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200 relative cursor-pointer',
       isFull
         ? 'border-slate-200 opacity-85'
         : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
     ]"
-    @click="$emit('select', carpool.id)"
+      @click="$emit('select', carpool.id)"
   >
     <div class="space-y-4">
       <!-- Status Badge & Cost & Creator Edit -->
       <div class="flex justify-between items-center gap-2">
         <div class="flex items-center gap-2">
           <span
-            :class="[
+              :class="[
               'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
               isFull
                 ? 'bg-slate-100 text-slate-500'
@@ -25,8 +25,8 @@
           </span>
 
           <span
-            v-if="isCreator"
-            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200"
+              v-if="isCreator"
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200"
           >
             Your Ride
           </span>
@@ -34,24 +34,28 @@
 
         <div class="flex items-center gap-2" @click.stop>
           <button
-            v-if="isCreator"
-            :id="'edit-carpool-btn-' + carpool.id"
-            type="button"
-            class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors flex items-center gap-1 cursor-pointer border border-indigo-100"
-            title="Edit this ride"
-            @click="$emit('edit', carpool)"
+              v-if="isCreator"
+              :id="'edit-carpool-btn-' + carpool.id"
+              type="button"
+              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors flex items-center gap-1 cursor-pointer border border-indigo-100"
+              title="Edit this ride"
+              @click="$emit('edit', carpool)"
           >
             <i class="fi fi-rr-edit text-xs"></i>
             <span>Edit</span>
           </button>
 
           <span
-            :class="[
+              :class="[
               'font-bold text-lg',
               isFull ? 'text-slate-400' : 'text-indigo-600'
             ]"
           >
-            {{ carpool.cost !== undefined && Number(carpool.cost) > 0 ? `RM${Number(carpool.cost)}.00` : 'Free' }}
+            {{
+              carpool.cost !== undefined && Number(carpool.cost) > 0
+                  ? `RM${Number(carpool.cost).toFixed(2)}`
+                  : 'Free'
+            }}
           </span>
         </div>
       </div>
@@ -60,39 +64,91 @@
       <div class="space-y-2">
         <div class="flex items-center gap-3">
           <div class="w-2 h-2 rounded-full bg-slate-300 shrink-0"></div>
-          <div class="font-semibold text-slate-800 text-sm truncate">{{ carpool.from }}</div>
+
+          <div class="font-semibold text-slate-800 text-sm truncate">
+            {{ carpool.origin }}
+          </div>
         </div>
-        <div class="h-6 border-l-2 border-dashed border-slate-200 ml-[3px]"></div>
+
+        <div
+            class="h-6 border-l-2 border-dashed border-slate-200 ml-[3px]"
+        ></div>
+
         <div class="flex items-center gap-3">
           <div class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></div>
-          <div class="font-semibold text-slate-800 text-sm truncate">{{ carpool.to }}</div>
+
+          <div class="font-semibold text-slate-800 text-sm truncate">
+            {{ carpool.destination }}
+          </div>
         </div>
       </div>
 
       <!-- Meta Grid -->
       <div class="grid grid-cols-2 gap-2 pt-2">
-        <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100/80">
-          <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Date & Time</div>
-          <div class="text-xs font-semibold text-slate-800 truncate mt-0.5">{{ carpool.date }} · {{ carpool.time }}</div>
+        <div
+            class="bg-slate-50 p-2.5 rounded-lg border border-slate-100/80"
+        >
+          <div
+              class="text-[10px] text-slate-500 uppercase font-bold tracking-wider"
+          >
+            Date & Time
+          </div>
+
+          <div class="text-xs font-semibold text-slate-800 mt-0.5">
+            {{
+              formatDateTime(carpool.departure).date
+            }} at {{
+              formatDateTime(carpool.departure).time
+            }}
+          </div>
         </div>
-        <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-100/80">
-          <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Joined</div>
-          <div class="text-xs font-semibold text-slate-800 mt-0.5">{{ carpool.joined }} / {{ carpool.capacity }} Seats</div>
+
+        <div
+            class="bg-slate-50 p-2.5 rounded-lg border border-slate-100/80"
+        >
+          <div
+              class="text-[10px] text-slate-500 uppercase font-bold tracking-wider"
+          >
+            Joined
+          </div>
+
+          <div class="text-xs font-semibold text-slate-800 mt-0.5">
+            {{ participantCount }} / {{ carpool.capacity }} Seats
+          </div>
         </div>
       </div>
 
-      <!-- Driver & Notes -->
+      <!-- Host & Notes -->
       <div class="space-y-1.5">
-        <div class="text-[11px] text-slate-400 flex items-center justify-between">
+        <div
+            class="text-[11px] text-slate-400 flex items-center justify-between"
+        >
           <div class="flex items-center gap-1.5">
             <i class="fi fi-rr-user text-xs"></i>
-            <span>Hosted by <strong class="text-slate-600 font-semibold">{{ carpool.creator || 'Student' }}</strong></span>
+
+            <span>
+              Hosted by
+              <strong class="text-slate-600 font-semibold">
+                {{ carpool.owner?.name || 'Student' }}
+                <strong v-if="carpool.owner?.id === currentUser.id" class="text-xs text-indigo-600 font-normal">(You)</strong>
+              </strong>
+            </span>
           </div>
-          <div v-if="carpool.joinedStudents && carpool.joinedStudents.length > 0" class="text-[10px] text-indigo-600 font-medium">
-            {{ carpool.joinedStudents.length }} student{{ carpool.joinedStudents.length === 1 ? '' : 's' }} on board
+
+          <div
+              v-if="participantCount > 0"
+              class="text-[10px] text-indigo-600 font-medium"
+          >
+            {{ participantCount }}
+            student{{ participantCount === 1 ? '' : 's' }}
+            on board
           </div>
         </div>
-        <p v-if="carpool.notes" class="text-xs text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100 line-clamp-2">
+
+        <p
+            v-if="carpool.notes"
+            class="text-xs text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100 line-clamp-2"
+        >
           <i class="fi fi-rr-info text-slate-400 mr-1"></i>
           {{ carpool.notes }}
         </p>
@@ -104,51 +160,68 @@
       <!-- Host Actions -->
       <div v-if="isCreator" class="grid grid-cols-2 gap-2">
         <button
-          :id="'edit-creator-btn-' + carpool.id"
-          class="w-full py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer border border-indigo-200"
-          @click="$emit('edit', carpool)"
+            :id="'edit-creator-btn-' + carpool.id"
+            type="button"
+            class="w-full py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer border border-indigo-200"
+            @click="$emit('edit', carpool)"
         >
           <i class="fi fi-rr-edit text-xs"></i>
           <span>Edit Ride</span>
         </button>
+
         <button
-          :id="'leave-carpool-' + carpool.id"
-          class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
-          @click="$emit('leave', carpool.id)"
+            :id="'leave-carpool-' + carpool.id"
+            type="button"
+            class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
+            @click="$emit('leave', carpool.id)"
         >
           <span>Cancel Spot</span>
         </button>
       </div>
 
-      <!-- If current user is a joined passenger -->
+      <!-- Current User Is a Passenger -->
       <button
-        v-else-if="isJoined"
-        :id="'leave-carpool-' + carpool.id"
-        class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-        @click="$emit('leave', carpool.id)"
+          v-else-if="isJoined"
+          :id="'leave-carpool-' + carpool.id"
+          type="button"
+          class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+          @click="$emit('leave', carpool.id)"
       >
-        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        <svg
+            class="w-4 h-4 text-shadow-rose-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+        >
+          <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+          />
         </svg>
-        <span>Joined (Leave)</span>
+
+        <span>Leave Carpool</span>
       </button>
 
-      <!-- If not joined and seats available -->
+      <!-- Seats Available -->
       <button
-        v-else-if="!isFull"
-        :id="'join-carpool-' + carpool.id"
-        class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer"
-        @click="$emit('join', carpool.id)"
+          v-else-if="!isFull"
+          :id="'join-carpool-' + carpool.id"
+          type="button"
+          class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer"
+          @click="$emit('join', carpool.id)"
       >
         Join Ride
       </button>
 
-      <!-- If fully booked -->
+      <!-- Fully Booked -->
       <button
-        v-else
-        disabled
-        :id="'join-carpool-' + carpool.id"
-        class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
+          v-else
+          :id="'join-carpool-' + carpool.id"
+          type="button"
+          disabled
+          class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
       >
         No Seats Left
       </button>
@@ -158,52 +231,81 @@
 
 <script setup>
 import { computed } from 'vue'
+import { formatDateTime } from '@/helper/dateTimeConvert'
 
 const props = defineProps({
   carpool: {
     type: Object,
     required: true
   },
+
   currentUser: {
-    type: String,
-    default: 'Manho'
+    type: Object,
+    required: true
   }
 })
 
-defineEmits(['join', 'leave', 'edit', 'select'])
+defineEmits([
+  'join',
+  'leave',
+  'edit',
+  'select'
+])
+
 
 /**
- * Checks if the current logged-in student is the creator/driver of this carpool.
+ * Determines whether the current user owns the carpool.
  *
- * @type {import('vue').ComputedRef<boolean>}
+ * @returns {boolean} True when the current user's ID matches owner.id.
  */
 const isCreator = computed(() => {
-  if (!props.currentUser) return false
-  return (
-    props.carpool.creator === props.currentUser ||
-    props.carpool.creatorName === props.currentUser ||
-    props.carpool.creatorId === props.currentUser
-  )
+  if (!props.currentUser?.id) {
+    return false
+  }
+
+  return props.carpool.owner?.id === props.currentUser.id
 })
 
 /**
- * Checks if the carpool has reached its maximum passenger capacity.
+ * Calculates the number of students currently participating in the carpool.
  *
- * @type {import('vue').ComputedRef<boolean>}
+ * @returns {number} Number of participants.
+ */
+const participantCount = computed(() => {
+  if (!Array.isArray(props.carpool.participants)) {
+    return 0
+  }
+
+  return props.carpool.participants.length
+})
+
+/**
+ * Determines whether the carpool has reached its capacity.
+ *
+ * @returns {boolean} True when the participant count reaches the carpool capacity.
  */
 const isFull = computed(() => {
-  return Number(props.carpool.joined) >= Number(props.carpool.capacity)
+  const capacity = Number(props.carpool.capacity || 0)
+
+  return participantCount.value >= capacity
 })
 
 /**
- * Checks if the current logged-in student has already joined this carpool.
+ * Determines whether the current user is already a participant.
  *
- * @type {import('vue').ComputedRef<boolean>}
+ * @returns {boolean} True when the current user's ID exists in participants.
  */
 const isJoined = computed(() => {
-  if (Array.isArray(props.carpool.joinedStudents)) {
-    return props.carpool.joinedStudents.includes(props.currentUser)
+  if (!props.currentUser?.id) {
+    return false
   }
-  return false
+
+  if (!Array.isArray(props.carpool.participants)) {
+    return false
+  }
+
+  return props.carpool.participants.some(
+      (participant) => participant?.id === props.currentUser.id
+  )
 })
 </script>

@@ -83,11 +83,12 @@ import { ElMessage } from 'element-plus'
 import studentConnect from '@/api'
 import StudyGroupList from '../components/study/StudyGroupList.vue'
 import StudyGroupDetail from '../components/study/StudyGroupDetail.vue'
+import { user } from '@/services/auth'
 
 const route = useRoute()
 const router = useRouter()
 
-const currentUser = ref(localStorage.getItem('student_user_name') || 'Manho')
+const currentUser = computed(() => user.value?.displayName || user.value?.email || 'Student')
 const groups = ref([])
 const searchQuery = ref('')
 const activeFilter = ref('all')
@@ -108,7 +109,6 @@ const filters = [
  * @returns {Promise<void>}
  */
 async function loadStudyGroups() {
-  currentUser.value = localStorage.getItem('student_user_name') || 'Manho'
   try {
     const res = await studentConnect.getAllStudyGroups()
     groups.value = res.data || res || []
@@ -193,13 +193,7 @@ function handleSelect(id) {
  */
 async function handleJoin(id) {
   try {
-    const currentName = currentUser.value || 'Student'
-    const currentId = localStorage.getItem('student_user_id') || 'student-001'
-
-    await studentConnect.joinStudyGroup(id, {
-      userName: currentName,
-      userId: currentId
-    })
+    await studentConnect.joinStudyGroup(id)
     await loadStudyGroups()
     ElMessage.success('You joined the study group!')
   } catch (err) {
@@ -215,13 +209,7 @@ async function handleJoin(id) {
  */
 async function handleLeave(id) {
   try {
-    const currentName = currentUser.value || 'Student'
-    const currentId = localStorage.getItem('student_user_id') || 'student-001'
-
-    await studentConnect.leaveStudyGroup(id, {
-      userName: currentName,
-      userId: currentId
-    })
+    await studentConnect.leaveStudyGroup(id)
     await loadStudyGroups()
     ElMessage.info('You left the study group.')
   } catch (err) {

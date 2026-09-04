@@ -123,18 +123,13 @@ watch(
  */
 async function handleSubmit(formData) {
   try {
-    const currentName = localStorage.getItem('student_user_name') || 'Manho'
-    const currentId = localStorage.getItem('student_user_id') || 'student-001'
-
     if (isEdit.value && groupId.value) {
       await studentConnect.updateStudyGroup(groupId.value, formData)
       ElMessage.success('Study group updated successfully!')
       router.push(`/study?id=${groupId.value}`)
     } else {
       const res = await studentConnect.createStudyGroup({
-        ...formData,
-        creatorName: currentName,
-        creatorId: currentId
+        ...formData
       })
       const createdItem = res.data || res
       ElMessage.success('Study group created! Your pod is now live.')
