@@ -17,19 +17,18 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || ''
  * @returns {Promise<Object>} Parsed backend response.
  * @throws {Error} When authentication is unavailable or the request fails.
  */
-async function request(path, options = {}, requiresAuth = true) {
+async function request(path, options = {}, auth = true) {
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {})
   }
 
-  if (requiresAuth) {
+  if (auth) {
     if (!getCurrentUser()) {
       throw new Error('Authentication is required for this request.')
     }
 
     const token = await getIdToken()
-    console.log('Using Firebase ID token for request:', token)
     headers.Authorization = `Bearer ${token}`
   }
 
@@ -64,7 +63,7 @@ async function request(path, options = {}, requiresAuth = true) {
  * @returns {Promise<Object>} API response containing carpools.
  */
 function getAllCarPoolList() {
-  return request('/api/carpools')
+  return request('/api/carpools', {}, false)
 }
 
 /**
@@ -74,7 +73,7 @@ function getAllCarPoolList() {
  * @returns {Promise<Object>} API response containing the carpool.
  */
 function getCarPool(id) {
-  return request(`/api/carpools/${encodeURIComponent(id)}`)
+  return request(`/api/carpools/${encodeURIComponent(id)}`, {}, false)
 }
 
 /**
@@ -146,7 +145,7 @@ function leaveCarPool(id) {
  * @returns {Promise<Object>} API response containing errands.
  */
 function getAllErrands() {
-  return request('/api/errands')
+  return request('/api/errands', {}, false)
 }
 
 /**
@@ -156,7 +155,7 @@ function getAllErrands() {
  * @returns {Promise<Object>} API response containing the errand.
  */
 function getErrand(id) {
-  return request(`/api/errands/${encodeURIComponent(id)}`)
+  return request(`/api/errands/${encodeURIComponent(id)}`, {}, false)
 }
 
 /**
@@ -253,7 +252,7 @@ function completeErrand(id) {
  * @returns {Promise<Object>} API response containing study groups.
  */
 function getAllStudyGroups() {
-  return request('/api/study')
+  return request('/api/study', {}, false)
 }
 
 /**
@@ -263,7 +262,7 @@ function getAllStudyGroups() {
  * @returns {Promise<Object>} API response containing the study group.
  */
 function getStudyGroup(id) {
-  return request(`/api/study/${encodeURIComponent(id)}`)
+  return request(`/api/study/${encodeURIComponent(id)}`, {}, false)
 }
 
 /**

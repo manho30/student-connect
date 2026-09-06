@@ -75,7 +75,7 @@
                 <p class="text-xs font-bold text-slate-800">{{ currentUser.name }}</p>
                 <p class="text-[11px] text-slate-500 truncate">{{ currentUser.email }}</p>
               </div>
-              <el-dropdown-item command="profile" class="!rounded-lg text-xs font-semibold py-2">
+              <el-dropdown-item @click="() => $router.push('/profile')" class="!rounded-lg text-xs font-semibold py-2">
                 <i class="fi fi-rr-user mr-2 text-indigo-600"></i>
                 <span>Active Profile</span>
               </el-dropdown-item>
@@ -105,25 +105,20 @@
 
     <!-- Footer (Hidden on Login Page) -->
     <footer
-      v-if="isNotLoginPage"
-      class="bg-white border-t border-slate-200 px-4 sm:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shrink-0 text-xs font-medium text-slate-500"
+        v-if="isNotLoginPage"
+        class="shrink-0 border-t border-slate-200 bg-white px-4 py-5 sm:px-8"
     >
-      <div class="flex items-center gap-4 text-xs font-medium text-slate-500">
-        <span class="flex items-center gap-1.5">
-          <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
-          <span>Student Carpools</span>
-        </span>
-        <span class="flex items-center gap-1.5">
-          <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-          <span>Campus Errands</span>
-        </span>
-        <span class="hidden sm:flex items-center gap-1.5">
-          <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
-          <span>Study Groups</span>
-        </span>
-      </div>
-      <div class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
-        Student Connect Frontend
+      <div
+          class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 sm:flex-row"
+      >
+        <!-- Copyright -->
+        <p class="text-center text-xs text-slate-500 sm:text-left">
+          © {{ new Date().getFullYear() }}
+          <span class="font-semibold text-slate-700">
+        Student Connect
+      </span>
+          . All rights reserved.
+        </p>
       </div>
     </footer>
 

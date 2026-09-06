@@ -2,15 +2,16 @@ import { getAuth } from 'firebase/auth'
 import { initializeApp } from 'firebase/app'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDAQNAWn2XDu3FGutWpj3zaaHDnEUK7ojc",
-  authDomain: "student-connect-back.firebaseapp.com",
-  databaseURL: "https://student-connect-back-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "student-connect-back",
-  storageBucket: "student-connect-back.firebasestorage.app",
-  messagingSenderId: "797153134842",
-  appId: "1:797153134842:web:8830b11e535607a6a1e143",
-  measurementId: "G-LCTFQK3GGQ"
-};
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+
+}
 
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)

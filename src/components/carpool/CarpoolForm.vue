@@ -18,7 +18,7 @@
         <el-input
             id="carpool-from-input"
             v-model="form.origin"
-            placeholder="e.g. Butterworth KTM"
+            placeholder="e.g. KTM Arau"
             clearable
         />
 
@@ -40,7 +40,7 @@
         <el-input
             id="carpool-to-input"
             v-model="form.destination"
-            placeholder="e.g. Matriculation College"
+            placeholder="e.g. KMK"
             clearable
         />
 
@@ -232,7 +232,7 @@
           v-model="form.notes"
           type="textarea"
           :rows="2"
-          placeholder="e.g. Meeting at main entrance near student convenience store"
+          placeholder="e.g. Meeting at main entrance"
       />
     </div>
 

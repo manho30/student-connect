@@ -20,6 +20,9 @@
  *
  * Authentication:
  * - /login : Firebase student authentication
+ *
+ * User Profile:
+ * - /profile : View and edit user profile
  */
 
 import { createRouter, createWebHistory } from 'vue-router'
@@ -29,6 +32,7 @@ import CarpoolView from '../views/CarpoolView.vue'
 import CarpoolFormView from '../views/CarpoolFormView.vue'
 import ErrandsView from '../views/ErrandsView.vue'
 import ErrandFormView from '../views/ErrandFormView.vue'
+import ProfileView from '../views/ProfileView.vue'
 import StudyGroupsView from '../views/StudyGroupsView.vue'
 import StudyFormView from '../views/StudyFormView.vue'
 import { getCurrentUser, waitForAuthReady } from '@/services/auth'
@@ -114,6 +118,12 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       redirect: '/carpool'
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+      meta: { requiresAuth: true }
     }
   ]
 })

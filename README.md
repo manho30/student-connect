@@ -305,10 +305,10 @@ Before submitting changes, verify:
 
 ## 👥 Attribution
 
-| Role                          | Contributor |
-| ----------------------------- | ----------- |
-| 👨‍💻 **Author / Developer**  | **Manho**   |
-| 🧪 **QA / Quality Assurance** | **BX Tan**  |
+| Role                          | Contributor  |
+| ----------------------------- |--------------|
+| 👨‍💻 **Author / Developer**  | **Manho**    |
+| 🧪 **QA / Quality Assurance** | **BX Tan**   |
 
 ---
 
