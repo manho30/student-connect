@@ -11,15 +11,8 @@
       @click="$emit('select', errand.id)"
   >
     <div class="space-y-4">
-      <!-- Category & Status Badge -->
+      <!-- Status Badge -->
       <div class="flex justify-between items-start gap-3">
-        <span
-            class="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
-        >
-          <i class="fi fi-rr-shopping-bag"></i>
-          <span>Student Errand</span>
-        </span>
-
         <span
             :class="[
             'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
@@ -33,6 +26,13 @@
           ]"
         >
           {{ statusLabel }}
+        </span>
+
+        <span
+            v-if="isRequester"
+            class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200"
+        >
+          Your Errand
         </span>
       </div>
 
@@ -266,8 +266,6 @@ defineEmits([
  * Determines whether the current authenticated student
  * is the requester who created the errand.
  *
- * Requesters cannot accept or complete their own errands.
- *
  * @returns {boolean} True when the current user is the requester.
  */
 const isRequester = computed(() => {
@@ -310,7 +308,7 @@ const statusLabel = computed(() => {
 
     case 'open':
     default:
-      return 'Open'
+      return 'Available'
   }
 })
 
