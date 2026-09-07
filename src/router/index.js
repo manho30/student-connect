@@ -1,5 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { getCurrentUser, waitForAuthReady } from '@/services/auth'
+import {
+  currentUserProfile,
+  getCurrentUser,
+  setCurrentUserProfile,
+  waitForAuthReady
+} from '@/services/auth'
+import studentConnect from '@/api'
 
 const LoginView = () => import('@/views/LoginView.vue')
 const CarpoolView = () => import('@/views/CarpoolView.vue')
@@ -9,6 +15,7 @@ const ErrandFormView = () => import('@/views/ErrandFormView.vue')
 const StudyGroupsView = () => import('@/views/StudyGroupsView.vue')
 const StudyFormView = () => import('@/views/StudyFormView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
+const AdminUsersView = () => import('@/views/AdminUsersView.vue')
 
 const router = createRouter({
   history: createWebHistory(),
@@ -92,6 +99,12 @@ const router = createRouter({
       component: ProfileView,
       meta: { requiresAuth: true }
     },
+    {
+      path: '/admin/users',
+      name: 'admin-users',
+      component: AdminUsersView,
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
 
     // Fallback redirect
     {
@@ -125,6 +138,21 @@ router.beforeEach(async (to) => {
       query: {
         redirect: to.fullPath
       }
+    }
+  }
+
+  if (to.meta.requiresAdmin) {
+    if (!currentUserProfile.value) {
+      try {
+        const response = await studentConnect.getCurrentUserProfile()
+        setCurrentUserProfile(response.data)
+      } catch {
+        return '/profile'
+      }
+    }
+
+    if (!['admin', 'superadmin'].includes(currentUserProfile.value?.role)) {
+      return '/profile'
     }
   }
 

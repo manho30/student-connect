@@ -13,7 +13,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || ''
  *
  * @param {string} path - API endpoint path.
  * @param {Object} [options={}] - Fetch request options.
- * @param {boolean} [requiresAuth=true] - Whether a Firebase ID token is required.
+ * @param {boolean} [auth=true] - Whether a Firebase ID token is required.
  * @returns {Promise<Object>} Parsed backend response.
  * @throws {Error} When authentication is unavailable or the request fails.
  */
@@ -328,6 +328,102 @@ function leaveStudyGroup(id) {
   })
 }
 
+/**
+ * Retrieves the authenticated user's backend profile.
+ *
+ * @returns {Promise<Object>} API response containing the current user profile.
+ * @throws {Error} When authentication or the backend request fails.
+ */
+function getCurrentUserProfile() {
+  return request('/api/users/me')
+}
+
+/**
+ * Updates the authenticated user's editable profile fields.
+ *
+ * @param {Object} data - Editable profile fields.
+ * @param {string} data.name - User display name.
+ * @param {string} data.phone - User phone number.
+ * @returns {Promise<Object>} API response containing the updated profile.
+ * @throws {Error} When validation, authentication, or the backend request fails.
+ */
+function updateCurrentUserProfile(data) {
+  return request('/api/users/me', {
+    method: 'PUT',
+    body: JSON.stringify({
+      name: data.name,
+      phone: data.phone
+    })
+  })
+}
+
+/**
+ * Retrieves users visible to the authenticated administrator.
+ *
+ * @returns {Promise<Object>} API response containing users.
+ * @throws {Error} When authentication, authorization, or the backend request fails.
+ */
+function getUsers() {
+  return request('/api/users')
+}
+
+/**
+ * Retrieves one user visible to the authenticated administrator.
+ *
+ * @param {string} id - Firebase user identifier.
+ * @returns {Promise<Object>} API response containing the user.
+ * @throws {Error} When authentication, authorization, or the backend request fails.
+ */
+function getUser(id) {
+  return request(`/api/users/${encodeURIComponent(id)}`)
+}
+
+/**
+ * Initializes a backend profile for an existing Firebase user.
+ *
+ * @param {Object} data - Profile initialization data.
+ * @returns {Promise<Object>} API response containing the created profile.
+ * @throws {Error} When validation, authorization, or the backend request fails.
+ */
+function createUser(data) {
+  return request('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+
+/**
+ * Updates an administrator-managed user profile.
+ *
+ * @param {string} id - Firebase user identifier.
+ * @param {Object} data - Editable user fields.
+ * @returns {Promise<Object>} API response containing the updated profile.
+ * @throws {Error} When validation, authorization, or the backend request fails.
+ */
+function updateUser(id, data) {
+  return request(`/api/users/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      name: data.name,
+      phone: data.phone,
+      role: data.role
+    })
+  })
+}
+
+/**
+ * Removes an administrator-managed user profile and Firebase account.
+ *
+ * @param {string} id - Firebase user identifier.
+ * @returns {Promise<Object>} API response confirming deletion.
+ * @throws {Error} When the user is protected or the backend request fails.
+ */
+function deleteUser(id) {
+  return request(`/api/users/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  })
+}
+
 const studentConnect = {
   request,
   getAllCarPoolList,
@@ -352,7 +448,14 @@ const studentConnect = {
   updateStudyGroup,
   deleteStudyGroup,
   joinStudyGroup,
-  leaveStudyGroup
+  leaveStudyGroup,
+  getCurrentUserProfile,
+  updateCurrentUserProfile,
+  getUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser
 }
 
 export default studentConnect
@@ -381,5 +484,12 @@ export {
   updateStudyGroup,
   deleteStudyGroup,
   joinStudyGroup,
-  leaveStudyGroup
+  leaveStudyGroup,
+  getCurrentUserProfile,
+  updateCurrentUserProfile,
+  getUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser
 }

@@ -50,6 +50,16 @@
             </svg>
             <span>Study Groups</span>
           </router-link>
+
+          <router-link
+            v-if="isAdministrator"
+            to="/admin/users"
+            class="px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            active-class="!bg-indigo-50 !text-indigo-700 !font-semibold"
+          >
+            <i class="fi fi-rr-users-alt text-sm"></i>
+            <span>Users</span>
+          </router-link>
         </div>
       </div>
 
@@ -127,7 +137,12 @@
       v-if="isNotLoginPage"
       class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-lg px-2 py-2"
     >
-      <div class="grid grid-cols-3 gap-1 max-w-md mx-auto">
+      <div
+        :class="[
+          'grid gap-1 max-w-md mx-auto',
+          isAdministrator ? 'grid-cols-4' : 'grid-cols-3'
+        ]"
+      >
         <router-link
           to="/carpool"
           class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[11px] font-semibold text-slate-500 transition-colors"
@@ -160,6 +175,16 @@
           </svg>
           <span>Study Groups</span>
         </router-link>
+
+        <router-link
+          v-if="isAdministrator"
+          to="/admin/users"
+          class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[11px] font-semibold text-slate-500 transition-colors"
+          active-class="!text-indigo-700 !bg-indigo-50"
+        >
+          <i class="fi fi-rr-users-alt text-base mb-0.5"></i>
+          <span>Users</span>
+        </router-link>
       </div>
     </nav>
   </div>
@@ -169,7 +194,14 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getIdToken, logout, user } from '@/services/auth'
+import studentConnect from '@/api'
+import {
+  currentUserProfile,
+  getIdToken,
+  logout,
+  setCurrentUserProfile,
+  user
+} from '@/services/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -199,6 +231,27 @@ async function refreshDebugToken() {
 watch(user, refreshDebugToken, { immediate: true })
 
 /**
+ * Loads the authoritative backend profile for the authenticated Firebase user.
+ *
+ * @returns {Promise<void>} Resolves when the shared profile state is updated.
+ */
+async function loadCurrentUserProfile() {
+  if (!user.value) {
+    setCurrentUserProfile(null)
+    return
+  }
+
+  try {
+    const response = await studentConnect.getCurrentUserProfile()
+    setCurrentUserProfile(response.data)
+  } catch {
+    setCurrentUserProfile(null)
+  }
+}
+
+watch(user, loadCurrentUserProfile, { immediate: true })
+
+/**
  * Determines whether the current view is not the authentication page.
  *
  * @type {import('vue').ComputedRef<boolean>}
@@ -213,8 +266,11 @@ const isNotLoginPage = computed(() => {
  * @type {import('vue').ComputedRef<{name: string, email: string, initial: string}>}
  */
 const currentUser = computed(() => {
-  const name = user.value?.displayName || user.value?.email || 'Unknown User'
-  const email = user.value?.email || ''
+  const name = currentUserProfile.value?.name ||
+    user.value?.displayName ||
+    user.value?.email ||
+    'Unknown User'
+  const email = currentUserProfile.value?.email || user.value?.email || ''
   const initial = name ? name.trim().charAt(0).toUpperCase() : 'S'
 
   return {
@@ -222,6 +278,15 @@ const currentUser = computed(() => {
     email,
     initial
   }
+})
+
+/**
+ * Determines whether the current backend profile can access user management.
+ *
+ * @returns {boolean} True for administrators and superadministrators.
+ */
+const isAdministrator = computed(() => {
+  return ['admin', 'superadmin'].includes(currentUserProfile.value?.role)
 })
 
 /**

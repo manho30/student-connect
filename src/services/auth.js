@@ -9,6 +9,7 @@ import {
 import { auth } from '@/firebase/config'
 
 const user = ref(null)
+const currentUserProfile = ref(null)
 const authLoading = ref(true)
 const isAuthenticated = computed(() => Boolean(user.value))
 
@@ -19,9 +20,23 @@ const authReady = new Promise((resolve) => {
 
 firebaseOnAuthStateChanged(auth, (firebaseUser) => {
   user.value = firebaseUser
+  if (!firebaseUser) {
+    currentUserProfile.value = null
+  }
   authLoading.value = false
   resolveAuthReady(firebaseUser)
 })
+
+/**
+ * Stores the backend profile associated with the current Firebase user.
+ *
+ * @param {Object|null} profile - Backend user profile or null when unavailable.
+ * @returns {Object|null} The stored backend profile.
+ */
+function setCurrentUserProfile(profile) {
+  currentUserProfile.value = profile
+  return currentUserProfile.value
+}
 
 /**
  * Signs a student in through Firebase Authentication.
@@ -110,6 +125,7 @@ function waitForAuthReady() {
 
 export {
   authLoading,
+  currentUserProfile,
   getCurrentUser,
   getIdToken,
   isAuthenticated,
@@ -117,6 +133,7 @@ export {
   logout,
   onAuthStateChanged,
   register,
+  setCurrentUserProfile,
   user,
   waitForAuthReady
 }
