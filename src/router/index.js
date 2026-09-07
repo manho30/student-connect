@@ -1,41 +1,14 @@
-/**
- * Student Connect Vue Router Configuration
- *
- * Defines the client-side navigation routes for Student Connect:
- *
- * Carpool:
- * - /carpool : Carpool listing (or detail if ?id=xxxxxxx)
- * - /carpool/new : Create a new carpool ride
- * - /carpool/edit : Edit existing carpool ride (?id=xxxxxxx)
- *
- * Errands:
- * - /errands : Errands listing (or detail if ?id=xxxxxxx)
- * - /errands/new : Post a new student errand
- * - /errands/edit : Edit existing student errand (?id=xxxxxxx)
- *
- * Study Groups:
- * - /study (and /study) : Study group listing (or detail if ?id=xxxxxxx)
- * - /study/new : Create a new study group
- * - /study/edit : Edit existing study group (?id=xxxxxxx)
- *
- * Authentication:
- * - /login : Firebase student authentication
- *
- * User Profile:
- * - /profile : View and edit user profile
- */
-
 import { createRouter, createWebHistory } from 'vue-router'
-
-import LoginView from '../views/LoginView.vue'
-import CarpoolView from '../views/CarpoolView.vue'
-import CarpoolFormView from '../views/CarpoolFormView.vue'
-import ErrandsView from '../views/ErrandsView.vue'
-import ErrandFormView from '../views/ErrandFormView.vue'
-import ProfileView from '../views/ProfileView.vue'
-import StudyGroupsView from '../views/StudyGroupsView.vue'
-import StudyFormView from '../views/StudyFormView.vue'
 import { getCurrentUser, waitForAuthReady } from '@/services/auth'
+
+const LoginView = () => import('@/views/LoginView.vue')
+const CarpoolView = () => import('@/views/CarpoolView.vue')
+const CarpoolFormView = () => import('@/views/CarpoolFormView.vue')
+const ErrandsView = () => import('@/views/ErrandsView.vue')
+const ErrandFormView = () => import('@/views/ErrandFormView.vue')
+const StudyGroupsView = () => import('@/views/StudyGroupsView.vue')
+const StudyFormView = () => import('@/views/StudyFormView.vue')
+const ProfileView = () => import('@/views/ProfileView.vue')
 
 const router = createRouter({
   history: createWebHistory(),
@@ -45,6 +18,7 @@ const router = createRouter({
       path: '/',
       redirect: '/carpool'
     },
+
     {
       path: '/login',
       name: 'login',
@@ -91,26 +65,31 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
 
-    // Study Group Routes
+    // Study Routes
     {
       path: '/study',
       name: 'study',
-      alias: '/study',
       component: StudyGroupsView,
       meta: { requiresAuth: true }
     },
     {
       path: '/study/new',
       name: 'study-new',
-      alias: '/study/new',
       component: StudyFormView,
       meta: { requiresAuth: true }
     },
     {
       path: '/study/edit',
       name: 'study-edit',
-      alias: '/study/edit',
       component: StudyFormView,
+      meta: { requiresAuth: true }
+    },
+
+    // User Profile
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
       meta: { requiresAuth: true }
     },
 
@@ -118,12 +97,6 @@ const router = createRouter({
     {
       path: '/:pathMatch(.*)*',
       redirect: '/carpool'
-    },
-    {
-      path: '/profile',
-      name: 'profile',
-      component: ProfileView,
-      meta: { requiresAuth: true }
     }
   ]
 })
@@ -131,15 +104,15 @@ const router = createRouter({
 /**
  * Authentication navigation guard.
  *
- * Directs unauthenticated students to the login screen, and authenticated
+ * Directs unauthenticated students to the login screen and authenticated
  * students away from the login screen to the default dashboard.
  *
  * @param {import('vue-router').RouteLocationNormalized} to - Target destination route.
- * @param {import('vue-router').RouteLocationNormalized} from - Origin source route.
  * @returns {Promise<boolean|string|Object>} Navigation decision.
  */
 router.beforeEach(async (to) => {
   await waitForAuthReady()
+
   const isAuthenticated = Boolean(getCurrentUser())
 
   if (to.path === '/login' && isAuthenticated) {

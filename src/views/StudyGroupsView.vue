@@ -109,8 +109,36 @@
         </div>
       </section>
 
+      <!-- Loading State -->
+      <div
+          v-if="loading"
+          class="flex justify-center py-10 text-sm text-slate-500"
+      >
+        Loading study groups...
+      </div>
+
+      <!-- Error State -->
+      <div
+          v-else-if="loadError"
+          class="rounded-2xl border border-red-100 bg-red-50 p-6 text-center"
+      >
+        <p class="text-sm font-medium text-red-700">
+          {{ loadError }}
+        </p>
+
+        <button
+            id="study-retry-btn"
+            type="button"
+            class="mt-3 cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+            @click="loadStudyGroups"
+        >
+          Try Again
+        </button>
+      </div>
+
       <!-- Study Group List -->
       <StudyGroupList
+          v-else
           :groups="filteredGroups"
           :current-user="currentUser"
           @join="handleJoin"
@@ -126,8 +154,7 @@
 import {
   ref,
   computed,
-  onMounted,
-  watch
+  onMounted
 } from 'vue'
 
 import {
@@ -154,6 +181,8 @@ const router = useRouter()
 const groups = ref([])
 const searchQuery = ref('')
 const activeFilter = ref('all')
+const loading = ref(false)
+const loadError = ref('')
 
 /**
  * Returns the current authenticated Firebase user.
@@ -199,12 +228,26 @@ const filters = [
 /**
  * Loads all available study groups from the backend.
  *
- * @returns {Promise<void>}
+ * The loading state prevents the empty-state component from appearing
+ * before the backend response has been received.
+ *
+ * @returns {Promise<void>} Resolves after the study groups are loaded.
+ * @throws {Error} When the backend request fails.
  */
 async function loadStudyGroups() {
+  loading.value = true
+  loadError.value = ''
+
   try {
     const response =
         await studentConnect.getAllStudyGroups()
+
+    if (!response?.success) {
+      throw new Error(
+          response?.message ||
+          'Failed to load study groups.'
+      )
+    }
 
     const data =
         response?.data ?? response
@@ -219,12 +262,17 @@ async function loadStudyGroups() {
         err
     )
 
-    ElMessage.error(
+    groups.value = []
+
+    loadError.value =
         err?.message ||
         'Failed to load study groups.'
-    )
 
-    groups.value = []
+    ElMessage.error(
+        loadError.value
+    )
+  } finally {
+    loading.value = false
   }
 }
 
@@ -364,7 +412,7 @@ const filteredGroups = computed(() => {
 /**
  * Navigates to the study group creation page.
  *
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves after navigation completes.
  */
 async function navigateToCreate() {
   await router.push('/study/new')
@@ -374,7 +422,7 @@ async function navigateToCreate() {
  * Opens a specific study group detail page.
  *
  * @param {string|number} id Study group identifier.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves after navigation completes.
  */
 async function handleSelect(id) {
   if (!id) {
@@ -393,7 +441,7 @@ async function handleSelect(id) {
  * Joins a study group using the authenticated user.
  *
  * @param {string|number} id Study group identifier.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves after the join operation completes.
  */
 async function handleJoin(id) {
   if (!id) {
@@ -425,7 +473,7 @@ async function handleJoin(id) {
  * Leaves a study group using the authenticated user.
  *
  * @param {string|number} id Study group identifier.
- * @returns {Promise<void>}
+ * @returns {Promise<void>} Resolves after the leave operation completes.
  */
 async function handleLeave(id) {
   if (!id) {
@@ -456,26 +504,11 @@ async function handleLeave(id) {
 /**
  * Loads study groups when the listing view is opened.
  *
- * @returns {void}
+ * @returns {void} Starts the initial study group request.
  */
 onMounted(() => {
   if (!studyId.value) {
     loadStudyGroups()
   }
 })
-
-/**
- * Reloads the study group list when returning to the listing view.
- *
- * @param {string|string[]|undefined} newId Selected study ID.
- * @returns {void}
- */
-watch(
-    () => route.query.id,
-    (newId) => {
-      if (!newId) {
-        loadStudyGroups()
-      }
-    }
-)
 </script>

@@ -266,7 +266,7 @@
             <div
                 v-for="participant in participants"
                 :key="participant.id"
-                class="flex items-center gap-3 p-3  bg-slate-50 border border-slate-100 transition-all duration-200 hover:shadow-sm"
+                class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 transition-all duration-200 hover:shadow-sm"
             >
               <!-- Avatar -->
               <div
@@ -306,14 +306,14 @@
                   class="shrink-0 px-2 py-1 rounded-lg bg-indigo-100 text-indigo-700 text-[9px] font-bold uppercase tracking-wide"
               >
                 Host
-            </span>
+              </span>
 
               <span
                   v-else-if="participant.id === currentUser?.id"
                   class="shrink-0 px-2 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-[9px] font-bold uppercase tracking-wide"
               >
                 You
-            </span>
+              </span>
             </div>
           </div>
 
@@ -334,7 +334,6 @@
             </p>
           </div>
         </div>
-
 
         <!-- Bottom Actions -->
         <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -382,6 +381,18 @@
               </button>
             </template>
 
+            <!-- Departure Has Passed -->
+            <template v-else-if="isDeparturePassed">
+              <button
+                  id="join-carpool-detail-btn"
+                  class="w-full sm:w-auto px-6 py-2.5 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
+                  disabled
+                  type="button"
+              >
+                Ride Departed
+              </button>
+            </template>
+
             <!-- Available to Join -->
             <template v-else-if="!isFull">
               <button
@@ -413,11 +424,10 @@
 </template>
 
 <script setup>
-import {computed, ref, watch} from 'vue'
-import {useRouter} from 'vue-router'
-import {ElMessage, ElMessageBox} from 'element-plus'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import studentConnect from '@/api'
-
 import { formatDateTime } from '@/helper/dateTimeConvert'
 
 const props = defineProps({
@@ -437,6 +447,9 @@ const router = useRouter()
 const carpool = ref(null)
 const loading = ref(true)
 const error = ref('')
+
+const currentTimestamp = ref(Math.floor(Date.now() / 1000))
+let timeUpdateInterval = null
 
 /**
  * Returns the current list of participants in the carpool.
@@ -498,6 +511,21 @@ const isFull = computed(() => {
 })
 
 /**
+ * Determines whether the carpool departure time has passed.
+ *
+ * @returns {boolean} True when the current time is at or after departure.
+ */
+const isDeparturePassed = computed(() => {
+  const departure = Number(carpool.value?.departure)
+
+  if (!Number.isFinite(departure) || departure <= 0) {
+    return false
+  }
+
+  return currentTimestamp.value >= departure
+})
+
+/**
  * Determines whether the current student owns the carpool.
  *
  * @returns {boolean} True when the current user's ID matches owner.id.
@@ -525,6 +553,15 @@ const isJoined = computed(() => {
           participant?.id === props.currentUser.id
   )
 })
+
+/**
+ * Updates the local current Unix timestamp.
+ *
+ * @returns {void} Updates the reactive current timestamp.
+ */
+function updateCurrentTimestamp() {
+  currentTimestamp.value = Math.floor(Date.now() / 1000)
+}
 
 /**
  * Gets the first letter used for a participant avatar.
@@ -601,6 +638,20 @@ watch(
     }
 )
 
+onMounted(() => {
+  timeUpdateInterval = window.setInterval(
+      updateCurrentTimestamp,
+      1000
+  )
+})
+
+onUnmounted(() => {
+  if (timeUpdateInterval !== null) {
+    window.clearInterval(timeUpdateInterval)
+    timeUpdateInterval = null
+  }
+})
+
 /**
  * Navigates to an internal Student Connect route.
  *
@@ -635,8 +686,8 @@ function navigateToEdit() {
 /**
  * Joins the current carpool through the Student Connect API.
  *
- * The backend remains responsible for capacity validation and
- * participant membership updates.
+ * The frontend prevents joining after departure, while the backend
+ * remains responsible for final authorization and capacity validation.
  *
  * @returns {Promise<void>} Resolves after the join operation completes.
  * @throws {Error} When the join request fails or returns an unsuccessful response.
@@ -644,6 +695,11 @@ function navigateToEdit() {
 async function handleJoin() {
   if (!carpool.value?.id) {
     ElMessage.error('Carpool ID is missing')
+    return
+  }
+
+  if (isDeparturePassed.value) {
+    ElMessage.warning('This carpool has already departed.')
     return
   }
 
@@ -687,8 +743,6 @@ async function handleJoin() {
  * @throws {Error} When the delete request fails or returns an unsuccessful response.
  */
 async function handleDelete() {
-
-  // pop up a confirmation dialog before proceeding with deletion
   const confirmed = await ElMessageBox.confirm(
       'Are you sure you want to cancel this carpool? This action cannot be undone.',
       'Confirm Cancellation',
@@ -697,10 +751,12 @@ async function handleDelete() {
         cancelButtonText: 'No, Keep',
         type: 'warning',
       }
-  ).catch(() => false) // Catch the cancel action and return false
+  ).catch(() => false)
+
   if (!confirmed) {
     return
   }
+
   if (!carpool.value?.id) {
     ElMessage.error('Carpool ID is missing')
     return
@@ -721,7 +777,6 @@ async function handleDelete() {
         'Carpool deleted successfully.'
     )
 
-    // Navigate back to the carpool list after deletion
     navigateTo('/carpool')
   } catch (err) {
     ElMessage.error(
@@ -730,6 +785,7 @@ async function handleDelete() {
     )
   }
 }
+
 /**
  * Leaves the current carpool through the Student Connect API.
  *

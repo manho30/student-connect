@@ -1,57 +1,170 @@
 <template>
   <div id="errands-view-root">
-    <!-- DETAIL VIEW (When route.query.id is present) -->
+    <!-- DETAIL VIEW -->
     <ErrandDetail
-      v-if="errandId"
-      :errand-id="errandId"
-      :current-user="currentUser"
+        v-if="errandId"
+        :errand-id="errandId"
+        :current-user="currentUser"
     />
 
-    <!-- LISTING VIEW (When no route.query.id is present) -->
+    <!-- LISTING VIEW -->
     <div v-else class="space-y-6">
       <!-- Header Section -->
-      <header class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+      <header
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4"
+      >
         <div class="space-y-1">
-          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Post & fulfill student errands</h1>
-          <p class="text-slate-500 text-sm sm:text-base">Need a favor or heading to the store? Help a campus peer today.</p>
+          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">
+            Post & fulfill student errands
+          </h1>
+
+          <p class="text-slate-500 text-sm sm:text-base">
+            Need a favor or heading to the store? Help a campus peer today.
+          </p>
         </div>
+
         <button
-          id="open-create-errand-btn"
-          class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap"
-          @click="navigateToCreate"
+            id="open-create-errand-btn"
+            type="button"
+            class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap"
+            @click="navigateToCreate"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+          >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+            />
           </svg>
+
           <span>Post Errand</span>
         </button>
       </header>
 
-      <!-- Search & Category Filter Bar -->
-      <section class="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+      <!-- Search Bar -->
+      <section
+          class="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row gap-4 items-stretch md:items-center"
+      >
         <div class="flex-1 relative">
-          <svg class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          <svg
+              class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+          >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
+
           <input
-            id="errand-search-input"
-            v-model="searchQuery"
-            type="text"
-            placeholder="Search errands by title, description or location..."
-            class="w-full pl-12 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-slate-800 text-sm transition-all"
+              id="errand-search-input"
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search errands by title, description or location..."
+              class="w-full pl-12 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-slate-800 text-sm transition-all"
           />
         </div>
-
       </section>
 
-      <!-- Errand List Component -->
+      <!-- Loading State -->
+      <div
+          v-if="loading"
+          id="errands-loading"
+          class="space-y-4"
+      >
+        <!-- Loading Header -->
+        <div class="flex items-center gap-3 px-1">
+          <div
+              class="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"
+          ></div>
+
+          <p class="text-sm font-medium text-slate-500">
+            Loading errands...
+          </p>
+        </div>
+
+        <!-- Skeleton Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div
+              v-for="index in 6"
+              :key="index"
+              class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse"
+          >
+            <!-- Badge -->
+            <div class="flex items-center justify-between mb-5">
+              <div class="h-5 w-20 bg-slate-200 rounded-full"></div>
+              <div class="h-4 w-14 bg-slate-100 rounded"></div>
+            </div>
+
+            <!-- Title -->
+            <div class="h-5 w-3/4 bg-slate-200 rounded mb-3"></div>
+
+            <!-- Description -->
+            <div class="space-y-2 mb-5">
+              <div class="h-3 w-full bg-slate-100 rounded"></div>
+              <div class="h-3 w-5/6 bg-slate-100 rounded"></div>
+            </div>
+
+            <!-- Location -->
+            <div class="flex items-center gap-2 mb-5">
+              <div class="w-4 h-4 bg-slate-200 rounded-full"></div>
+              <div class="h-3 w-1/2 bg-slate-100 rounded"></div>
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-4 border-t border-slate-100 flex justify-between items-center">
+              <div class="h-4 w-20 bg-slate-100 rounded"></div>
+              <div class="h-9 w-24 bg-slate-200 rounded-xl"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div
+          v-else-if="loadError"
+          id="errands-error"
+          class="bg-rose-50 border border-rose-100 rounded-2xl p-8 text-center"
+      >
+        <div
+            class="w-12 h-12 mx-auto mb-4 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center"
+        >
+          <i class="fi fi-rr-exclamation text-xl"></i>
+        </div>
+
+        <p class="text-sm font-semibold text-rose-700">
+          {{ loadError }}
+        </p>
+
+        <button
+            id="errands-retry-btn"
+            type="button"
+            class="mt-4 px-5 py-2.5 rounded-xl bg-rose-600 text-white text-sm font-bold hover:bg-rose-700 transition-colors cursor-pointer"
+            @click="loadErrands"
+        >
+          Try Again
+        </button>
+      </div>
+
+      <!-- Errand List -->
       <ErrandList
-        :errands="filteredErrands"
-        :current-user="currentUser"
-        @accept="handleAccept"
-        @complete="handleComplete"
-        @select="handleSelect"
-        @open-create="navigateToCreate"
+          v-else
+          :errands="filteredErrands"
+          :current-user="currentUser"
+          @accept="handleAccept"
+          @complete="handleComplete"
+          @select="handleSelect"
+          @open-create="navigateToCreate"
       />
     </div>
   </div>
@@ -69,70 +182,138 @@ import { user } from '@/services/auth'
 const route = useRoute()
 const router = useRouter()
 
+const errands = ref([])
+const searchQuery = ref('')
+const loading = ref(false)
+const loadError = ref('')
+
+/**
+ * Represents the currently authenticated student.
+ *
+ * @returns {Object} Current student information.
+ */
 const currentUser = computed(() => ({
   id: user.value?.uid || '',
   name: user.value?.displayName || user.value?.email || 'Student'
 }))
-const errands = ref([])
-const searchQuery = ref('')
 
+/**
+ * Reads the errand ID from the current route query.
+ *
+ * @returns {string|null} Errand ID or null when displaying the list.
+ */
 const errandId = computed(() => {
-  return route.query.id ? String(route.query.id) : null
+  return route.query.id
+      ? String(route.query.id)
+      : null
 })
 
 /**
  * Loads the latest errands list from the Student Connect API.
  *
- * @returns {Promise<void>} Resolves after errands are loaded and local state is updated.
+ * @returns {Promise<void>}
  */
 async function loadErrands() {
+  loading.value = true
+  loadError.value = ''
+
   try {
-    const res = await studentConnect.getAllErrands()
-    errands.value = res.data || res || []
-  } catch (err) {
-    ElMessage.error(err.message || 'Failed to load errands')
+    const response = await studentConnect.getAllErrands()
+
+    /**
+     * Support both:
+     *
+     * { success, message, data }
+     *
+     * and legacy direct array responses.
+     */
+    if (response?.success === false) {
+      throw new Error(
+          response?.message || 'Failed to load errands'
+      )
+    }
+
+    if (Array.isArray(response?.data)) {
+      errands.value = response.data
+    } else if (Array.isArray(response)) {
+      errands.value = response
+    } else {
+      errands.value = []
+    }
+  } catch (error) {
+    errands.value = []
+
+    loadError.value =
+        error?.message || 'Failed to load errands'
+
+    ElMessage.error(loadError.value)
+  } finally {
+    loading.value = false
   }
 }
 
+/**
+ * Loads errands when the listing page is initially displayed.
+ */
 onMounted(() => {
   if (!errandId.value) {
     loadErrands()
   }
 })
 
+/**
+ * Reloads errands when returning from an errand detail page.
+ */
 watch(
-  () => route.query.id,
-  (newId) => {
-    if (!newId) {
-      loadErrands()
+    () => route.query.id,
+    (newId) => {
+      if (!newId) {
+        loadErrands()
+      }
     }
-  }
 )
 
 /**
- * Computes the list of errands filtered by user search keywords.
+ * Computes the list of errands filtered by search keywords.
  *
- * @type {import('vue').ComputedRef<Array<Object>>}
+ * @returns {Array<Object>} Filtered errands.
  */
 const filteredErrands = computed(() => {
-  let list = errands.value || []
+  let list = Array.isArray(errands.value)
+      ? errands.value
+      : []
 
-  // Search filter
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase().trim()
-    list = list.filter(
-      (item) =>
-        (item.title && item.title.toLowerCase().includes(q)) ||
-        (item.description && item.description.toLowerCase().includes(q)) ||
-        (item.location && item.location.toLowerCase().includes(q))
-    )
+  const query = searchQuery.value
+      .trim()
+      .toLowerCase()
+
+  if (!query) {
+    return list
   }
 
-  return list
+  return list.filter((item) => {
+    const title = String(
+        item?.title || ''
+    ).toLowerCase()
+
+    const description = String(
+        item?.description || ''
+    ).toLowerCase()
+
+    const location = String(
+        item?.location || ''
+    ).toLowerCase()
+
+    return (
+        title.includes(query) ||
+        description.includes(query) ||
+        location.includes(query)
+    )
+  })
 })
 
 /**
- * Navigates to the dedicated create errand page.
+ * Navigates to the create errand page.
  *
  * @returns {void}
  */
@@ -141,44 +322,80 @@ function navigateToCreate() {
 }
 
 /**
- * Navigates to the detail page for a specific errand.
+ * Opens the detail page for a specific errand.
  *
- * @param {string|number} id - Unique errand identifier.
+ * @param {string|number} id - Errand identifier.
  * @returns {void}
  */
 function handleSelect(id) {
-  router.push(`/errands?id=${id}`)
+  if (!id) {
+    ElMessage.error('Errand ID is missing')
+    return
+  }
+
+  router.push({
+    path: '/errands',
+    query: {
+      id: String(id)
+    }
+  })
 }
 
 /**
  * Accepts a student errand.
  *
- * @param {string|number} id - Unique identifier of the errand to accept.
+ * @param {string|number} id - Errand identifier.
  * @returns {Promise<void>}
  */
 async function handleAccept(id) {
   try {
-    await studentConnect.acceptErrand(id)
+    const response = await studentConnect.acceptErrand(id)
+
+    if (response?.success === false) {
+      throw new Error(
+          response?.message || 'Could not accept errand'
+      )
+    }
+
     await loadErrands()
-    ElMessage.success('You accepted this errand! Thank you for helping a peer.')
-  } catch (err) {
-    ElMessage.error(err.message || 'Could not accept errand')
+
+    ElMessage.success(
+        response?.message ||
+        'You accepted this errand! Thank you for helping a peer.'
+    )
+  } catch (error) {
+    ElMessage.error(
+        error?.message || 'Could not accept errand'
+    )
   }
 }
 
 /**
  * Marks an accepted errand as completed.
  *
- * @param {string|number} id - Unique identifier of the completed errand.
+ * @param {string|number} id - Errand identifier.
  * @returns {Promise<void>}
  */
 async function handleComplete(id) {
   try {
-    await studentConnect.completeErrand(id)
+    const response = await studentConnect.completeErrand(id)
+
+    if (response?.success === false) {
+      throw new Error(
+          response?.message || 'Could not complete errand'
+      )
+    }
+
     await loadErrands()
-    ElMessage.success('Errand marked as completed! Great job.')
-  } catch (err) {
-    ElMessage.error(err.message || 'Could not complete errand')
+
+    ElMessage.success(
+        response?.message ||
+        'Errand marked as completed! Great job.'
+    )
+  } catch (error) {
+    ElMessage.error(
+        error?.message || 'Could not complete errand'
+    )
   }
 }
 </script>

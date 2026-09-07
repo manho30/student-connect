@@ -1,4 +1,3 @@
-```vue
 <!-- components/errands/ErrandList.vue -->
 <template>
   <div id="errand-list-container">

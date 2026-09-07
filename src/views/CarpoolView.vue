@@ -1,7 +1,5 @@
 <!-- views/CarpoolView.vue -->
 <template>
-
-
   <div id="carpool-view-container">
     <!-- DETAIL VIEW -->
     <CarpoolDetail
@@ -147,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import studentConnect from '@/api'
@@ -164,9 +162,14 @@ const activeFilter = ref('all')
 const loading = ref(false)
 const loadError = ref('')
 
+const currentTimestamp = ref(Math.floor(Date.now() / 1000))
+let timeUpdateInterval = null
+
 /**
  * Represents the current Firebase-authenticated student for display and
  * client-side filtering. Backend authorization is based on the ID token.
+ *
+ * @returns {Object} Current student identity information.
  */
 const currentUser = computed(() => ({
   id: user.value?.uid || '',
@@ -199,6 +202,31 @@ const filterTabs = [
     label: 'My Carpools'
   }
 ]
+
+/**
+ * Updates the local current Unix timestamp.
+ *
+ * @returns {void} Updates the reactive current timestamp.
+ */
+function updateCurrentTimestamp() {
+  currentTimestamp.value = Math.floor(Date.now() / 1000)
+}
+
+/**
+ * Determines whether a carpool has already reached its departure time.
+ *
+ * @param {Object} carpool - Carpool resource containing its departure timestamp.
+ * @returns {boolean} True when the carpool has already departed.
+ */
+function isDeparturePassed(carpool) {
+  const departure = Number(carpool?.departure)
+
+  if (!Number.isFinite(departure) || departure <= 0) {
+    return false
+  }
+
+  return currentTimestamp.value >= departure
+}
 
 /**
  * Loads all carpools from the Student Connect API.
@@ -253,6 +281,18 @@ onMounted(() => {
   if (!carpoolId.value) {
     loadCarpools()
   }
+
+  timeUpdateInterval = window.setInterval(
+      updateCurrentTimestamp,
+      1000
+  )
+})
+
+onUnmounted(() => {
+  if (timeUpdateInterval !== null) {
+    window.clearInterval(timeUpdateInterval)
+    timeUpdateInterval = null
+  }
 })
 
 watch(
@@ -266,6 +306,9 @@ watch(
  *
  * Search covers the carpool title, origin, destination, departure
  * date, and departure time using the latest resource structure.
+ *
+ * The available filter also excludes carpools whose departure time
+ * has already passed.
  *
  * @returns {Array<Object>} The filtered carpool resources.
  */
@@ -320,7 +363,10 @@ const filteredCarpools = computed(() => {
           ? carpool.participants.length
           : 0
 
-      return participantCount < capacity
+      return (
+          participantCount < capacity &&
+          !isDeparturePassed(carpool)
+      )
     })
   }
 
@@ -399,9 +445,8 @@ function handleEdit(carpool) {
 /**
  * Joins a carpool through the Student Connect API.
  *
- * The frontend does not modify the participant list directly.
- * The backend remains responsible for validating capacity and
- * updating membership.
+ * The frontend prevents joining after departure, while the backend
+ * remains responsible for final authorization and capacity validation.
  *
  * @param {string} id - Backend-generated carpool resource identifier.
  * @returns {Promise<void>} Resolves after the join operation completes.
@@ -410,6 +455,15 @@ function handleEdit(carpool) {
 async function handleJoin(id) {
   if (!id) {
     ElMessage.error('Carpool ID is missing')
+    return
+  }
+
+  const targetCarpool = carpools.value.find(
+      (carpool) => String(carpool?.id) === String(id)
+  )
+
+  if (targetCarpool && isDeparturePassed(targetCarpool)) {
+    ElMessage.warning('This carpool has already departed.')
     return
   }
 
@@ -429,7 +483,7 @@ async function handleJoin(id) {
     )
   } catch (error) {
     ElMessage.error(
-        error?.message || 'Could not join carpool'
+        error?.message || 'Could not join the carpool'
     )
   }
 }

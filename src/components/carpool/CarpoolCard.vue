@@ -28,8 +28,8 @@
               v-if="isCreator"
               class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200"
           >
-            Your Ride
-          </span>
+        Your Ride
+      </span>
         </div>
 
         <div class="flex items-center gap-2" @click.stop>
@@ -47,16 +47,16 @@
 
           <span
               :class="[
-              'font-bold text-lg',
-              isFull ? 'text-slate-400' : 'text-indigo-600'
-            ]"
+          'font-bold text-lg',
+          isFull ? 'text-slate-400' : 'text-indigo-600'
+        ]"
           >
-            {{
+        {{
               carpool.cost !== undefined && Number(carpool.cost) > 0
                   ? `RM${Number(carpool.cost).toFixed(2)}`
                   : 'Free'
             }}
-          </span>
+      </span>
         </div>
       </div>
 
@@ -127,12 +127,17 @@
             <i class="fi fi-rr-user text-xs"></i>
 
             <span>
-              Hosted by
-              <strong class="text-slate-600 font-semibold">
-                {{ carpool.owner?.name || 'Student' }}
-                <strong v-if="carpool.owner?.id === currentUser.id" class="text-xs text-indigo-600 font-normal">(You)</strong>
-              </strong>
-            </span>
+          Hosted by
+          <strong class="text-slate-600 font-semibold">
+            {{ carpool.owner?.name || 'Student' }}
+            <strong
+                v-if="carpool.owner?.id === currentUser.id"
+                class="text-xs text-indigo-600 font-normal"
+            >
+              (You)
+            </strong>
+          </strong>
+        </span>
           </div>
 
           <div
@@ -204,6 +209,17 @@
         <span>Leave Carpool</span>
       </button>
 
+      <!-- Departure Has Passed -->
+      <button
+          v-else-if="isDeparturePassed"
+          :id="'join-carpool-' + carpool.id"
+          type="button"
+          disabled
+          class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
+      >
+        Ride Departed
+      </button>
+
       <!-- Seats Available -->
       <button
           v-else-if="!isFull"
@@ -226,11 +242,12 @@
         No Seats Left
       </button>
     </div>
+
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { formatDateTime } from '@/helper/dateTimeConvert'
 
 const props = defineProps({
@@ -252,6 +269,8 @@ defineEmits([
   'select'
 ])
 
+const currentTimestamp = ref(Math.floor(Date.now() / 1000))
+let timeUpdateInterval = null
 
 /**
  * Determines whether the current user owns the carpool.
@@ -291,6 +310,21 @@ const isFull = computed(() => {
 })
 
 /**
+ * Determines whether the carpool departure time has passed.
+ *
+ * @returns {boolean} True when the current time is at or after departure.
+ */
+const isDeparturePassed = computed(() => {
+  const departure = Number(props.carpool.departure)
+
+  if (!Number.isFinite(departure) || departure <= 0) {
+    return false
+  }
+
+  return currentTimestamp.value >= departure
+})
+
+/**
  * Determines whether the current user is already a participant.
  *
  * @returns {boolean} True when the current user's ID exists in participants.
@@ -307,5 +341,25 @@ const isJoined = computed(() => {
   return props.carpool.participants.some(
       (participant) => participant?.id === props.currentUser.id
   )
+})
+
+/**
+ * Updates the local current Unix timestamp.
+ *
+ * @returns {void}
+ */
+function updateCurrentTimestamp() {
+  currentTimestamp.value = Math.floor(Date.now() / 1000)
+}
+
+onMounted(() => {
+  timeUpdateInterval = window.setInterval(updateCurrentTimestamp, 1000)
+})
+
+onUnmounted(() => {
+  if (timeUpdateInterval !== null) {
+    window.clearInterval(timeUpdateInterval)
+    timeUpdateInterval = null
+  }
 })
 </script>

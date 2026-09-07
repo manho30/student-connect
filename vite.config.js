@@ -10,16 +10,18 @@ const __dirname = path.dirname(__filename)
 export default defineConfig(() => {
   return {
     plugins: [vue(), tailwindcss()],
+
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, 'src'),
-      },
+        '@': path.resolve(__dirname, 'src')
+      }
     },
+
     server: {
       port: 3000,
       host: '0.0.0.0',
       hmr: process.env.DISABLE_HMR !== 'true',
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
-    },
+      watch: process.env.DISABLE_HMR === 'true' ? null : {}
+    }
   }
 })
