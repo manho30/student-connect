@@ -1,8 +1,10 @@
 import { computed, ref } from 'vue'
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged as firebaseOnAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   updateProfile
 } from 'firebase/auth'
@@ -48,6 +50,17 @@ function setCurrentUserProfile(profile) {
  */
 function login(email, password) {
   return signInWithEmailAndPassword(auth, email, password)
+}
+
+/**
+ * Signs a student in through Firebase Authentication with Google.
+ *
+ * @returns {Promise<import('firebase/auth').UserCredential>} Firebase sign-in result.
+ * @throws {Error} When the popup is cancelled, blocked, or Firebase rejects authentication.
+ */
+function signInWithGoogle() {
+  const provider = new GoogleAuthProvider()
+  return signInWithPopup(auth, provider)
 }
 
 /**
@@ -134,6 +147,7 @@ export {
   onAuthStateChanged,
   register,
   setCurrentUserProfile,
+  signInWithGoogle,
   user,
   waitForAuthReady
 }

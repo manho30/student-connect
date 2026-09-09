@@ -6,7 +6,7 @@
 
 import { getCurrentUser, getIdToken } from '@/services/auth'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || ''
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 
 /**
  * Sends an HTTP request to the Student Connect backend.
@@ -15,7 +15,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || ''
  * @param {Object} [options={}] - Fetch request options.
  * @param {boolean} [auth=true] - Whether a Firebase ID token is required.
  * @returns {Promise<Object>} Parsed backend response.
- * @throws {Error} When authentication is unavailable or the request fails.
+ * @throws {Error} When authentication, network connectivity, CORS, or the backend request fails.
  */
 async function request(path, options = {}, auth = true) {
   const headers = {
@@ -29,29 +29,53 @@ async function request(path, options = {}, auth = true) {
     }
 
     const token = await getIdToken()
+
+    if (!token) {
+      throw new Error('Unable to obtain the Firebase authentication token.')
+    }
+
     headers.Authorization = `Bearer ${token}`
   }
 
-  const response = await fetch(
-    `${API_BASE_URL.replace(/\/$/, '')}${path}`,
-    {
+  const url = `${API_BASE_URL}${path}`
+
+  let response
+
+  try {
+    response = await fetch(url, {
       ...options,
       headers
-    }
-  )
+    })
+  } catch (error) {
+    const networkError = new Error(
+      `Unable to connect to the Student Connect backend at ${url}.`
+    )
+
+    networkError.name = 'BackendNetworkError'
+    networkError.cause = error
+
+    throw networkError
+  }
 
   let json
 
   try {
     json = await response.json()
   } catch {
-    throw new Error(`Backend returned an invalid JSON response (${response.status})`)
+    throw new Error(
+      `Backend returned an invalid JSON response (${response.status}).`
+    )
   }
 
   if (!response.ok || json.success === false) {
-    throw new Error(
-      json.message || `Request failed with status ${response.status}`
+    const error = new Error(
+      json.message || `Request failed with status ${response.status}.`
     )
+
+    error.status = response.status
+    error.response = json
+
+    throw error
   }
 
   return json
@@ -96,9 +120,9 @@ function createCarPool(data) {
  * @returns {Promise<Object>} API response confirming deletion.
  */
 function deleteCarPool(id) {
-    return request(`/api/carpools/${encodeURIComponent(id)}`, {
-        method: 'DELETE'
-    })
+  return request(`/api/carpools/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  })
 }
 
 /**
@@ -123,8 +147,8 @@ function updateCarPool(id, data) {
  */
 function joinCarPool(id) {
   return request(`/api/carpools/${encodeURIComponent(id)}/join`, {
-    method: 'POST'
-  })
+method: 'POST'
+})
 }
 
 /**
@@ -200,9 +224,8 @@ function deleteErrand(id) {
 /**
  * Cancels the current user's acceptance of an errand.
  *
- * @param {string} id - The errand ID.
+ * @param {string} id - Errand identifier.
  * @returns {Promise<Object>} The updated errand returned by the backend.
- * @throws {Error} When the backend request fails.
  */
 async function cancelErrandAcceptance(id) {
   return request(`/api/errands/${encodeURIComponent(id)}/cancel-acceptance`, {
@@ -323,7 +346,7 @@ function joinStudyGroup(id) {
  * @returns {Promise<Object>} API response containing the updated study group.
  */
 function leaveStudyGroup(id) {
-    return request(`/api/study/${encodeURIComponent(id)}/leave`, {
+  return request(`/api/study/${encodeURIComponent(id)}/leave`, {
     method: 'DELETE'
   })
 }
@@ -332,7 +355,6 @@ function leaveStudyGroup(id) {
  * Retrieves the authenticated user's backend profile.
  *
  * @returns {Promise<Object>} API response containing the current user profile.
- * @throws {Error} When authentication or the backend request fails.
  */
 function getCurrentUserProfile() {
   return request('/api/users/me')
@@ -342,10 +364,7 @@ function getCurrentUserProfile() {
  * Updates the authenticated user's editable profile fields.
  *
  * @param {Object} data - Editable profile fields.
- * @param {string} data.name - User display name.
- * @param {string} data.phone - User phone number.
  * @returns {Promise<Object>} API response containing the updated profile.
- * @throws {Error} When validation, authentication, or the backend request fails.
  */
 function updateCurrentUserProfile(data) {
   return request('/api/users/me', {
@@ -361,7 +380,6 @@ function updateCurrentUserProfile(data) {
  * Retrieves users visible to the authenticated administrator.
  *
  * @returns {Promise<Object>} API response containing users.
- * @throws {Error} When authentication, authorization, or the backend request fails.
  */
 function getUsers() {
   return request('/api/users')
@@ -372,7 +390,6 @@ function getUsers() {
  *
  * @param {string} id - Firebase user identifier.
  * @returns {Promise<Object>} API response containing the user.
- * @throws {Error} When authentication, authorization, or the backend request fails.
  */
 function getUser(id) {
   return request(`/api/users/${encodeURIComponent(id)}`)
@@ -383,7 +400,6 @@ function getUser(id) {
  *
  * @param {Object} data - Profile initialization data.
  * @returns {Promise<Object>} API response containing the created profile.
- * @throws {Error} When validation, authorization, or the backend request fails.
  */
 function createUser(data) {
   return request('/api/users', {
@@ -398,7 +414,6 @@ function createUser(data) {
  * @param {string} id - Firebase user identifier.
  * @param {Object} data - Editable user fields.
  * @returns {Promise<Object>} API response containing the updated profile.
- * @throws {Error} When validation, authorization, or the backend request fails.
  */
 function updateUser(id, data) {
   return request(`/api/users/${encodeURIComponent(id)}`, {
@@ -416,7 +431,6 @@ function updateUser(id, data) {
  *
  * @param {string} id - Firebase user identifier.
  * @returns {Promise<Object>} API response confirming deletion.
- * @throws {Error} When the user is protected or the backend request fails.
  */
 function deleteUser(id) {
   return request(`/api/users/${encodeURIComponent(id)}`, {
@@ -459,6 +473,7 @@ const studentConnect = {
 }
 
 export default studentConnect
+
 export {
   studentConnect,
   request,

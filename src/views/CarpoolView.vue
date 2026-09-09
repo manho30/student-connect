@@ -145,11 +145,29 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch
+} from 'vue'
+
+import {
+  useRoute,
+  useRouter
+} from 'vue-router'
+
+import {
+  ElMessage
+} from 'element-plus'
+
 import studentConnect from '@/api'
-import { user } from '@/services/auth'
+
+import {
+  user
+} from '@/services/auth'
+
 import CarpoolList from '../components/carpool/CarpoolList.vue'
 import CarpoolDetail from '../components/carpool/CarpoolDetail.vue'
 
@@ -162,30 +180,45 @@ const activeFilter = ref('all')
 const loading = ref(false)
 const loadError = ref('')
 
-const currentTimestamp = ref(Math.floor(Date.now() / 1000))
+const currentTimestamp = ref(
+    Math.floor(Date.now() / 1000)
+)
+
 let timeUpdateInterval = null
 
 /**
- * Represents the current Firebase-authenticated student for display and
- * client-side filtering. Backend authorization is based on the ID token.
+ * Represents the current Firebase-authenticated student.
  *
  * @returns {Object} Current student identity information.
  */
 const currentUser = computed(() => ({
-  id: user.value?.uid || '',
-  name: user.value?.displayName || user.value?.email || 'Student'
+  id: String(
+      user.value?.uid || ''
+  ),
+
+  name:
+      user.value?.displayName ||
+      user.value?.email ||
+      'Student'
 }))
 
 /**
- * Reads the backend-generated carpool ID from the route query.
+ * Reads the carpool ID from the route query.
  *
- * @returns {string|null} Carpool resource ID, or null when the list
- * page is currently displayed.
+ * @returns {string|null} Carpool resource ID, or null on the listing page.
  */
 const carpoolId = computed(() => {
   const id = route.query.id
 
-  return id ? String(id) : null
+  if (Array.isArray(id)) {
+    return id[0]
+        ? String(id[0])
+        : null
+  }
+
+  return id
+      ? String(id)
+      : null
 })
 
 const filterTabs = [
@@ -204,24 +237,62 @@ const filterTabs = [
 ]
 
 /**
- * Updates the local current Unix timestamp.
+ * Updates the current Unix timestamp.
  *
  * @returns {void} Updates the reactive current timestamp.
  */
 function updateCurrentTimestamp() {
-  currentTimestamp.value = Math.floor(Date.now() / 1000)
+  currentTimestamp.value =
+      Math.floor(Date.now() / 1000)
 }
 
 /**
- * Determines whether a carpool has already reached its departure time.
+ * Normalizes a timestamp into Unix seconds.
  *
- * @param {Object} carpool - Carpool resource containing its departure timestamp.
+ * Supports numeric seconds, milliseconds, and timestamp objects.
+ *
+ * @param {number|string|Object} value - Timestamp value.
+ * @returns {number} Unix timestamp in seconds, or 0 when invalid.
+ */
+function normalizeTimestamp(value) {
+  if (
+      value &&
+      typeof value === 'object'
+  ) {
+    value =
+        value.timestamp ??
+        value.unix ??
+        value.value ??
+        value.seconds
+  }
+
+  const timestamp = Number(value)
+
+  if (
+      !Number.isFinite(timestamp) ||
+      timestamp <= 0
+  ) {
+    return 0
+  }
+
+  return timestamp > 100000000000
+      ? Math.floor(timestamp / 1000)
+      : Math.floor(timestamp)
+}
+
+/**
+ * Determines whether a carpool has already departed.
+ *
+ * @param {Object} carpool - Carpool resource.
  * @returns {boolean} True when the carpool has already departed.
  */
 function isDeparturePassed(carpool) {
-  const departure = Number(carpool?.departure)
+  const departure =
+      normalizeTimestamp(
+          carpool?.departure
+      )
 
-  if (!Number.isFinite(departure) || departure <= 0) {
+  if (!departure) {
     return false
   }
 
@@ -229,47 +300,267 @@ function isDeparturePassed(carpool) {
 }
 
 /**
+ * Returns normalized participant IDs from a carpool.
+ *
+ * Supports the current participant object-map schema and
+ * legacy participant arrays.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {string[]} Participant Firebase UIDs.
+ */
+function getParticipantIds(carpool) {
+  const participants =
+      carpool?.participants
+
+  if (!participants) {
+    return []
+  }
+
+  if (Array.isArray(participants)) {
+    return participants
+        .map((participant) => {
+          if (
+              typeof participant === 'string'
+          ) {
+            return participant
+          }
+
+          return (
+              participant?.id ||
+              participant?.uid ||
+              participant?.userId ||
+              participant?.firebaseUid ||
+              ''
+          )
+        })
+        .filter(Boolean)
+        .map(String)
+  }
+
+  if (
+      typeof participants === 'object'
+  ) {
+    return Object.entries(
+        participants
+    )
+        .map(([uid, participant]) => {
+          if (
+              participant &&
+              typeof participant === 'object'
+          ) {
+            return (
+                participant.id ||
+                participant.uid ||
+                participant.userId ||
+                participant.firebaseUid ||
+                uid
+            )
+          }
+
+          return uid
+        })
+        .filter(Boolean)
+        .map(String)
+  }
+
+  return []
+}
+
+/**
+ * Returns the Firebase UID of the carpool owner.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {string} Owner Firebase UID.
+ */
+function getOwnerId(carpool) {
+  return String(
+      carpool?.owner?.id ||
+      carpool?.owner?.uid ||
+      carpool?.ownerId ||
+      ''
+  )
+}
+
+/**
+ * Determines whether the current user is a participant.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {boolean} True when the current user is a participant.
+ */
+function isCurrentUserParticipant(carpool) {
+  const currentUserId =
+      String(
+          currentUser.value.id || ''
+      )
+
+  if (!currentUserId) {
+    return false
+  }
+
+  return getParticipantIds(carpool)
+      .includes(currentUserId)
+}
+
+/**
+ * Determines whether the current user owns the carpool.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {boolean} True when the current user is the owner.
+ */
+function isCurrentUserOwner(carpool) {
+  const currentUserId =
+      String(
+          currentUser.value.id || ''
+      )
+
+  if (!currentUserId) {
+    return false
+  }
+
+  return getOwnerId(carpool) === currentUserId
+}
+
+/**
+ * Returns the number of participants in a carpool.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {number} Current participant count.
+ */
+function getParticipantCount(carpool) {
+  return getParticipantIds(carpool).length
+}
+
+/**
+ * Determines whether a carpool currently has available seats.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {boolean} True when the carpool can still be joined.
+ */
+function isCarpoolAvailable(carpool) {
+  const status =
+      String(
+          carpool?.status || ''
+      ).toLowerCase()
+
+  const capacity =
+      Number(
+          carpool?.capacity
+      )
+
+  if (
+      status !== 'open' ||
+      !Number.isFinite(capacity) ||
+      capacity <= 0
+  ) {
+    return false
+  }
+
+  return (
+      getParticipantCount(carpool) < capacity &&
+      !isDeparturePassed(carpool)
+  )
+}
+
+/**
+ * Converts a value into lowercase searchable text.
+ *
+ * Objects are recursively flattened so nested departure data
+ * can also be searched.
+ *
+ * @param {*} value - Value to normalize.
+ * @returns {string} Searchable lowercase text.
+ */
+function toSearchText(value) {
+  if (
+      value === null ||
+      value === undefined
+  ) {
+    return ''
+  }
+
+  if (
+      typeof value === 'object'
+  ) {
+    return Object.values(value)
+        .map((item) =>
+            toSearchText(item)
+        )
+        .join(' ')
+  }
+
+  return String(value)
+}
+
+/**
+ * Builds searchable text from the current Carpool API schema.
+ *
+ * Searchable fields:
+ * origin, destination, notes, departure,
+ * status, and owner name.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {string} Combined searchable text.
+ */
+function getCarpoolSearchText(carpool) {
+  return [
+    carpool?.origin,
+    carpool?.destination,
+    carpool?.notes,
+    carpool?.departure,
+    carpool?.status,
+    carpool?.owner?.name
+  ]
+      .map(toSearchText)
+      .join(' ')
+      .toLowerCase()
+}
+
+/**
  * Loads all carpools from the Student Connect API.
  *
- * The API response must follow the standard response envelope:
- * { success, message, data }.
- *
- * @returns {Promise<void>} Resolves when the carpool list has loaded.
- * @throws {Error} When the API request fails or returns an unsuccessful response.
+ * @returns {Promise<void>} Resolves after loading completes.
+ * @throws {Error} When the API request fails.
  */
 async function loadCarpools() {
   loading.value = true
   loadError.value = ''
 
   try {
-    const response = await studentConnect.getAllCarPoolList()
+    const response =
+        await studentConnect
+            .getAllCarPoolList()
 
     if (!response?.success) {
       throw new Error(
-          response?.message || 'Failed to load carpool list'
+          response?.message ||
+          'Failed to load carpool list'
       )
     }
 
-    carpools.value = Array.isArray(response.data)
-        ? response.data
-        : []
+    carpools.value =
+        Array.isArray(response.data)
+            ? response.data
+            : []
   } catch (error) {
     carpools.value = []
-    loadError.value =
-        error?.message || 'Failed to load carpool list'
 
-    ElMessage.error(loadError.value)
+    loadError.value =
+        error?.message ||
+        'Failed to load carpool list'
+
+    ElMessage.error(
+        loadError.value
+    )
   } finally {
     loading.value = false
   }
 }
 
 /**
- * Reloads the carpool list when navigation returns from a detail page
- * to the main carpool listing.
+ * Reloads the carpool list when returning to the listing page.
  *
- * @param {string|undefined} newId - Current carpool ID from the route query.
- * @returns {void} Starts a carpool list reload when no detail ID exists.
+ * @param {string|undefined} newId - Current carpool route ID.
+ * @returns {void} Starts a reload when no detail ID exists.
  */
 function handleRouteChange(newId) {
   if (!newId) {
@@ -282,15 +573,19 @@ onMounted(() => {
     loadCarpools()
   }
 
-  timeUpdateInterval = window.setInterval(
-      updateCurrentTimestamp,
-      1000
-  )
+  timeUpdateInterval =
+      window.setInterval(
+          updateCurrentTimestamp,
+          1000
+      )
 })
 
 onUnmounted(() => {
   if (timeUpdateInterval !== null) {
-    window.clearInterval(timeUpdateInterval)
+    window.clearInterval(
+        timeUpdateInterval
+    )
+
     timeUpdateInterval = null
   }
 })
@@ -301,92 +596,49 @@ watch(
 )
 
 /**
- * Filters the loaded carpools according to the active search query
- * and selected filter.
+ * Filters carpools using the search query and selected filter.
  *
- * Search covers the carpool title, origin, destination, departure
- * date, and departure time using the latest resource structure.
- *
- * The available filter also excludes carpools whose departure time
- * has already passed.
- *
- * @returns {Array<Object>} The filtered carpool resources.
+ * @returns {Array<Object>} Filtered carpool resources.
  */
 const filteredCarpools = computed(() => {
-  let list = Array.isArray(carpools.value)
-      ? carpools.value
+  let list = Array.isArray(
+      carpools.value
+  )
+      ? [...carpools.value]
       : []
 
-  const query = searchQuery.value.trim().toLowerCase()
+  const query =
+      searchQuery.value
+          .trim()
+          .toLowerCase()
 
   if (query) {
     list = list.filter((carpool) => {
-      const title = String(
-          carpool.title || ''
-      ).toLowerCase()
-
-      const origin = String(
-          carpool.origin || ''
-      ).toLowerCase()
-
-      const destination = String(
-          carpool.destination || ''
-      ).toLowerCase()
-
-      const departureDate = String(
-          carpool.departure?.date || ''
-      ).toLowerCase()
-
-      const departureTime = String(
-          carpool.departure?.time || ''
-      ).toLowerCase()
-
-      return (
-          title.includes(query) ||
-          origin.includes(query) ||
-          destination.includes(query) ||
-          departureDate.includes(query) ||
-          departureTime.includes(query)
-      )
+      return getCarpoolSearchText(
+          carpool
+      ).includes(query)
     })
   }
 
-  if (activeFilter.value === 'available') {
-    list = list.filter((carpool) => {
-      const capacity = Number(
-          carpool.capacity || 0
-      )
-
-      const participantCount = Array.isArray(
-          carpool.participants
-      )
-          ? carpool.participants.length
-          : 0
-
-      return (
-          participantCount < capacity &&
-          !isDeparturePassed(carpool)
-      )
-    })
+  if (
+      activeFilter.value ===
+      'available'
+  ) {
+    list = list.filter(
+        (carpool) =>
+            isCarpoolAvailable(carpool)
+    )
   }
 
-  if (activeFilter.value === 'joined') {
+  if (
+      activeFilter.value ===
+      'joined'
+  ) {
     list = list.filter((carpool) => {
-      const participants = Array.isArray(
-          carpool.participants
+      return (
+          isCurrentUserOwner(carpool) ||
+          isCurrentUserParticipant(carpool)
       )
-          ? carpool.participants
-          : []
-
-      const isParticipant = participants.some(
-          (participant) =>
-              participant?.id === currentUser.value.id
-      )
-
-      const isOwner =
-          carpool.owner?.id === currentUser.value.id
-
-      return isParticipant || isOwner
     })
   }
 
@@ -394,23 +646,27 @@ const filteredCarpools = computed(() => {
 })
 
 /**
- * Navigates to the dedicated carpool creation page.
+ * Navigates to the carpool creation page.
  *
- * @returns {void} Performs router navigation to /carpool/new.
+ * @returns {void} Performs router navigation.
  */
 function navigateToCreate() {
-  router.push('/carpool/new')
+  router.push(
+      '/carpool/new'
+  )
 }
 
 /**
- * Navigates to the carpool detail page using the backend-generated ID.
+ * Navigates to a carpool detail page.
  *
- * @param {string} id - Backend-generated carpool resource identifier.
- * @returns {void} Performs router navigation to the detail page.
+ * @param {string} id - Carpool resource ID.
+ * @returns {void} Performs router navigation.
  */
 function handleSelect(id) {
   if (!id) {
-    ElMessage.error('Carpool ID is missing')
+    ElMessage.error(
+        'Carpool ID is missing'
+    )
     return
   }
 
@@ -423,14 +679,16 @@ function handleSelect(id) {
 }
 
 /**
- * Navigates to the dedicated carpool edit page.
+ * Navigates to the carpool edit page.
  *
- * @param {Object} carpool - Carpool resource containing its backend-generated ID.
- * @returns {void} Performs router navigation to /carpool/edit.
+ * @param {Object} carpool - Carpool resource.
+ * @returns {void} Performs router navigation.
  */
 function handleEdit(carpool) {
   if (!carpool?.id) {
-    ElMessage.error('Carpool ID is missing')
+    ElMessage.error(
+        'Carpool ID is missing'
+    )
     return
   }
 
@@ -445,45 +703,59 @@ function handleEdit(carpool) {
 /**
  * Joins a carpool through the Student Connect API.
  *
- * The frontend prevents joining after departure, while the backend
- * remains responsible for final authorization and capacity validation.
- *
- * @param {string} id - Backend-generated carpool resource identifier.
- * @returns {Promise<void>} Resolves after the join operation completes.
- * @throws {Error} When the API request fails or returns an unsuccessful response.
+ * @param {string} id - Carpool resource ID.
+ * @returns {Promise<void>} Resolves after joining.
+ * @throws {Error} When the API request fails.
  */
 async function handleJoin(id) {
   if (!id) {
-    ElMessage.error('Carpool ID is missing')
+    ElMessage.error(
+        'Carpool ID is missing'
+    )
     return
   }
 
-  const targetCarpool = carpools.value.find(
-      (carpool) => String(carpool?.id) === String(id)
-  )
+  const targetCarpool =
+      carpools.value.find(
+          (carpool) =>
+              String(carpool?.id) ===
+              String(id)
+      )
 
-  if (targetCarpool && isDeparturePassed(targetCarpool)) {
-    ElMessage.warning('This carpool has already departed.')
+  if (
+      targetCarpool &&
+      isDeparturePassed(
+          targetCarpool
+      )
+  ) {
+    ElMessage.warning(
+        'This carpool has already departed.'
+    )
     return
   }
 
   try {
-    const response = await studentConnect.joinCarPool(id)
+    const response =
+        await studentConnect
+            .joinCarPool(id)
 
     if (!response?.success) {
       throw new Error(
-          response?.message || 'Could not join carpool'
+          response?.message ||
+          'Could not join carpool'
       )
     }
 
     await loadCarpools()
 
     ElMessage.success(
-        response.message || 'You joined the carpool!'
+        response.message ||
+        'You joined the carpool!'
     )
   } catch (error) {
     ElMessage.error(
-        error?.message || 'Could not join the carpool'
+        error?.message ||
+        'Could not join the carpool'
     )
   }
 }
@@ -491,37 +763,40 @@ async function handleJoin(id) {
 /**
  * Leaves a carpool through the Student Connect API.
  *
- * The frontend does not remove the participant locally.
- * The backend remains responsible for validating and applying
- * the membership change.
- *
- * @param {string} id - Backend-generated carpool resource identifier.
- * @returns {Promise<void>} Resolves after the leave operation completes.
- * @throws {Error} When the API request fails or returns an unsuccessful response.
+ * @param {string} id - Carpool resource ID.
+ * @returns {Promise<void>} Resolves after leaving.
+ * @throws {Error} When the API request fails.
  */
 async function handleLeave(id) {
   if (!id) {
-    ElMessage.error('Carpool ID is missing')
+    ElMessage.error(
+        'Carpool ID is missing'
+    )
     return
   }
 
   try {
-    const response = await studentConnect.leaveCarPool(id)
+    const response =
+        await studentConnect
+            .leaveCarPool(id)
 
     if (!response?.success) {
       throw new Error(
-          response?.message || 'Could not leave carpool'
+          response?.message ||
+          'Could not leave carpool'
       )
     }
 
     await loadCarpools()
 
     ElMessage.success(
-        response.message || 'You left the carpool.'
+        response.message ||
+        'You left the carpool.'
     )
   } catch (error) {
     ElMessage.error(
-        error?.message || 'Could not leave carpool'
+        error?.message ||
+        'Could not leave carpool'
     )
   }
 }
