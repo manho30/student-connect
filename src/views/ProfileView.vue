@@ -816,6 +816,14 @@ function serviceTime(item, type) {
   }).format(new Date(timestamp))
 }
 
+function getParticipantCount(item) {
+  return item.participantIds ? Object.keys(item.participantIds).length : 0
+}
+
+function getMemberCount(item) {
+  return item.memberIds ? Object.keys(item.memberIds).length : 0
+}
+
 function getServiceTimestamp(item, type) {
   if (type === 'carpool') {
     return normalizeTimestamp(item.departure)

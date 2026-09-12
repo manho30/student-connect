@@ -15,7 +15,7 @@
       <el-input
           id="errand-title-input"
           v-model="form.title"
-          placeholder="e.g. Pick up parcel / Print lab report"
+          placeholder="e.g. Pick up parcel"
           clearable
       />
 
@@ -39,7 +39,7 @@
           v-model="form.description"
           type="textarea"
           :rows="3"
-          placeholder="Explain what needs to be done, including important instructions or items."
+          placeholder="Pls contact my Whatsapp at 012-3456789 before proceeding."
       />
 
       <p
@@ -60,7 +60,7 @@
       <el-input
           id="errand-location-input"
           v-model="form.location"
-          placeholder="e.g. KTM Butterworth Hub / BP3 / DKK3"
+          placeholder="e.g. Pos Mini"
           clearable
       />
 

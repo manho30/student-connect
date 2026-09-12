@@ -16,7 +16,7 @@
       <el-input
           id="study-title-input"
           v-model="form.title"
-          placeholder="e.g. Biology Revision"
+          placeholder="Chapter 6: The Cell Cycle"
           clearable
       />
 
@@ -40,7 +40,7 @@
       <el-input
           id="study-subject-input"
           v-model="form.subject"
-          placeholder="e.g. Biology"
+          placeholder="SB015"
           clearable
       />
 
@@ -66,7 +66,7 @@
           v-model="form.description"
           type="textarea"
           :rows="3"
-          placeholder="What will you study or revise?"
+          placeholder="Provide a brief description of the study session"
       />
 
       <p
