@@ -129,17 +129,54 @@
         </button>
       </div>
 
-      <!-- Carpool List -->
-      <CarpoolList
-          v-else
-          :carpools="filteredCarpools"
-          :current-user="currentUser"
-          @join="handleJoin"
-          @leave="handleLeave"
-          @edit="handleEdit"
-          @select="handleSelect"
-          @open-create="navigateToCreate"
-      />
+      <!-- Carpool Lists -->
+      <div v-else class="space-y-8">
+        <section>
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Currently Active</h2>
+              <p class="text-xs text-slate-500">Open carpools and rides with available capacity.</p>
+            </div>
+            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+              {{ activeCarpools.length }}
+            </span>
+          </div>
+          <CarpoolList
+              :carpools="activeCarpools"
+              :current-user="currentUser"
+              @join="handleJoin"
+              @leave="handleLeave"
+              @edit="handleEdit"
+              @select="handleSelect"
+              @open-create="navigateToCreate"
+          />
+        </section>
+
+        <section>
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Archive</h2>
+              <p class="text-xs text-slate-500">Inactive carpools from the last 3 days.</p>
+            </div>
+            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+              {{ archivedCarpools.length }}
+            </span>
+          </div>
+          <CarpoolList
+              v-if="archivedCarpools.length"
+              :carpools="archivedCarpools"
+              :current-user="currentUser"
+              :show-create-prompt="false"
+              @join="handleJoin"
+              @leave="handleLeave"
+              @edit="handleEdit"
+              @select="handleSelect"
+          />
+          <p v-else class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+            No inactive carpools from the last 3 days.
+          </p>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -278,6 +315,32 @@ function normalizeTimestamp(value) {
   return timestamp > 100000000000
       ? Math.floor(timestamp / 1000)
       : Math.floor(timestamp)
+}
+
+/**
+ * Normalizes a service activity timestamp to Unix milliseconds.
+ *
+ * @param {*} value - Numeric, ISO, or timestamp-object value.
+ * @returns {number} Timestamp in milliseconds, or zero when invalid.
+ */
+function normalizeActivityTimestamp(value) {
+  if (value && typeof value === 'object') {
+    value = value.toDate
+        ? value.toDate()
+        : value.timestamp ?? value.seconds ?? value.value
+  }
+
+  if (value instanceof Date) return value.getTime()
+
+  if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
+    const numericValue = Number(value)
+    return Number.isFinite(numericValue)
+        ? numericValue < 100000000000 ? numericValue * 1000 : numericValue
+        : 0
+  }
+
+  const parsed = Date.parse(value || '')
+  return Number.isFinite(parsed) ? parsed : 0
 }
 
 /**
@@ -462,6 +525,37 @@ function isCarpoolAvailable(carpool) {
 }
 
 /**
+ * Returns the backend-aligned carpool status used by list grouping.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {string} open, full, cancelled, or expired.
+ */
+function getCarpoolStatus(carpool) {
+  const status = String(carpool?.status || '').toLowerCase()
+  if (status === 'cancelled' || status === 'expired') return status
+  if (isDeparturePassed(carpool)) return 'expired'
+
+  const capacity = Number(carpool?.capacity)
+  return capacity > 0 && getParticipantCount(carpool) >= capacity
+      ? 'full'
+      : 'open'
+}
+
+/**
+ * Determines whether an inactive carpool belongs in the 72-hour archive.
+ *
+ * @param {Object} carpool - Carpool resource.
+ * @returns {boolean} True when the inactive record is recent.
+ */
+function isRecentInactiveCarpool(carpool) {
+  const status = getCarpoolStatus(carpool)
+  if (status !== 'cancelled' && status !== 'expired') return false
+
+  const timestamp = normalizeActivityTimestamp(carpool?.updatedAt || carpool?.createdAt)
+  return timestamp > 0 && Date.now() - timestamp <= 72 * 60 * 60 * 1000
+}
+
+/**
  * Converts a value into lowercase searchable text.
  *
  * Objects are recursively flattened so nested departure data
@@ -643,6 +737,28 @@ const filteredCarpools = computed(() => {
   }
 
   return list
+})
+
+/**
+ * Returns active carpools after search and filter criteria are applied.
+ *
+ * @returns {Array<Object>} Active carpools.
+ */
+const activeCarpools = computed(() => {
+  return filteredCarpools.value
+      .filter((carpool) => ['open', 'full'].includes(getCarpoolStatus(carpool)))
+      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
+})
+
+/**
+ * Returns recent inactive carpools for the archive section.
+ *
+ * @returns {Array<Object>} Recent archived carpools.
+ */
+const archivedCarpools = computed(() => {
+  return filteredCarpools.value
+      .filter(isRecentInactiveCarpool)
+      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
 })
 
 /**

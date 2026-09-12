@@ -136,16 +136,52 @@
         </button>
       </div>
 
-      <!-- Study Group List -->
-      <StudyGroupList
-          v-else
-          :groups="filteredGroups"
-          :current-user="currentUser"
-          @join="handleJoin"
-          @leave="handleLeave"
-          @select="handleSelect"
-          @open-create="navigateToCreate"
-      />
+      <!-- Study Group Lists -->
+      <div v-else class="space-y-8">
+        <section>
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Currently Active</h2>
+              <p class="text-xs text-slate-500">Open study sessions and groups with available capacity.</p>
+            </div>
+            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+              {{ activeGroups.length }}
+            </span>
+          </div>
+          <StudyGroupList
+              :groups="activeGroups"
+              :current-user="currentUser"
+              @join="handleJoin"
+              @leave="handleLeave"
+              @select="handleSelect"
+              @open-create="navigateToCreate"
+          />
+        </section>
+
+        <section>
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Archive</h2>
+              <p class="text-xs text-slate-500">Inactive study sessions from the last 3 days.</p>
+            </div>
+            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+              {{ archivedGroups.length }}
+            </span>
+          </div>
+          <StudyGroupList
+              v-if="archivedGroups.length"
+              :groups="archivedGroups"
+              :current-user="currentUser"
+              :show-create-prompt="false"
+              @join="handleJoin"
+              @leave="handleLeave"
+              @select="handleSelect"
+          />
+          <p v-else class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+            No inactive study sessions from the last 3 days.
+          </p>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -192,6 +228,32 @@ const loadError = ref('')
 const currentUser = computed(() => {
   return user.value || null
 })
+
+/**
+ * Normalizes a service activity timestamp to Unix milliseconds.
+ *
+ * @param {*} value - Numeric, ISO, or timestamp-object value.
+ * @returns {number} Timestamp in milliseconds, or zero when invalid.
+ */
+function normalizeActivityTimestamp(value) {
+  if (value && typeof value === 'object') {
+    value = value.toDate
+        ? value.toDate()
+        : value.timestamp ?? value.seconds ?? value.value
+  }
+
+  if (value instanceof Date) return value.getTime()
+
+  if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
+    const numericValue = Number(value)
+    return Number.isFinite(numericValue)
+        ? numericValue < 100000000000 ? numericValue * 1000 : numericValue
+        : 0
+  }
+
+  const parsed = Date.parse(value || '')
+  return Number.isFinite(parsed) ? parsed : 0
+}
 
 /**
  * Gets the currently selected study ID from the route query.
@@ -407,6 +469,59 @@ const filteredGroups = computed(() => {
   }
 
   return list
+})
+
+/**
+ * Returns the backend-aligned study status used by list grouping.
+ *
+ * @param {Object} group - Study group resource.
+ * @returns {string} open, full, cancelled, or expired.
+ */
+function getStudyStatus(group) {
+  const status = String(group?.status || '').toLowerCase()
+  if (status === 'cancelled' || status === 'expired') return status
+  const startTime = normalizeActivityTimestamp(group?.schedule?.startTime)
+  if (startTime > 0 && startTime < Date.now()) return 'expired'
+
+  const capacity = Number(group?.capacity)
+  const memberCount = Array.isArray(group?.members) ? group.members.length : 0
+  return capacity > 0 && memberCount >= capacity ? 'full' : 'open'
+}
+
+/**
+ * Determines whether an inactive study group belongs in the 72-hour archive.
+ *
+ * @param {Object} group - Study group resource.
+ * @returns {boolean} True when the inactive record is recent.
+ */
+function isRecentInactiveStudy(group) {
+  const status = getStudyStatus(group)
+  if (status !== 'cancelled' && status !== 'expired') return false
+
+  const timestamp = normalizeActivityTimestamp(group?.updatedAt || group?.createdAt)
+  return timestamp > 0 && Date.now() - timestamp <= 72 * 60 * 60 * 1000
+}
+
+/**
+ * Returns active study groups after search and filter criteria are applied.
+ *
+ * @returns {Array<Object>} Active study groups.
+ */
+const activeGroups = computed(() => {
+  return filteredGroups.value
+      .filter((group) => ['open', 'full'].includes(getStudyStatus(group)))
+      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
+})
+
+/**
+ * Returns recent inactive study groups for the archive section.
+ *
+ * @returns {Array<Object>} Recent archived study groups.
+ */
+const archivedGroups = computed(() => {
+  return filteredGroups.value
+      .filter(isRecentInactiveStudy)
+      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
 })
 
 /**

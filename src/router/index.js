@@ -16,6 +16,9 @@ const StudyGroupsView = () => import('@/views/StudyGroupsView.vue')
 const StudyFormView = () => import('@/views/StudyFormView.vue')
 const ProfileView = () => import('@/views/ProfileView.vue')
 const AdminUsersView = () => import('@/views/AdminUsersView.vue')
+const StatisticsView = () => import('@/views/StatisticsView.vue')
+const ActivitiesView = () => import('@/views/ActivitiesView.vue')
+const ActivitiesFormView = () => import('@/views/ActivitiesFormView.vue')
 
 const router = createRouter({
   history: createWebHistory(),
@@ -92,6 +95,26 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
 
+    // Activities Routes
+    {
+      path: '/activities',
+      name: 'activities',
+      component: ActivitiesView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/activities/new',
+      name: 'activities-new',
+      component: ActivitiesFormView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/activities/edit',
+      name: 'activities-edit',
+      component: ActivitiesFormView,
+      meta: { requiresAuth: true }
+    },
+
     // User Profile
     {
       path: '/profile',
@@ -104,6 +127,12 @@ const router = createRouter({
       name: 'admin-users',
       component: AdminUsersView,
       meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin/statistics',
+      name: 'admin-statistics',
+      component: StatisticsView,
+      meta: { requiresAuth: true, requiresSuperadmin: true }
     },
 
     // Fallback redirect
@@ -152,6 +181,21 @@ router.beforeEach(async (to) => {
     }
 
     if (!['admin', 'superadmin'].includes(currentUserProfile.value?.role)) {
+      return '/profile'
+    }
+  }
+
+  if (to.meta.requiresSuperadmin) {
+    if (!currentUserProfile.value) {
+      try {
+        const response = await studentConnect.getCurrentUserProfile()
+        setCurrentUserProfile(response.data)
+      } catch {
+        return '/profile'
+      }
+    }
+
+    if (currentUserProfile.value?.role !== 'superadmin') {
       return '/profile'
     }
   }

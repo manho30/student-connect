@@ -20,6 +20,7 @@
 
       <!-- Prompt card to create a new ride -->
       <div
+          v-if="showCreatePrompt"
           class="bg-white rounded-2xl p-6 border-2 border-dashed border-slate-200 shadow-xs flex flex-col justify-between bg-slate-50/50 group hover:border-indigo-300 transition-all min-h-[220px]"
       >
         <div
@@ -138,6 +139,11 @@ defineProps({
   currentUser: {
     type: Object,
     required: true
+  },
+
+  showCreatePrompt: {
+    type: Boolean,
+    default: true
   }
 })
 

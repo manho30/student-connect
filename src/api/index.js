@@ -386,6 +386,75 @@ function getUsers() {
 }
 
 /**
+ * Retrieves platform statistics for the selected reporting period.
+ *
+ * @param {string} [period='30d'] - Reporting period accepted by the backend.
+ * @returns {Promise<Object>} API response containing platform statistics.
+ */
+function getStatistics(period = '30d') {
+  const query = new URLSearchParams({ period }).toString()
+  return request(`/api/statistics?${query}`)
+}
+
+/**
+ * Retrieves all published activities.
+ *
+ * @returns {Promise<Object>} API response containing activities.
+ */
+function getAllActivities() {
+  return request('/api/activities', {}, false)
+}
+
+/**
+ * Retrieves one activity announcement.
+ *
+ * @param {string} id - Activity identifier.
+ * @returns {Promise<Object>} API response containing the activity.
+ */
+function getActivity(id) {
+  return request(`/api/activities/${encodeURIComponent(id)}`, {}, false)
+}
+
+/**
+ * Creates an activity announcement.
+ *
+ * @param {Object} data - Activity fields.
+ * @returns {Promise<Object>} API response containing the created activity.
+ */
+function createActivity(data) {
+  return request('/api/activities', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+
+/**
+ * Updates an owned activity announcement.
+ *
+ * @param {string} id - Activity identifier.
+ * @param {Object} data - Editable activity fields.
+ * @returns {Promise<Object>} API response containing the updated activity.
+ */
+function updateActivity(id, data) {
+  return request(`/api/activities/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(data)
+  })
+}
+
+/**
+ * Deletes an owned activity announcement.
+ *
+ * @param {string} id - Activity identifier.
+ * @returns {Promise<Object>} API response confirming deletion.
+ */
+function deleteActivity(id) {
+  return request(`/api/activities/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  })
+}
+
+/**
  * Retrieves one user visible to the authenticated administrator.
  *
  * @param {string} id - Firebase user identifier.
@@ -466,6 +535,12 @@ const studentConnect = {
   getCurrentUserProfile,
   updateCurrentUserProfile,
   getUsers,
+  getStatistics,
+  getAllActivities,
+  getActivity,
+  createActivity,
+  updateActivity,
+  deleteActivity,
   getUser,
   createUser,
   updateUser,
@@ -503,6 +578,12 @@ export {
   getCurrentUserProfile,
   updateCurrentUserProfile,
   getUsers,
+  getStatistics,
+  getAllActivities,
+  getActivity,
+  createActivity,
+  updateActivity,
+  deleteActivity,
   getUser,
   createUser,
   updateUser,

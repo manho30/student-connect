@@ -18,6 +18,7 @@
 
       <!-- Prompt Card -->
       <div
+          v-if="showCreatePrompt"
           id="create-errand-prompt-card"
           class="bg-white rounded-2xl p-6 border-2 border-dashed border-slate-200 shadow-xs flex flex-col justify-between bg-slate-50/50 group hover:border-indigo-300 transition-all min-h-[220px]"
       >
@@ -128,6 +129,11 @@ const props = defineProps({
       id: '',
       name: 'Student'
     })
+  },
+
+  showCreatePrompt: {
+    type: Boolean,
+    default: true
   }
 })
 

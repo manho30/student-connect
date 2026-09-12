@@ -156,16 +156,52 @@
         </button>
       </div>
 
-      <!-- Errand List -->
-      <ErrandList
-          v-else
-          :errands="filteredErrands"
-          :current-user="currentUser"
-          @accept="handleAccept"
-          @complete="handleComplete"
-          @select="handleSelect"
-          @open-create="navigateToCreate"
-      />
+      <!-- Errand Lists -->
+      <div v-else class="space-y-8">
+        <section>
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Currently Active</h2>
+              <p class="text-xs text-slate-500">Open and accepted errands needing attention.</p>
+            </div>
+            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+              {{ activeErrands.length }}
+            </span>
+          </div>
+          <ErrandList
+              :errands="activeErrands"
+              :current-user="currentUser"
+              @accept="handleAccept"
+              @complete="handleComplete"
+              @select="handleSelect"
+              @open-create="navigateToCreate"
+          />
+        </section>
+
+        <section>
+          <div class="mb-3 flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-bold text-slate-900">Archive</h2>
+              <p class="text-xs text-slate-500">Inactive errands from the last 3 days.</p>
+            </div>
+            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+              {{ archivedErrands.length }}
+            </span>
+          </div>
+          <ErrandList
+              v-if="archivedErrands.length"
+              :errands="archivedErrands"
+              :current-user="currentUser"
+              :show-create-prompt="false"
+              @accept="handleAccept"
+              @complete="handleComplete"
+              @select="handleSelect"
+          />
+          <p v-else class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+            No inactive errands from the last 3 days.
+          </p>
+        </section>
+      </div>
     </div>
   </div>
 </template>
@@ -196,6 +232,32 @@ const currentUser = computed(() => ({
   id: user.value?.uid || '',
   name: user.value?.displayName || user.value?.email || 'Student'
 }))
+
+/**
+ * Normalizes a service activity timestamp to Unix milliseconds.
+ *
+ * @param {*} value - Numeric, ISO, or timestamp-object value.
+ * @returns {number} Timestamp in milliseconds, or zero when invalid.
+ */
+function normalizeActivityTimestamp(value) {
+  if (value && typeof value === 'object') {
+    value = value.toDate
+        ? value.toDate()
+        : value.timestamp ?? value.seconds ?? value.value
+  }
+
+  if (value instanceof Date) return value.getTime()
+
+  if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
+    const numericValue = Number(value)
+    return Number.isFinite(numericValue)
+        ? numericValue < 100000000000 ? numericValue * 1000 : numericValue
+        : 0
+  }
+
+  const parsed = Date.parse(value || '')
+  return Number.isFinite(parsed) ? parsed : 0
+}
 
 /**
  * Reads the errand ID from the current route query.
@@ -310,6 +372,58 @@ const filteredErrands = computed(() => {
         location.includes(query)
     )
   })
+})
+
+/**
+ * Returns the backend-aligned errand status used by list grouping.
+ *
+ * @param {Object} errand - Errand resource.
+ * @returns {string} open, accepted, completed, cancelled, or expired.
+ */
+function getErrandStatus(errand) {
+  const status = String(errand?.status || '').toLowerCase()
+  if (['accepted', 'completed', 'cancelled', 'expired'].includes(status)) return status
+
+  const deadline = normalizeActivityTimestamp(errand?.deadline)
+  return deadline > 0 && deadline < Date.now() ? 'expired' : 'open'
+}
+
+/**
+ * Determines whether an inactive errand belongs in the 72-hour archive.
+ *
+ * @param {Object} errand - Errand resource.
+ * @returns {boolean} True when the inactive record is recent.
+ */
+function isRecentInactiveErrand(errand) {
+  const status = getErrandStatus(errand)
+  if (!['completed', 'cancelled', 'expired'].includes(status)) return false
+
+  const timestamp = normalizeActivityTimestamp(
+      errand?.updatedAt || errand?.completedAt || errand?.createdAt
+  )
+  return timestamp > 0 && Date.now() - timestamp <= 72 * 60 * 60 * 1000
+}
+
+/**
+ * Returns active errands after search criteria are applied.
+ *
+ * @returns {Array<Object>} Active errands.
+ */
+const activeErrands = computed(() => {
+  return filteredErrands.value
+      .filter((errand) => ['open', 'accepted'].includes(getErrandStatus(errand)))
+      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
+})
+
+/**
+ * Returns recent inactive errands for the archive section.
+ *
+ * @returns {Array<Object>} Recent archived errands.
+ */
+const archivedErrands = computed(() => {
+  return filteredErrands.value
+      .filter(isRecentInactiveErrand)
+      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.completedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.completedAt || first.createdAt))
 })
 
 /**

@@ -31,7 +31,7 @@
         <span>Back to Carpools</span>
       </button>
 
-      <div v-if="carpool && isOwner" class="flex items-center gap-2">
+      <div v-if="carpool && isOwner && canEdit" class="flex items-center gap-2">
         <button
             id="edit-carpool-detail-btn"
             class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors cursor-pointer border border-indigo-200"
@@ -98,12 +98,10 @@
             <span
                 :class="[
                 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
-                isFull
-                  ? 'bg-slate-700 text-slate-300'
-                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                statusBadgeClass
               ]"
             >
-              {{ isFull ? 'Fully Booked' : 'Available Seats' }}
+              {{ statusLabel }}
             </span>
 
             <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-indigo-200 border border-white/10">
@@ -347,7 +345,7 @@
 
           <div class="flex items-center gap-3 w-full sm:w-auto">
             <!-- Owner Actions -->
-            <template v-if="isOwner">
+            <template v-if="isOwner && canEdit">
               <button
                   id="owner-edit-carpool-btn"
                   class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-colors border border-indigo-200 cursor-pointer"
@@ -368,7 +366,7 @@
             </template>
 
             <!-- Joined Participant Action -->
-            <template v-else-if="isJoined">
+            <template v-else-if="isJoined && canLeave">
               <button
                   id="passenger-leave-carpool-btn"
                   class="w-full sm:w-auto px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
@@ -382,7 +380,7 @@
             </template>
 
             <!-- Departure Has Passed -->
-            <template v-else-if="isDeparturePassed">
+            <template v-else-if="statusKey === 'expired'">
               <button
                   id="join-carpool-detail-btn"
                   class="w-full sm:w-auto px-6 py-2.5 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
@@ -394,7 +392,7 @@
             </template>
 
             <!-- Available to Join -->
-            <template v-else-if="!isFull">
+            <template v-else-if="canParticipate">
               <button
                   id="join-carpool-detail-btn"
                   class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer"
@@ -413,7 +411,7 @@
                   disabled
                   type="button"
               >
-                No Seats Left
+                {{ statusLabel }}
               </button>
             </template>
           </div>
@@ -526,6 +524,49 @@ const isDeparturePassed = computed(() => {
 })
 
 /**
+ * Returns the backend-aligned carpool status.
+ *
+ * @returns {string} open, full, cancelled, or expired.
+ */
+const statusKey = computed(() => {
+  const explicitStatus = String(carpool.value?.status || '').toLowerCase()
+  if (explicitStatus === 'cancelled' || explicitStatus === 'expired') {
+    return explicitStatus
+  }
+
+  if (isDeparturePassed.value) return 'expired'
+  return isFull.value ? 'full' : 'open'
+})
+
+/**
+ * Returns the visible carpool status label.
+ *
+ * @returns {string} Human-readable status.
+ */
+const statusLabel = computed(() => {
+  return {
+    open: 'Open',
+    full: 'Full',
+    cancelled: 'Cancelled',
+    expired: 'Expired'
+  }[statusKey.value] || 'Open'
+})
+
+/**
+ * Returns the status badge styling for the carpool detail header.
+ *
+ * @returns {string} Tailwind classes.
+ */
+const statusBadgeClass = computed(() => {
+  return {
+    open: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+    full: 'bg-slate-700 text-slate-300',
+    cancelled: 'bg-rose-500/20 text-rose-300 border border-rose-400/30',
+    expired: 'bg-amber-500/20 text-amber-300 border border-amber-400/30'
+  }[statusKey.value]
+})
+
+/**
  * Determines whether the current student owns the carpool.
  *
  * @returns {boolean} True when the current user's ID matches owner.id.
@@ -552,6 +593,33 @@ const isJoined = computed(() => {
       (participant) =>
           participant?.id === props.currentUser.id
   )
+})
+
+/**
+ * Determines whether the owner may edit or cancel the carpool.
+ *
+ * @returns {boolean} True for non-terminal carpools.
+ */
+const canEdit = computed(() => {
+  return ['open', 'full'].includes(statusKey.value)
+})
+
+/**
+ * Determines whether the current participant may leave the carpool.
+ *
+ * @returns {boolean} True for active carpools.
+ */
+const canLeave = computed(() => {
+  return ['open', 'full'].includes(statusKey.value)
+})
+
+/**
+ * Determines whether a non-participant may join the carpool.
+ *
+ * @returns {boolean} True when the carpool is open and not departed.
+ */
+const canParticipate = computed(() => {
+  return statusKey.value === 'open' && !isDeparturePassed.value
 })
 
 /**

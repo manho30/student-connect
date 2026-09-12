@@ -194,7 +194,7 @@
 
         <!-- Requester Status -->
         <div
-            v-if="errand.status === 'open' && isCreator"
+            v-if="currentStatus === 'open' && isCreator"
             class="bg-indigo-50/70 border border-indigo-200/80 rounded-xl p-4 flex items-center gap-3"
         >
           <div
@@ -384,6 +384,16 @@
               Edit Errand
             </button>
 
+            <button
+                v-if="canCancel"
+                id="cancel-errand-detail-btn"
+                class="flex-1 sm:flex-none px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs transition-colors border border-rose-200 cursor-pointer"
+                :disabled="actionLoading"
+                @click="handleCancel"
+            >
+              Cancel Errand
+            </button>
+
             <!-- Creator cannot accept own errand -->
             <button
                 v-if="errand.status === 'open' && isCreator"
@@ -397,7 +407,7 @@
 
             <!-- Other students can accept -->
             <button
-                v-else-if="errand.status === 'open' && !isCreator"
+                v-else-if="currentStatus === 'open' && !isCreator"
                 id="accept-errand-detail-btn"
                 :disabled="actionLoading"
                 class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2"
@@ -410,7 +420,7 @@
             </button>
 
             <!-- Helper can complete -->
-            <button v-else-if="errand.status === 'accepted' && isAcceptedByMe && !isCreator"
+            <button v-else-if="currentStatus === 'accepted' && isAcceptedByMe && !isCreator"
                     id="complete-errand-detail-btn"
                     :disabled="actionLoading"
                     class="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2" @click="handleComplete"
@@ -422,7 +432,7 @@
             </button>
 
             <!-- Helper can release the errand -->
-            <button v-if="errand.status === 'accepted' &&isAcceptedByMe &&!isCreator"
+            <button v-if="currentStatus === 'accepted' &&isAcceptedByMe &&!isCreator"
                     id="cancel-acceptance-detail-btn" :disabled="actionLoading"
                     class="w-full sm:w-auto px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 text-white  disabled:text-slate-400 rounded-xl font-bold text-xs border border-rose-200 disabled:border-slate-200 shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     @click="handleCancelAcceptance">
@@ -435,7 +445,7 @@
 
             <!-- Requester / other users see progress -->
             <button
-                v-else-if="errand.status === 'accepted'"
+                v-else-if="currentStatus === 'accepted'"
                 id="errand-in-progress-detail-btn"
                 disabled
                 class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
@@ -446,7 +456,7 @@
 
             <!-- Completed -->
             <button
-                v-else-if="errand.status === 'completed'"
+                v-else-if="currentStatus === 'completed'"
                 id="completed-errand-detail-btn"
                 disabled
                 class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
@@ -457,13 +467,23 @@
 
             <!-- Cancelled -->
             <button
-                v-else-if="errand.status === 'cancelled'"
+                v-else-if="currentStatus === 'cancelled'"
                 id="cancelled-errand-detail-btn"
                 disabled
                 class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
             >
               <i class="fi fi-rr-cross-circle"></i>
               <span>Cancelled</span>
+            </button>
+
+            <button
+                v-else-if="currentStatus === 'expired'"
+                id="expired-errand-detail-btn"
+                disabled
+                class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <i class="fi fi-rr-clock"></i>
+              <span>Expired</span>
             </button>
           </div>
         </div>
@@ -568,8 +588,37 @@ const isAcceptedByMe = computed(() => {
 const canEdit = computed(() => {
   return Boolean(
       isCreator.value &&
-      errand.value?.status === 'open'
+      currentStatus.value === 'open'
   )
+})
+
+/**
+ * Returns the normalized backend-aligned errand status.
+ *
+ * @returns {string} open, accepted, completed, cancelled, or expired.
+ */
+const currentStatus = computed(() => {
+  const status = String(errand.value?.status || '').toLowerCase()
+  if (['accepted', 'completed', 'cancelled', 'expired'].includes(status)) {
+    return status
+  }
+
+  const deadline = Number(errand.value?.deadline)
+  return Number.isFinite(deadline) &&
+      deadline > 0 &&
+      Date.now() >= deadline * 1000
+      ? 'expired'
+      : 'open'
+})
+
+/**
+ * Determines whether the requester may cancel the errand.
+ *
+ * @returns {boolean} True while the errand is open or accepted.
+ */
+const canCancel = computed(() => {
+  return isCreator.value &&
+      ['open', 'accepted'].includes(currentStatus.value)
 })
 
 /**
@@ -578,7 +627,7 @@ const canEdit = computed(() => {
  * @returns {string} Status label.
  */
 const statusLabel = computed(() => {
-  switch (errand.value?.status) {
+  switch (currentStatus.value) {
     case 'accepted':
       return 'In Progress / Accepted'
 
@@ -587,6 +636,9 @@ const statusLabel = computed(() => {
 
     case 'cancelled':
       return 'Cancelled'
+
+    case 'expired':
+      return 'Expired'
 
     case 'open':
     default:
@@ -600,12 +652,15 @@ const statusLabel = computed(() => {
  * @returns {string} Tailwind CSS class list.
  */
 const statusBadgeClass = computed(() => {
-  switch (errand.value?.status) {
+  switch (currentStatus.value) {
     case 'completed':
       return 'bg-slate-700 text-slate-300'
 
     case 'cancelled':
       return 'bg-rose-500/20 text-rose-300 border border-rose-400/30'
+
+    case 'expired':
+      return 'bg-amber-500/20 text-amber-300 border border-amber-400/30'
 
     case 'accepted':
       return 'bg-blue-500/20 text-blue-300 border border-blue-400/30'
@@ -701,7 +756,7 @@ async function handleAccept() {
     return
   }
 
-  if (errand.value.status !== 'open') {
+  if (currentStatus.value !== 'open') {
     ElMessage.warning('This errand is no longer available.')
     return
   }
@@ -752,7 +807,7 @@ async function handleComplete() {
     return
   }
 
-  if (errand.value.status !== 'accepted') {
+  if (currentStatus.value !== 'accepted') {
     ElMessage.warning(
         'This errand is no longer in progress.'
     )
@@ -795,6 +850,43 @@ async function handleComplete() {
 }
 
 /**
+ * Cancels the current errand as its requester.
+ *
+ * @returns {Promise<void>} Resolves after cancellation or user dismissal.
+ */
+async function handleCancel() {
+  if (!errand.value || actionLoading.value || !canCancel.value) {
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+        'Cancel this errand? This action cannot be undone.',
+        'Cancel Errand',
+        {
+          confirmButtonText: 'Cancel Errand',
+          cancelButtonText: 'Keep',
+          type: 'warning'
+        }
+    )
+  } catch {
+    return
+  }
+
+  actionLoading.value = true
+
+  try {
+    const response = await studentConnect.cancelErrand(errand.value.id)
+    errand.value = response?.data ?? response
+    ElMessage.success('Errand cancelled.')
+  } catch (error) {
+    ElMessage.error(error?.message || 'Could not cancel errand.')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+/**
  * Releases the current helper's acceptance of the errand.
  *
  * The errand returns to the open state and the backend appends
@@ -814,7 +906,7 @@ async function handleCancelAcceptance() {
     return
   }
 
-  if (errand.value.status !== 'accepted') {
+  if (currentStatus.value !== 'accepted') {
     ElMessage.warning(
         'This errand is no longer in progress.'
     )

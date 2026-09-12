@@ -50,6 +50,14 @@
             </svg>
             <span>Study Groups</span>
           </router-link>
+          <router-link
+            to="/activities"
+            class="px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            active-class="!bg-indigo-50 !text-indigo-700 !font-semibold"
+          >
+            <i class="fi fi-rr-calendar text-sm"></i>
+            <span>Activities</span>
+          </router-link>
 
           <router-link
             v-if="isAdministrator"
@@ -59,6 +67,15 @@
           >
             <i class="fi fi-rr-users-alt text-sm"></i>
             <span>Users</span>
+          </router-link>
+          <router-link
+            v-if="isSuperadmin"
+            to="/admin/statistics"
+            class="px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+            active-class="!bg-indigo-50 !text-indigo-700 !font-semibold"
+          >
+            <i class="fi fi-rr-chart-histogram text-sm"></i>
+            <span>Statistics</span>
           </router-link>
         </div>
       </div>
@@ -140,7 +157,7 @@
       <div
         :class="[
           'grid gap-1 max-w-md mx-auto',
-          isAdministrator ? 'grid-cols-4' : 'grid-cols-3'
+          isSuperadmin ? 'grid-cols-6' : isAdministrator ? 'grid-cols-5' : 'grid-cols-4'
         ]"
       >
         <router-link
@@ -177,6 +194,15 @@
         </router-link>
 
         <router-link
+          to="/activities"
+          class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[11px] font-semibold text-slate-500 transition-colors"
+          active-class="!text-indigo-700 !bg-indigo-50"
+        >
+          <i class="fi fi-rr-calendar text-base mb-0.5"></i>
+          <span>Activities</span>
+        </router-link>
+
+        <router-link
           v-if="isAdministrator"
           to="/admin/users"
           class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[11px] font-semibold text-slate-500 transition-colors"
@@ -184,6 +210,15 @@
         >
           <i class="fi fi-rr-users-alt text-base mb-0.5"></i>
           <span>Users</span>
+        </router-link>
+        <router-link
+          v-if="isSuperadmin"
+          to="/admin/statistics"
+          class="flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[11px] font-semibold text-slate-500 transition-colors"
+          active-class="!text-indigo-700 !bg-indigo-50"
+        >
+          <i class="fi fi-rr-chart-histogram text-base mb-0.5"></i>
+          <span>Stats</span>
         </router-link>
       </div>
     </nav>
@@ -287,6 +322,15 @@ const currentUser = computed(() => {
  */
 const isAdministrator = computed(() => {
   return ['admin', 'superadmin'].includes(currentUserProfile.value?.role)
+})
+
+/**
+ * Determines whether the current backend profile is a superadministrator.
+ *
+ * @returns {boolean} True when the current user may access statistics.
+ */
+const isSuperadmin = computed(() => {
+  return currentUserProfile.value?.role === 'superadmin'
 })
 
 /**

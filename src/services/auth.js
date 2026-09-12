@@ -16,15 +16,18 @@ const authLoading = ref(true)
 const isAuthenticated = computed(() => Boolean(user.value))
 
 let resolveAuthReady
+
 const authReady = new Promise((resolve) => {
   resolveAuthReady = resolve
 })
 
 firebaseOnAuthStateChanged(auth, (firebaseUser) => {
   user.value = firebaseUser
+
   if (!firebaseUser) {
     currentUserProfile.value = null
   }
+
   authLoading.value = false
   resolveAuthReady(firebaseUser)
 })
@@ -55,12 +58,27 @@ function login(email, password) {
 /**
  * Signs a student in through Firebase Authentication with Google.
  *
+ * Uses Firebase's GoogleAuthProvider and popup-based authentication.
+ * The original Firebase error is intentionally rethrown so the caller
+ * can handle specific authentication error codes such as
+ * auth/popup-blocked and auth/popup-closed-by-user.
+ *
  * @returns {Promise<import('firebase/auth').UserCredential>} Firebase sign-in result.
- * @throws {Error} When the popup is cancelled, blocked, or Firebase rejects authentication.
+ * @throws {Error} When Google authentication fails.
  */
-function signInWithGoogle() {
+async function signInWithGoogle() {
   const provider = new GoogleAuthProvider()
-  return signInWithPopup(auth, provider)
+
+  provider.setCustomParameters({
+    prompt: 'select_account'
+  })
+
+  try {
+    return await signInWithPopup(auth, provider)
+  } catch (error) {
+    console.error('Firebase Google sign-in failed:', error)
+    throw error
+  }
 }
 
 /**
@@ -73,10 +91,16 @@ function signInWithGoogle() {
  * @throws {Error} When Firebase rejects the registration.
  */
 async function register(email, password, displayName = '') {
-  const credential = await createUserWithEmailAndPassword(auth, email, password)
+  const credential = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password
+  )
 
   if (displayName.trim()) {
-    await updateProfile(credential.user, { displayName: displayName.trim() })
+    await updateProfile(credential.user, {
+      displayName: displayName.trim()
+    })
   }
 
   return credential

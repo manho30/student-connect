@@ -32,7 +32,7 @@
       </button>
 
       <div
-          v-if="study && isOwner"
+          v-if="study && isOwner && canEdit"
           class="flex items-center gap-2"
       >
         <button
@@ -114,12 +114,10 @@
             <span
                 :class="[
                 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
-                isFull
-                  ? 'bg-slate-700 text-slate-300'
-                  : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                statusBadgeClass
               ]"
             >
-              {{ isFull ? 'Fully Booked' : 'Open' }}
+              {{ statusLabel }}
             </span>
 
             <span
@@ -468,7 +466,7 @@
 
           <div class="flex items-center gap-3 w-full sm:w-auto">
             <!-- Owner -->
-            <template v-if="isOwner">
+            <template v-if="isOwner && canEdit">
               <button
                   id="owner-edit-study-btn"
                   class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-colors border border-indigo-200 cursor-pointer"
@@ -480,7 +478,7 @@
             </template>
 
             <!-- Joined -->
-            <template v-else-if="isJoined">
+            <template v-else-if="isJoined && canLeave">
               <button
                   id="leave-study-btn"
                   class="w-full sm:w-auto px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs border border-slate-200 cursor-pointer transition-colors"
@@ -493,7 +491,7 @@
             </template>
 
             <!-- Available -->
-            <template v-else-if="!isFull">
+            <template v-else-if="canParticipate">
               <button
                   id="join-study-detail-btn"
                   class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer"
@@ -512,7 +510,7 @@
                   disabled
                   type="button"
               >
-                No Seats Left
+                {{ statusLabel }}
               </button>
             </template>
           </div>
@@ -608,6 +606,60 @@ const isFull = computed(() => {
 })
 
 /**
+ * Determines whether the study session has passed its scheduled start.
+ *
+ * @returns {boolean} True when the session is expired.
+ */
+const isStudyExpired = computed(() => {
+  const startTime = Number(study.value?.schedule?.startTime)
+  return Number.isFinite(startTime) &&
+      startTime > 0 &&
+      Date.now() >= startTime * 1000
+})
+
+/**
+ * Returns the backend-aligned study status.
+ *
+ * @returns {string} open, full, cancelled, or expired.
+ */
+const statusKey = computed(() => {
+  const explicitStatus = String(study.value?.status || '').toLowerCase()
+  if (explicitStatus === 'cancelled' || explicitStatus === 'expired') {
+    return explicitStatus
+  }
+  if (isStudyExpired.value) return 'expired'
+  return isFull.value ? 'full' : 'open'
+})
+
+/**
+ * Returns the visible study status label.
+ *
+ * @returns {string} Human-readable status.
+ */
+const statusLabel = computed(() => {
+  return {
+    open: 'Open',
+    full: 'Full',
+    cancelled: 'Cancelled',
+    expired: 'Expired'
+  }[statusKey.value] || 'Open'
+})
+
+/**
+ * Returns the status badge styling for the study detail header.
+ *
+ * @returns {string} Tailwind classes.
+ */
+const statusBadgeClass = computed(() => {
+  return {
+    open: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+    full: 'bg-slate-700 text-slate-300',
+    cancelled: 'bg-rose-500/20 text-rose-300 border border-rose-400/30',
+    expired: 'bg-amber-500/20 text-amber-300 border border-amber-400/30'
+  }[statusKey.value]
+})
+
+/**
  * Returns the backend owner identifier.
  *
  * @returns {string} Owner identifier.
@@ -670,6 +722,33 @@ const isJoined = computed(() => {
   return members.value.some((member) => {
     return getUserId(member) === currentUserId.value
   })
+})
+
+/**
+ * Determines whether the owner may edit this study session.
+ *
+ * @returns {boolean} True for non-terminal sessions.
+ */
+const canEdit = computed(() => {
+  return ['open', 'full'].includes(statusKey.value)
+})
+
+/**
+ * Determines whether the current member may leave the study session.
+ *
+ * @returns {boolean} True for active sessions.
+ */
+const canLeave = computed(() => {
+  return ['open', 'full'].includes(statusKey.value)
+})
+
+/**
+ * Determines whether a non-member may join the study session.
+ *
+ * @returns {boolean} True when the session is open and active.
+ */
+const canParticipate = computed(() => {
+  return statusKey.value === 'open'
 })
 
 /**

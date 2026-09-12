@@ -4,7 +4,7 @@
       :id="'errand-card-' + errand.id"
       :class="[
       'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200 cursor-pointer',
-      errand.status === 'completed' || errand.status === 'cancelled'
+      currentStatus === 'completed' || currentStatus === 'cancelled' || currentStatus === 'expired'
         ? 'border-slate-200 opacity-80'
         : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
     ]"
@@ -16,11 +16,13 @@
         <span
             :class="[
             'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
-            errand.status === 'completed'
+            currentStatus === 'completed'
               ? 'bg-slate-100 text-slate-500'
-              : errand.status === 'cancelled'
+              : currentStatus === 'cancelled'
                 ? 'bg-rose-100 text-rose-600'
-                : errand.status === 'accepted'
+                : currentStatus === 'expired'
+                  ? 'bg-amber-100 text-amber-700'
+                  : currentStatus === 'accepted'
                   ? 'bg-blue-100 text-blue-700'
                   : 'bg-emerald-100 text-emerald-700'
           ]"
@@ -105,7 +107,7 @@
 
         <!-- Accepted information -->
         <span
-            v-if="errand.status === 'accepted'"
+            v-if="currentStatus === 'accepted'"
             class="text-indigo-600 font-semibold text-[11px] text-right truncate"
         >
           {{
@@ -135,7 +137,7 @@
           Can accept the errand.
         -->
         <button
-            v-if="errand.status === 'open' && !isRequester"
+            v-if="currentStatus === 'open' && !isRequester"
             :id="'accept-errand-' + errand.id"
             class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer"
             @click="$emit('accept', errand.id)"
@@ -145,7 +147,7 @@
 
         <!-- Requester's own open errand -->
         <button
-            v-else-if="errand.status === 'open' && isRequester"
+            v-else-if="currentStatus === 'open' && isRequester"
             :id="'own-errand-' + errand.id"
             disabled
             class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
@@ -161,7 +163,7 @@
         -->
         <button
             v-else-if="
-            errand.status === 'accepted' &&
+            currentStatus === 'accepted' &&
             isAcceptedByMe &&
             !isRequester
           "
@@ -204,7 +206,7 @@
 
         <!-- Completed -->
         <button
-            v-else-if="errand.status === 'completed'"
+            v-else-if="            currentStatus === 'completed'"
             disabled
             class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-1.5"
         >
@@ -227,11 +229,19 @@
 
         <!-- Cancelled -->
         <button
-            v-else-if="errand.status === 'cancelled'"
+            v-else-if="currentStatus === 'cancelled'"
             disabled
             class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
         >
           Cancelled
+        </button>
+
+        <button
+          v-else-if="currentStatus === 'expired'"
+          disabled
+          class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
+        >
+        Expired
         </button>
       </div>
     </div>
@@ -291,12 +301,31 @@ const isAcceptedByMe = computed(() => {
 })
 
 /**
+ * Returns the backend-aligned errand status.
+ *
+ * @returns {string} open, accepted, completed, cancelled, or expired.
+ */
+const currentStatus = computed(() => {
+  const status = String(props.errand?.status || '').toLowerCase()
+  if (['accepted', 'completed', 'cancelled', 'expired'].includes(status)) {
+    return status
+  }
+
+  const deadline = Number(props.errand?.deadline)
+  return Number.isFinite(deadline) &&
+      deadline > 0 &&
+      Date.now() >= deadline * 1000
+      ? 'expired'
+      : 'open'
+})
+
+/**
  * Returns the human-readable label for the errand status.
  *
  * @returns {string} Display status label.
  */
 const statusLabel = computed(() => {
-  switch (props.errand?.status) {
+  switch (currentStatus.value) {
     case 'accepted':
       return 'Accepted'
 
@@ -305,6 +334,9 @@ const statusLabel = computed(() => {
 
     case 'cancelled':
       return 'Cancelled'
+
+    case 'expired':
+      return 'Expired'
 
     case 'open':
     default:

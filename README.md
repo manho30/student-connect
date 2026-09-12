@@ -2,7 +2,7 @@
 
 > **Connect. Share. Help. Learn.**
 
-Student Connect is a student-focused community platform designed to help students connect, share resources, and support each other through **Carpool, Errands, and Study**.
+Student Connect is a student-focused community platform designed to help students connect, share resources, support each other, and discover campus opportunities through **Carpool, Errands, Study, and Activities**.
 
 🚧 **Status:** Innovation Competition Prototype
 
@@ -17,6 +17,7 @@ Student Connect is a student-focused community platform designed to help student
 * Join or leave a carpool
 * View route, departure time, available seats, and cost
 * Owner-only editing and cancellation
+* Track active and recently completed carpools
 
 ### 📦 Errands
 
@@ -26,13 +27,26 @@ Student Connect is a student-focused community platform designed to help student
 * Release an accepted errand
 * Mark errands as completed
 * View activity timeline
+* Track active and recently completed errands
 
 ### 📚 Study
 
-* Create study activities
-* Discover available study activities
-* Join study activities
+* Create study groups
+* Discover available study groups
+* Join or leave study groups
 * Dedicated list, detail, create, and edit interfaces
+* Support scheduled study sessions
+* Track active and recently completed study groups
+
+### 📢 Activities
+
+* Promote student activities and campus events
+* Publish competitions, workshops, seminars, sports, and other programmes
+* Browse activities by category
+* View event date, location, registration deadline, and contact information
+* Support poster upload and **16:9 poster cropping**
+* Owner-only editing and deletion
+* No participant, joining, attendance, or capacity management
 
 ### 🔐 Authentication
 
@@ -40,22 +54,25 @@ Student Connect is a student-focused community platform designed to help student
 * Login and logout
 * Authenticated user state
 * Protected application workflows
+* Firebase UID-based ownership checks
 
 ---
 
 ## 🛠️ Technology
 
-| Category          | Technology                 |
-| ----------------- | -------------------------- |
-| 🎨 Framework      | Vue 3                      |
-| ⚡ Build Tool      | Vite                       |
-| 🎨 Styling        | Tailwind CSS               |
-| 🧩 UI Library     | Element Plus               |
-| 🖼️ Icons         | Flaticon                   |
-| 🔀 Routing        | Vue Router                 |
-| 🔐 Authentication | Firebase Authentication    |
-| 🌐 API            | Centralized REST API layer |
-| 💻 Language       | JavaScript                 |
+| Category             | Technology                 |
+| -------------------- | -------------------------- |
+| 🎨 Framework         | Vue 3                      |
+| ⚡ Build Tool         | Vite                       |
+| 🎨 Styling           | Tailwind CSS               |
+| 🧩 UI Library        | Element Plus               |
+| 🖼️ Icons            | Flaticon                   |
+| 🖼️ Image Processing | Cropper.js                 |
+| ☁️ Image Storage     | Cloudinary                 |
+| 🔀 Routing           | Vue Router                 |
+| 🔐 Authentication    | Firebase Authentication    |
+| 🌐 API               | Centralized REST API layer |
+| 💻 Language          | JavaScript                 |
 
 > **JavaScript only — no TypeScript.**
 
@@ -65,7 +82,7 @@ Student Connect is a student-focused community platform designed to help student
 
 The interface follows a simple and consistent navigation pattern:
 
-```text id="8s5x4e"
+```text
 List
  ↓
 Detail
@@ -79,7 +96,7 @@ Detail
 
 ### Routes
 
-```text id="j3x9k1"
+```text
 /login
 
 /carpool
@@ -96,6 +113,14 @@ Detail
 /study?id=std_xxxxx
 /study/new
 /study/edit?id=std_xxxxx
+
+/activities
+/activities?id=act_xxxxx
+/activities/new
+/activities/edit?id=act_xxxxx
+
+/profile
+/admin/statistics
 ```
 
 The interface is designed to be:
@@ -110,7 +135,7 @@ The interface is designed to be:
 
 ## 📁 Project Structure
 
-```text id="g8v2mk"
+```text
 student-connect-front/
 ├── src/
 │   ├── api/
@@ -118,7 +143,8 @@ student-connect-front/
 │   ├── components/
 │   │   ├── carpool/
 │   │   ├── errands/
-│   │   └── study/
+│   │   ├── study/
+│   │   └── activities/
 │   ├── services/
 │   │   └── auth.js
 │   ├── views/
@@ -138,25 +164,39 @@ student-connect-front/
 
 All frontend API communication is centralized in:
 
-```text id="p8y1qz"
+```text
 src/api/index.js
 ```
 
 The application uses a single API object:
 
-```js id="2f9r1a"
+```js
 studentConnect
 ```
 
 Components and views communicate with the API layer instead of making direct HTTP requests.
 
-Example:
+Examples:
 
-```js id="q7m3vc"
+```js
 studentConnect.getAllCarPoolList()
 studentConnect.getCarPool(id)
 studentConnect.createCarPool(data)
 studentConnect.joinCarPool(id)
+
+studentConnect.getAllErrands()
+studentConnect.createErrand(data)
+studentConnect.acceptErrand(id)
+
+studentConnect.getAllStudyGroups()
+studentConnect.createStudyGroup(data)
+studentConnect.joinStudyGroup(id)
+
+studentConnect.getAllActivities()
+studentConnect.getActivity(id)
+studentConnect.createActivity(data)
+studentConnect.updateActivity(id, data)
+studentConnect.deleteActivity(id)
 ```
 
 This keeps API communication consistent and makes the frontend easier to maintain.
@@ -173,6 +213,7 @@ The frontend:
 * Maintains the current authenticated user
 * Obtains Firebase ID tokens when communicating with protected APIs
 * Uses the authenticated user's UID for frontend ownership checks
+* Protects authenticated application workflows
 
 Sensitive authentication credentials are not hard-coded into the application.
 
@@ -180,7 +221,7 @@ Sensitive authentication credentials are not hard-coded into the application.
 
 ## 🧭 Application Modules
 
-```text id="z5k2qx"
+```text
 Student Connect
 │
 ├── 🚗 Carpool
@@ -195,7 +236,13 @@ Student Connect
 │   ├── Create
 │   └── Edit
 │
-└── 📚 Study
+├── 📚 Study
+│   ├── Listing
+│   ├── Detail
+│   ├── Create
+│   └── Edit
+│
+└── 📢 Activities
     ├── Listing
     ├── Detail
     ├── Create
@@ -203,6 +250,76 @@ Student Connect
 ```
 
 Each module is organized into reusable Vue components and views.
+
+### Activity Module
+
+Activities are designed as a **promotion and discovery system** rather than a participation-management system.
+
+Activities can contain:
+
+* Title
+* Category
+* Description
+* Event date
+* Registration deadline
+* Location
+* Contact information
+* Poster
+
+Supported categories include:
+
+* Competition
+* Sports
+* Club & Society
+* Volunteer
+* Workshop
+* Seminar
+* Cultural
+* Other
+
+Activities do **not** include:
+
+* Joining or leaving
+* Participant lists
+* Capacity management
+* Attendance tracking
+* Team management
+
+---
+
+## 📊 Activity Lifecycle
+
+Activities follow a simple lifecycle:
+
+```text
+Open
+ │
+ ├── Event / registration deadline reached
+ │       ↓
+ │    Expired
+ │
+ ├── Owner completes activity
+ │       ↓
+ │    Completed
+ │
+ └── Owner cancels activity
+         ↓
+      Cancelled
+```
+
+The activity listing separates records into:
+
+```text
+Currently Active
+↓
+Open activities
+
+Archive
+↓
+Recently inactive activities
+```
+
+Archived activities remain accessible through historical records.
 
 ---
 
@@ -219,6 +336,8 @@ The frontend documentation covers:
 * 🚗 Carpool workflows
 * 📦 Errand workflows
 * 📚 Study workflows
+* 📢 Activity workflows
+* 🖼️ Activity poster upload and cropping
 * 🧪 Testing checklist
 * ⚙️ Environment configuration
 * 🚀 Development and deployment
@@ -234,7 +353,7 @@ The frontend documentation covers:
 
 ### Installation
 
-```bash id="r4m7nx"
+```bash
 git clone <repository-url>
 cd student-connect-front
 npm install
@@ -242,19 +361,19 @@ npm install
 
 ### Development
 
-```bash id="v9c2la"
+```bash
 npm run dev
 ```
 
 ### Production Build
 
-```bash id="b6t1wp"
+```bash
 npm run build
 ```
 
 The production files will be generated in:
 
-```text id="e3k8mz"
+```text
 dist/
 ```
 
@@ -266,11 +385,16 @@ Create a `.env` file for environment-specific configuration.
 
 Example:
 
-```env id="n5q8cx"
+```env
 VITE_API_URL=http://localhost:3001/api
+
+VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
+VITE_CLOUDINARY_UPLOAD_PRESET=student_connect_activities
 ```
 
 Environment variables containing application configuration should be managed separately from source code.
+
+> Cloudinary uses an **unsigned upload preset** for activity poster uploads. API secrets must never be exposed in the frontend.
 
 ---
 
@@ -282,7 +406,11 @@ Before submitting changes, verify:
 * [ ] Routes work correctly
 * [ ] Carpool create/edit/join/leave flows work
 * [ ] Errand create/edit/accept/release/complete flows work
-* [ ] Study flows work
+* [ ] Study create/edit/join/leave flows work
+* [ ] Activity create/edit/delete flows work
+* [ ] Activity poster upload works
+* [ ] Activity poster crop maintains **16:9** ratio
+* [ ] Activity archive behaviour works correctly
 * [ ] Ownership restrictions work
 * [ ] Mobile layout remains usable
 * [ ] Production build succeeds
@@ -291,24 +419,26 @@ Before submitting changes, verify:
 
 ## 📊 Project Status
 
-| Module             | Status            |
-| ------------------ | ----------------- |
-| 🔐 Authentication  | ✅ Implemented     |
-| 🚗 Carpool         | ✅ Implemented     |
-| 📦 Errands         | ✅ Implemented     |
-| 📚 Study           | 🚧 In Development |
-| 🖥️ Responsive UI  | ✅ Implemented     |
-| 🔌 API Integration | ✅ Implemented     |
-| 🧪 Testing         | 🚧 Ongoing        |
+| Module                     | Status        |
+| -------------------------- | ------------- |
+| 🔐 Authentication          | ✅ Implemented |
+| 🚗 Carpool                 | ✅ Implemented |
+| 📦 Errands                 | ✅ Implemented |
+| 📚 Study                   | ✅ Implemented |
+| 📢 Activities              | ✅ Implemented |
+| 🖥️ Responsive UI          | ✅ Implemented |
+| 🔌 API Integration         | ✅ Implemented |
+| 🖼️ Activity Poster Upload | ✅ Implemented |
+| 🧪 Testing                 | 🚧 Ongoing    |
 
 ---
 
 ## 👥 Attribution
 
-| Role                          | Contributor  |
-| ----------------------------- |--------------|
-| 👨‍💻 **Author / Developer**  | **Manho**    |
-| 🧪 **QA / Quality Assurance** | **BX Tan**   |
+| Role                          | Contributor |
+| ----------------------------- | ----------- |
+| 👨‍💻 **Author / Developer**  | **Manho**   |
+| 🧪 **QA / Quality Assurance** | **BX Tan**  |
 
 ---
 

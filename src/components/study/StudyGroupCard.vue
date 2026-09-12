@@ -5,7 +5,7 @@
       :id="'study-group-card-' + group.id"
       :class="[
         'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200 cursor-pointer',
-        isFull
+        statusKey !== 'open'
           ? 'border-slate-200 opacity-80'
           : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
       ]"
@@ -28,16 +28,10 @@
         <span
             :class="[
               'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider whitespace-nowrap',
-              isFull
-                ? 'bg-slate-100 text-slate-500'
-                : 'bg-emerald-100 text-emerald-700'
+              statusBadgeClass
             ]"
         >
-          {{
-            isFull
-                ? 'Group Full'
-                : `${memberCount}/${capacity} Members`
-          }}
+          {{ statusLabel }}
         </span>
       </div>
 
@@ -129,7 +123,7 @@
 
       <!-- Owner -->
       <button
-          v-if="isOwner"
+          v-if="isOwner && canEdit"
           :id="'owner-group-' + group.id"
           class="w-full py-3 bg-indigo-50 text-indigo-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-default"
           disabled
@@ -141,7 +135,7 @@
 
       <!-- Joined -->
       <button
-          v-else-if="isJoined"
+          v-else-if="isJoined && canLeave"
           :id="'leave-group-' + group.id"
           class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
           @click="emit('leave', group.id)"
@@ -180,7 +174,7 @@
           disabled
           class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
       >
-        Group is Full
+        {{ statusLabel }}
       </button>
     </div>
   </div>
@@ -254,6 +248,53 @@ const isFull = computed(() => {
 })
 
 /**
+ * Returns the backend-aligned study status.
+ *
+ * @returns {string} open, full, cancelled, or expired.
+ */
+const statusKey = computed(() => {
+  const explicitStatus = String(props.group.status || '').toLowerCase()
+  if (explicitStatus === 'cancelled' || explicitStatus === 'expired') {
+    return explicitStatus
+  }
+
+  const startTime = Number(props.group.schedule?.startTime)
+  if (Number.isFinite(startTime) && startTime > 0 && Date.now() >= startTime * 1000) {
+    return 'expired'
+  }
+
+  return isFull.value ? 'full' : 'open'
+})
+
+/**
+ * Returns the visible study status label.
+ *
+ * @returns {string} Human-readable status.
+ */
+const statusLabel = computed(() => {
+  return {
+    open: 'Open',
+    full: 'Full',
+    cancelled: 'Cancelled',
+    expired: 'Expired'
+  }[statusKey.value] || 'Open'
+})
+
+/**
+ * Returns the study-card status badge styling.
+ *
+ * @returns {string} Tailwind classes.
+ */
+const statusBadgeClass = computed(() => {
+  return {
+    open: 'bg-emerald-100 text-emerald-700',
+    full: 'bg-slate-100 text-slate-500',
+    cancelled: 'bg-rose-100 text-rose-600',
+    expired: 'bg-amber-100 text-amber-700'
+  }[statusKey.value]
+})
+
+/**
  * Returns the authenticated user's identifier.
  *
  * @returns {string} Firebase UID or compatible user ID.
@@ -324,8 +365,26 @@ const canJoin = computed(() => {
   return (
       !isOwner.value &&
       !isJoined.value &&
-      !isFull.value
+      statusKey.value === 'open'
   )
+})
+
+/**
+ * Determines whether the owner may edit this study group.
+ *
+ * @returns {boolean} True when the study group is not terminal.
+ */
+const canEdit = computed(() => {
+  return ['open', 'full'].includes(statusKey.value)
+})
+
+/**
+ * Determines whether a member may leave this study group.
+ *
+ * @returns {boolean} True when the study group is active.
+ */
+const canLeave = computed(() => {
+  return ['open', 'full'].includes(statusKey.value)
 })
 
 /**
