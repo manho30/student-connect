@@ -42,7 +42,7 @@
     </section>
 
     <el-dialog v-model="dialogVisible" :title="editingUser ? 'Edit User' : 'Add User'" width="min(92vw, 520px)">
-      <p v-if="!editingUser" class="mb-4 rounded-xl bg-indigo-50 p-3 text-xs leading-relaxed text-indigo-700">
+      <p v-if="!editingUser" class="mb-4 rounded-xl bg-brand-50 p-3 text-xs leading-relaxed text-brand-700">
         This initializes a profile for an existing Firebase Authentication UID. It does not create a password or Firebase account.
       </p>
       <el-form label-position="top">
@@ -114,7 +114,7 @@ function canManage(target) {
 function roleBadgeClass(role) {
   const classes = {
     user: 'inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-600',
-    admin: 'inline-flex rounded-full bg-indigo-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-700',
+    admin: 'inline-flex rounded-full bg-brand-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-700',
     superadmin: 'inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-700'
   }
   return classes[role] || classes.user

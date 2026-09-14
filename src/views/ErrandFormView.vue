@@ -31,7 +31,7 @@
         v-if="loading"
         class="bg-white border border-slate-200 rounded-2xl shadow-sm p-10 flex flex-col items-center justify-center"
     >
-      <i class="fi fi-rr-spinner-alt animate-spin text-2xl text-indigo-600 mb-3"></i>
+      <i class="fi fi-rr-spinner-alt animate-spin text-2xl text-brand-600 mb-3"></i>
       <p class="text-sm font-semibold text-slate-600">
         Loading errand...
       </p>
@@ -79,7 +79,7 @@
       <div class="px-5 sm:px-8 py-5 border-b border-slate-100">
         <div class="flex items-center gap-3">
           <div
-              class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center"
+              class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center"
           >
             <i
                 :class="

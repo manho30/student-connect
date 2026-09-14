@@ -11,7 +11,7 @@
       <!-- Origin -->
       <div>
         <label class="mb-1 block text-xs font-semibold text-slate-700">
-          <i class="fi fi-rr-marker mr-1 text-indigo-500"></i>
+          <i class="fi fi-rr-marker mr-1 text-brand-500"></i>
           From (Origin)
         </label>
 
@@ -33,7 +33,7 @@
       <!-- Destination -->
       <div>
         <label class="mb-1 block text-xs font-semibold text-slate-700">
-          <i class="fi fi-rr-marker mr-1 text-indigo-500"></i>
+          <i class="fi fi-rr-marker mr-1 text-brand-500"></i>
           To (Destination)
         </label>
 
@@ -59,7 +59,7 @@
         <!-- Date -->
         <div class="min-w-0">
           <label class="mb-1 block text-xs font-semibold text-slate-700">
-            <i class="fi fi-rr-calendar mr-1 text-indigo-500"></i>
+            <i class="fi fi-rr-calendar mr-1 text-brand-500"></i>
             Date
           </label>
 
@@ -80,7 +80,7 @@
         <!-- Time -->
         <div class="min-w-0">
           <label class="mb-1 block text-xs font-semibold text-slate-700">
-            <i class="fi fi-rr-clock-three mr-1 text-indigo-500"></i>
+            <i class="fi fi-rr-clock-three mr-1 text-brand-500"></i>
             Time
           </label>
 
@@ -111,7 +111,7 @@
     <!-- Capacity -->
     <div>
       <label class="mb-1.5 block text-xs font-semibold text-slate-700">
-        <i class="fi fi-rr-users mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-users mr-1 text-brand-500"></i>
         Vehicle Capacity
       </label>
 
@@ -121,7 +121,7 @@
             :class="[
         'flex flex-1 cursor-pointer items-center gap-2 rounded-xl border p-3 transition-all',
         form.capacity === 4
-          ? 'border-indigo-600 bg-indigo-50/50 font-semibold text-indigo-900'
+          ? 'border-brand-600 bg-brand-50/50 font-semibold text-brand-900'
           : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
       ]"
         >
@@ -130,10 +130,10 @@
               type="radio"
               name="capacity"
               :value="4"
-              class="text-indigo-600 focus:ring-indigo-500"
+              class="text-brand-600 focus:ring-brand-500"
           />
 
-          <i class="fi fi-rr-car-alt text-lg text-indigo-600"></i>
+          <i class="fi fi-rr-car-alt text-lg text-brand-600"></i>
 
           <div class="ml-2 flex flex-col">
             <span>4 Pax</span>
@@ -149,7 +149,7 @@
             :class="[
         'flex flex-1 cursor-pointer items-center gap-2 rounded-xl border p-3 transition-all',
         form.capacity === 6
-          ? 'border-indigo-600 bg-indigo-50/50 font-semibold text-indigo-900'
+          ? 'border-brand-600 bg-brand-50/50 font-semibold text-brand-900'
           : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
       ]"
         >
@@ -158,10 +158,10 @@
               type="radio"
               name="capacity"
               :value="6"
-              class="text-indigo-600 focus:ring-indigo-500"
+              class="text-brand-600 focus:ring-brand-500"
           />
 
-          <i class="fi fi-rr-car-alt text-lg text-indigo-600"></i>
+          <i class="fi fi-rr-car-alt text-lg text-brand-600"></i>
 
           <div class="ml-2 flex flex-col">
             <span>6 Pax</span>
@@ -223,7 +223,7 @@
     <!-- Notes -->
     <div>
       <label class="mb-1 block text-xs font-semibold text-slate-700">
-        <i class="fi fi-rr-edit mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-edit mr-1 text-brand-500"></i>
         Notes / Meeting Point (Optional)
       </label>
 

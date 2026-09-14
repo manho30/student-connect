@@ -19,6 +19,7 @@ const AdminUsersView = () => import('@/views/AdminUsersView.vue')
 const StatisticsView = () => import('@/views/StatisticsView.vue')
 const ActivitiesView = () => import('@/views/ActivitiesView.vue')
 const ActivitiesFormView = () => import('@/views/ActivitiesFormView.vue')
+const MyServicesView = () => import('@/views/MyServiceView.vue')
 
 const router = createRouter({
   history: createWebHistory(),
@@ -121,6 +122,12 @@ const router = createRouter({
       name: 'profile',
       component: ProfileView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile/services',
+        name: 'My Services',
+        component: MyServicesView,
+        meta: { requiresAuth: true }
     },
     {
       path: '/admin/users',

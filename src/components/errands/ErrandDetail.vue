@@ -1,11 +1,14 @@
+
 <!-- components/errands/ErrandDetail.vue -->
+
 <template>
   <div id="errand-detail-container" class="max-w-4xl mx-auto space-y-6">
     <!-- Back & Navigation Bar -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between gap-3">
       <button
           id="back-to-errands-btn"
-          class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs"
+          class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors cursor-pointer bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs"
+          type="button"
           @click="navigateTo('/errands')"
       >
         <svg
@@ -25,14 +28,26 @@
         <span>Back to Errands</span>
       </button>
 
-      <!-- Creator Edit Action -->
-      <div
-          v-if="canEdit"
-          class="flex items-center gap-2"
-      >
+      <!-- Header Actions -->
+      <div class="flex items-center gap-2">
+        <!-- Share Action -->
         <button
+            v-if="errand"
+            id="share-errand-btn"
+            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-white text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors cursor-pointer border border-slate-200 shadow-xs"
+            type="button"
+            @click="shareErrand"
+        >
+          <i class="fi fi-rr-share text-xs"></i>
+          <span>Share</span>
+        </button>
+
+        <!-- Creator Edit Action -->
+        <button
+            v-if="canEdit"
             id="edit-errand-detail-btn"
-            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors cursor-pointer border border-indigo-200"
+            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-brand-50 text-brand-700 hover:bg-brand-100 transition-colors cursor-pointer border border-brand-200"
+            type="button"
             @click="navigateTo(`/errands/edit?id=${errand.id}`)"
         >
           <i class="fi fi-rr-edit text-xs"></i>
@@ -48,7 +63,7 @@
         class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-xs"
     >
       <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent mb-3"
+          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-600 border-t-transparent mb-3"
       ></div>
 
       <p class="text-sm font-semibold text-slate-600">
@@ -79,7 +94,9 @@
       </div>
 
       <button
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
+          id="view-all-errands-btn"
+          class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
+          type="button"
           @click="navigateTo('/errands')"
       >
         View All Errands
@@ -94,11 +111,11 @@
     >
       <!-- Hero Header -->
       <div
-          class="bg-gradient-to-r from-slate-900 to-indigo-950 text-white p-6 sm:p-8"
+          class="bg-gradient-to-r from-slate-900 to-brand-950 text-white p-6 sm:p-8"
       >
         <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
           <span
-              class="bg-white/10 text-indigo-200 border border-white/10 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
+              class="bg-white/10 text-brand-200 border border-white/10 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5"
           >
             <i class="fi fi-rr-shopping-bag"></i>
             <span>Student Errand</span>
@@ -125,9 +142,7 @@
       <div class="p-6 sm:p-8 space-y-6">
         <!-- Metadata Info Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div
-              class="bg-slate-50 p-4 rounded-xl border border-slate-100"
-          >
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
             <div
                 class="text-[10px] text-slate-400 uppercase font-bold tracking-wider"
             >
@@ -142,9 +157,7 @@
             </div>
           </div>
 
-          <div
-              class="bg-slate-50 p-4 rounded-xl border border-slate-100"
-          >
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
             <div
                 class="text-[10px] text-slate-400 uppercase font-bold tracking-wider"
             >
@@ -154,14 +167,12 @@
             <div
                 class="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5"
             >
-              <i class="fi fi-rr-clock-three text-indigo-500"></i>
+              <i class="fi fi-rr-clock-three text-brand-500"></i>
               <span>{{ formatDeadline(errand.deadline) }}</span>
             </div>
           </div>
 
-          <div
-              class="bg-slate-50 p-4 rounded-xl border border-slate-100"
-          >
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
             <div
                 class="text-[10px] text-slate-400 uppercase font-bold tracking-wider"
             >
@@ -171,7 +182,7 @@
             <div
                 class="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5"
             >
-              <i class="fi fi-rr-user text-indigo-500"></i>
+              <i class="fi fi-rr-user text-brand-500"></i>
               <span>{{ errand.requester?.name || 'Student' }}</span>
             </div>
           </div>
@@ -195,20 +206,20 @@
         <!-- Requester Status -->
         <div
             v-if="currentStatus === 'open' && isCreator"
-            class="bg-indigo-50/70 border border-indigo-200/80 rounded-xl p-4 flex items-center gap-3"
+            class="bg-brand-50/70 border border-brand-200/80 rounded-xl p-4 flex items-center gap-3"
         >
           <div
-              class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm shrink-0"
+              class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm shrink-0"
           >
             <i class="fi fi-rr-user"></i>
           </div>
 
           <div>
-            <div class="text-xs font-bold text-indigo-900">
+            <div class="text-xs font-bold text-brand-900">
               This is your errand
             </div>
 
-            <div class="text-xs text-indigo-700 mt-0.5">
+            <div class="text-xs text-brand-700 mt-0.5">
               Other students can accept this request. You cannot accept or
               complete your own errand.
             </div>
@@ -217,7 +228,7 @@
 
         <!-- Accepted Status -->
         <div
-            v-else-if="errand.status === 'accepted'"
+            v-else-if="currentStatus === 'accepted'"
             class="bg-blue-50/70 border border-blue-200/80 rounded-xl p-4 flex items-center gap-3"
         >
           <div
@@ -247,7 +258,7 @@
 
         <!-- Completed Status -->
         <div
-            v-else-if="errand.status === 'completed'"
+            v-else-if="currentStatus === 'completed'"
             class="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-4 flex items-center gap-3"
         >
           <div
@@ -270,7 +281,7 @@
 
         <!-- Cancelled Status -->
         <div
-            v-else-if="errand.status === 'cancelled'"
+            v-else-if="currentStatus === 'cancelled'"
             class="bg-rose-50/70 border border-rose-200/80 rounded-xl p-4 flex items-center gap-3"
         >
           <div
@@ -290,68 +301,276 @@
           </div>
         </div>
 
+        <!-- Expired Status -->
+        <div
+            v-else-if="currentStatus === 'expired'"
+            class="bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 flex items-center gap-3"
+        >
+          <div
+              class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm shrink-0"
+          >
+            <i class="fi fi-rr-clock"></i>
+          </div>
+
+          <div>
+            <div class="text-xs font-bold text-amber-900">
+              Errand Expired
+            </div>
+
+            <div class="text-xs text-amber-700 mt-0.5">
+              The deadline for this errand has passed.
+            </div>
+          </div>
+        </div>
+
         <!-- Timeline -->
-        <div v-if="errand.timeline?.length" id="errand-timeline" class="space-y-3">
+        <div
+            v-if="errand.timeline?.length"
+            id="errand-timeline"
+            class="space-y-3"
+        >
           <div class="flex items-center justify-between">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <h3
+                class="text-xs font-bold text-slate-400 uppercase tracking-wider"
+            >
               Activity Timeline
             </h3>
+
             <span class="text-[10px] font-semibold text-slate-400">
-              {{ timelineEvents.length }} event{{ timelineEvents.length > 1 ? 's' : '' }}
+              {{ timelineEvents.length }}
+              event{{ timelineEvents.length > 1 ? 's' : '' }}
             </span>
           </div>
-          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+
+          <div
+              class="bg-white rounded-2xl border border-slate-200 overflow-hidden"
+          >
             <div class="relative px-5 sm:px-6 py-6">
-              <!-- Continuous Timeline Line -->
-              <div class="absolute left-[39px] sm:left-[43px] top-10 bottom-10 w-px bg-slate-200" aria-hidden="true"></div>
+              <div
+                  class="absolute left-[39px] sm:left-[43px] top-10 bottom-10 w-px bg-slate-200"
+                  aria-hidden="true"
+              ></div>
+
               <div class="relative space-y-7">
-                <div v-for="(event, index) in timelineEvents" :key="`${event.type}-${event.timestamp}-${index}`" class="relative flex gap-4 sm:gap-5">
+                <div
+                    v-for="(event, index) in timelineEvents"
+                    :key="`${event.type}-${event.timestamp}-${index}`"
+                    class="relative flex gap-4 sm:gap-5"
+                >
                   <!-- Timeline Node -->
-                  <div class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-full border-4 border-white flex items-center justify-center shadow-sm" :class="timelineIconClass(event.type)">
+                  <div
+                      class="relative z-10 w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-full border-4 border-white flex items-center justify-center shadow-sm"
+                      :class="timelineIconClass(event.type)"
+                  >
                     <!-- Created -->
-                    <svg v-if="event.type === 'created'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h6l5 5v11a2 2 0 01-2 2z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 3v5h5" /> </svg>
+                    <svg
+                        v-if="event.type === 'created'"
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h6l5 5v11a2 2 0 01-2 2z"
+                      />
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M13 3v5h5"
+                      />
+                    </svg>
+
                     <!-- Accepted -->
-                    <svg v-else-if="event.type === 'accepted'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
-                      <circle cx="9" cy="7" r="4" stroke-width="2" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11l2 2 4-4" /> </svg>
+                    <svg
+                        v-else-if="event.type === 'accepted'"
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"
+                      />
+                      <circle
+                          cx="9"
+                          cy="7"
+                          r="4"
+                          stroke-width="2"
+                      />
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M16 11l2 2 4-4"
+                      />
+                    </svg>
+
                     <!-- Acceptance Cancelled -->
-                    <svg v-else-if="event.type === 'acceptance_cancelled'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 0113.66-5.66L20 8" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 4v4h-4" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12a8 8 0 01-13.66 5.66L4 16" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 20v-4h4" /> </svg>
+                    <svg
+                        v-else-if="event.type === 'acceptance_cancelled'"
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 12a8 8 0 0113.66-5.66L20 8"
+                      />
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M20 4v4h-4"
+                      />
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M20 12a8 8 0 01-13.66 5.66L4 16"
+                      />
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 20v-4h4"
+                      />
+                    </svg>
+
                     <!-- Completed -->
-                    <svg v-else-if="event.type === 'completed'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /> </svg>
+                    <svg
+                        v-else-if="event.type === 'completed'"
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+
                     <!-- Cancelled -->
-                    <svg v-else-if="event.type === 'cancelled'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="12" r="9" stroke-width="2" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9l6 6m0-6l-6 6" /> </svg>
+                    <svg
+                        v-else-if="event.type === 'cancelled'"
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                      <circle
+                          cx="12"
+                          cy="12"
+                          r="9"
+                          stroke-width="2"
+                      />
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 9l6 6m0-6l-6 6"
+                      />
+                    </svg>
+
                     <!-- Unknown Event -->
-                    <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="12" r="9" stroke-width="2" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" /> </svg>
+                    <svg
+                        v-else
+                        class="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                      <circle
+                          cx="12"
+                          cy="12"
+                          r="9"
+                          stroke-width="2"
+                      />
+                      <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 8v4m0 4h.01"
+                      />
+                    </svg>
                   </div>
+
                   <!-- Event Content -->
                   <div class="min-w-0 flex-1 -mt-0.5">
-                    <div class="border border-slate-100 bg-slate-50/70 px-4 py-3 transition-colors hover:bg-slate-50">
-                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5">
-                        <div class="text-sm font-bold text-slate-800"> {{ timelineTitle(event) }} </div>
-                        <time class="text-[10px] sm:text-[11px] font-medium text-slate-400 whitespace-nowrap" :datetime="new Date(Number(event.timestamp) * 1000).toISOString()"> {{ formatTimelineTimestamp(event.timestamp) }} </time>
-                      </div>
-                      <div class="flex items-center gap-2 mt-2">
-                        <!-- User Avatar -->
-                        <div class="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0">
-                          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 21a8 8 0 00-16 0" />
-                            <circle cx="12" cy="7" r="4" stroke-width="2" /> </svg>
+                    <div
+                        class="border border-slate-100 bg-slate-50/70 px-4 py-3 transition-colors hover:bg-slate-50"
+                    >
+                      <div
+                          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5"
+                      >
+                        <div class="text-sm font-bold text-slate-800">
+                          {{ timelineTitle(event) }}
                         </div>
+
+                        <time
+                            class="text-[10px] sm:text-[11px] font-medium text-slate-400 whitespace-nowrap"
+                            :datetime="
+                            new Date(
+                              Number(event.timestamp) * 1000
+                            ).toISOString()
+                          "
+                        >
+                          {{ formatTimelineTimestamp(event.timestamp) }}
+                        </time>
+                      </div>
+
+                      <div class="flex items-center gap-2 mt-2">
+                        <div
+                            class="w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0"
+                        >
+                          <svg
+                              class="w-3.5 h-3.5 text-slate-400"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              aria-hidden="true"
+                          >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M20 21a8 8 0 00-16 0"
+                            />
+                            <circle
+                                cx="12"
+                                cy="7"
+                                r="4"
+                                stroke-width="2"
+                            />
+                          </svg>
+                        </div>
+
                         <div class="flex flex-col">
-                          <span class="text-xs font-semibold text-slate-600"> {{ event.user?.name || 'Student' }} </span>
-                          <span class="text-[10px] text-slate-400"> {{ timelineActionLabel(event.type) }} </span>
+                          <span class="text-xs font-semibold text-slate-600">
+                            {{ event.user?.name || 'Student' }}
+                          </span>
+
+                          <span class="text-[10px] text-slate-400">
+                            {{ timelineActionLabel(event.type) }}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -362,7 +581,6 @@
           </div>
         </div>
 
-
         <!-- Bottom Action Buttons -->
         <div
             class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3"
@@ -371,23 +589,24 @@
             Student Connect Errand #{{ errand.id }}
           </div>
 
-          <div
-              class="flex items-center gap-3 w-full sm:w-auto"
-          >
+          <div class="flex items-center gap-3 w-full sm:w-auto">
             <!-- Edit button for creator -->
             <button
                 v-if="canEdit"
                 id="edit-errand-btn"
-                class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-colors border border-indigo-200 cursor-pointer"
+                class="flex-1 sm:flex-none px-5 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl font-bold text-xs transition-colors border border-brand-200 cursor-pointer"
+                type="button"
                 @click="navigateTo(`/errands/edit?id=${errand.id}`)"
             >
               Edit Errand
             </button>
 
+            <!-- Cancel button for creator -->
             <button
                 v-if="canCancel"
                 id="cancel-errand-detail-btn"
                 class="flex-1 sm:flex-none px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs transition-colors border border-rose-200 cursor-pointer"
+                type="button"
                 :disabled="actionLoading"
                 @click="handleCancel"
             >
@@ -396,10 +615,11 @@
 
             <!-- Creator cannot accept own errand -->
             <button
-                v-if="errand.status === 'open' && isCreator"
+                v-if="currentStatus === 'open' && isCreator"
                 id="own-errand-detail-btn"
                 disabled
                 class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
+                type="button"
             >
               <i class="fi fi-rr-user"></i>
               <span>Your Errand</span>
@@ -410,37 +630,68 @@
                 v-else-if="currentStatus === 'open' && !isCreator"
                 id="accept-errand-detail-btn"
                 :disabled="actionLoading"
-                class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2"
+                class="w-full sm:w-auto px-8 py-3 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2"
+                type="button"
                 @click="handleAccept"
             >
               <i class="fi fi-rr-hand-holding-heart"></i>
+
               <span>
                 {{ actionLoading ? 'Accepting...' : 'Accept & Fulfill Errand' }}
               </span>
             </button>
 
             <!-- Helper can complete -->
-            <button v-else-if="currentStatus === 'accepted' && isAcceptedByMe && !isCreator"
-                    id="complete-errand-detail-btn"
-                    :disabled="actionLoading"
-                    class="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2" @click="handleComplete"
+            <button
+                v-else-if="
+                currentStatus === 'accepted' &&
+                isAcceptedByMe &&
+                !isCreator
+              "
+                id="complete-errand-detail-btn"
+                :disabled="actionLoading"
+                class="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 disabled:cursor-not-allowed text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer flex items-center justify-center gap-2"
+                type="button"
+                @click="handleComplete"
             >
               <i class="fi fi-rr-check text-sm"></i>
+
               <span>
                 {{ actionLoading ? 'Completing...' : 'Mark as Completed' }}
               </span>
             </button>
 
             <!-- Helper can release the errand -->
-            <button v-if="currentStatus === 'accepted' &&isAcceptedByMe &&!isCreator"
-                    id="cancel-acceptance-detail-btn" :disabled="actionLoading"
-                    class="w-full sm:w-auto px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 text-white  disabled:text-slate-400 rounded-xl font-bold text-xs border border-rose-200 disabled:border-slate-200 shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    @click="handleCancelAcceptance">
-              <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M6 18L18 6" /> </svg>
+            <button
+                v-if="
+                currentStatus === 'accepted' &&
+                isAcceptedByMe &&
+                !isCreator
+              "
+                id="cancel-acceptance-detail-btn"
+                :disabled="actionLoading"
+                class="w-full sm:w-auto px-6 py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-slate-300 text-white disabled:text-slate-400 rounded-xl font-bold text-xs border border-rose-200 disabled:border-slate-200 shadow-sm transition-colors cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                type="button"
+                @click="handleCancelAcceptance"
+            >
+              <svg
+                  class="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+              >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 6l12 12M6 18L18 6"
+                />
+              </svg>
+
               <span>
                 {{ actionLoading ? 'Releasing...' : 'Release Errand' }}
-            </span>
+              </span>
             </button>
 
             <!-- Requester / other users see progress -->
@@ -449,6 +700,7 @@
                 id="errand-in-progress-detail-btn"
                 disabled
                 class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
+                type="button"
             >
               <i class="fi fi-rr-hourglass-end"></i>
               <span>In Progress</span>
@@ -460,6 +712,7 @@
                 id="completed-errand-detail-btn"
                 disabled
                 class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
+                type="button"
             >
               <i class="fi fi-rr-check text-emerald-500"></i>
               <span>Completed</span>
@@ -471,16 +724,19 @@
                 id="cancelled-errand-detail-btn"
                 disabled
                 class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
+                type="button"
             >
               <i class="fi fi-rr-cross-circle"></i>
               <span>Cancelled</span>
             </button>
 
+            <!-- Expired -->
             <button
                 v-else-if="currentStatus === 'expired'"
                 id="expired-errand-detail-btn"
                 disabled
                 class="w-full sm:w-auto px-8 py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed flex items-center justify-center gap-2"
+                type="button"
             >
               <i class="fi fi-rr-clock"></i>
               <span>Expired</span>
@@ -493,9 +749,17 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import {
+  ref,
+  computed,
+  watch,
+  onUnmounted
+} from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  ElMessage,
+  ElMessageBox
+} from 'element-plus'
 import studentConnect from '@/api'
 
 const props = defineProps({
@@ -520,6 +784,327 @@ const loading = ref(true)
 const error = ref('')
 const actionLoading = ref(false)
 
+/**
+ * Creates or updates a meta tag in the document head.
+ *
+ * @param {string} key - Meta tag name or property.
+ * @param {string} content - Meta tag content.
+ * @param {string} attribute - Attribute used to identify the meta tag.
+ * @returns {void} Updates the corresponding meta element.
+ */
+function setMeta(
+    key,
+    content,
+    attribute = 'name'
+) {
+  let meta = document.head.querySelector(
+      `meta[${attribute}="${key}"]`
+  )
+
+  if (!meta) {
+    meta = document.createElement('meta')
+
+    meta.setAttribute(
+        attribute,
+        key
+    )
+
+    document.head.appendChild(meta)
+  }
+
+  meta.setAttribute(
+      'content',
+      content
+  )
+}
+
+/**
+ * Creates or updates the canonical link for the current page.
+ *
+ * @param {string} url - Canonical page URL.
+ * @returns {void} Updates the canonical link element.
+ */
+function setCanonicalUrl(url) {
+  let link = document.head.querySelector(
+      'link[data-student-connect-canonical="true"]'
+  )
+
+  if (!link) {
+    link = document.createElement('link')
+
+    link.setAttribute(
+        'rel',
+        'canonical'
+    )
+
+    link.setAttribute(
+        'data-student-connect-canonical',
+        'true'
+    )
+
+    document.head.appendChild(link)
+  }
+
+  link.setAttribute(
+      'href',
+      url
+  )
+}
+
+/**
+ * Updates document and social sharing metadata for the current errand.
+ *
+ * @returns {void} Updates the document title and relevant meta tags.
+ */
+function updatePageMetadata() {
+  if (!errand.value) {
+    return
+  }
+
+  const origin = window.location.origin
+
+  const url =
+      `${origin}/errands?id=${encodeURIComponent(
+          errand.value.id
+      )}`
+
+  const titleText =
+      String(
+          errand.value.title ||
+          'Student Errand'
+      ).trim()
+
+  const location =
+      String(
+          errand.value.location ||
+          'campus'
+      ).trim()
+
+  const descriptionText =
+      String(
+          errand.value.description ||
+          ''
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  const description =
+      descriptionText
+          ? `Student errand at ${location}: ${descriptionText}`
+          : `A student errand request at ${location}.`
+
+  const title =
+      `${titleText} | Student Connect`
+
+  document.title = title
+
+  setMeta(
+      'description',
+      description
+  )
+
+  setMeta(
+      'og:title',
+      title,
+      'property'
+  )
+
+  setMeta(
+      'og:description',
+      description,
+      'property'
+  )
+
+  setMeta(
+      'og:url',
+      url,
+      'property'
+  )
+
+  setMeta(
+      'og:type',
+      'website',
+      'property'
+  )
+
+  setMeta(
+      'og:site_name',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'twitter:card',
+      'summary'
+  )
+
+  setMeta(
+      'twitter:title',
+      title
+  )
+
+  setMeta(
+      'twitter:description',
+      description
+  )
+
+  setCanonicalUrl(url)
+}
+
+/**
+ * Restores the default Student Connect metadata.
+ *
+ * @returns {void} Restores default page metadata.
+ */
+function resetPageMetadata() {
+  document.title = 'Student Connect'
+
+  setMeta(
+      'description',
+      'Student Connect helps students connect, share rides, and discover campus services.'
+  )
+
+  setMeta(
+      'og:title',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'og:description',
+      'Connect with students and discover campus services.',
+      'property'
+  )
+
+  setMeta(
+      'og:url',
+      window.location.origin,
+      'property'
+  )
+
+  setMeta(
+      'og:type',
+      'website',
+      'property'
+  )
+
+  setMeta(
+      'og:site_name',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'twitter:card',
+      'summary'
+  )
+
+  setMeta(
+      'twitter:title',
+      'Student Connect'
+  )
+
+  setMeta(
+      'twitter:description',
+      'Connect with students and discover campus services.'
+  )
+
+  setCanonicalUrl(
+      window.location.origin
+  )
+}
+
+/**
+ * Shares the current errand using the Web Share API.
+ *
+ * Falls back to copying the current errand URL to the clipboard
+ * when native sharing is unavailable.
+ *
+ * @returns {Promise<void>}
+ */
+async function shareErrand() {
+  if (!errand.value) {
+    return
+  }
+
+  const url =
+      `${window.location.origin}/errands?id=${encodeURIComponent(
+          errand.value.id
+      )}`
+
+  const title =
+      String(
+          errand.value.title ||
+          'Student Errand'
+      ).trim()
+
+  const description =
+      String(
+          errand.value.description ||
+          'Check out this student errand on Student Connect.'
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  try {
+    if (
+        typeof navigator.share === 'function'
+    ) {
+      await navigator.share({
+        title,
+        text: description,
+        url
+      })
+
+      return
+    }
+
+    if (
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === 'function'
+    ) {
+      await navigator.clipboard.writeText(url)
+
+      ElMessage.success(
+          'Errand link copied to clipboard.'
+      )
+
+      return
+    }
+
+    throw new Error(
+        'Sharing is not supported on this device.'
+    )
+  } catch (err) {
+    if (
+        err?.name === 'AbortError'
+    ) {
+      return
+    }
+
+    try {
+      if (
+          navigator.clipboard &&
+          typeof navigator.clipboard.writeText === 'function'
+      ) {
+        await navigator.clipboard.writeText(url)
+
+        ElMessage.success(
+            'Errand link copied to clipboard.'
+        )
+
+        return
+      }
+    } catch {
+      // Continue to the final error message.
+    }
+
+    ElMessage.error(
+        err?.message ||
+        'Unable to share this errand.'
+    )
+  }
+}
 
 /**
  * Returns a short action description for a timeline event.
@@ -556,11 +1141,17 @@ function timelineActionLabel(type) {
  * @returns {boolean} True when the current user is the requester.
  */
 const isCreator = computed(() => {
-  if (!errand.value?.requester?.id || !props.currentUser?.id) {
+  if (
+      !errand.value?.requester?.id ||
+      !props.currentUser?.id
+  ) {
     return false
   }
 
-  return errand.value.requester.id === props.currentUser.id
+  return (
+      errand.value.requester.id ===
+      props.currentUser.id
+  )
 })
 
 /**
@@ -570,11 +1161,17 @@ const isCreator = computed(() => {
  * @returns {boolean} True when the current user is the helper.
  */
 const isAcceptedByMe = computed(() => {
-  if (!errand.value?.helper?.id || !props.currentUser?.id) {
+  if (
+      !errand.value?.helper?.id ||
+      !props.currentUser?.id
+  ) {
     return false
   }
 
-  return errand.value.helper.id === props.currentUser.id
+  return (
+      errand.value.helper.id ===
+      props.currentUser.id
+  )
 })
 
 /**
@@ -598,15 +1195,30 @@ const canEdit = computed(() => {
  * @returns {string} open, accepted, completed, cancelled, or expired.
  */
 const currentStatus = computed(() => {
-  const status = String(errand.value?.status || '').toLowerCase()
-  if (['accepted', 'completed', 'cancelled', 'expired'].includes(status)) {
+  const status = String(
+      errand.value?.status || ''
+  ).toLowerCase()
+
+  if (
+      [
+        'accepted',
+        'completed',
+        'cancelled',
+        'expired'
+      ].includes(status)
+  ) {
     return status
   }
 
-  const deadline = Number(errand.value?.deadline)
-  return Number.isFinite(deadline) &&
+  const deadline = Number(
+      errand.value?.deadline
+  )
+
+  return (
+      Number.isFinite(deadline) &&
       deadline > 0 &&
       Date.now() >= deadline * 1000
+  )
       ? 'expired'
       : 'open'
 })
@@ -617,8 +1229,12 @@ const currentStatus = computed(() => {
  * @returns {boolean} True while the errand is open or accepted.
  */
 const canCancel = computed(() => {
-  return isCreator.value &&
-      ['open', 'accepted'].includes(currentStatus.value)
+  return (
+      isCreator.value &&
+      ['open', 'accepted'].includes(
+          currentStatus.value
+      )
+  )
 })
 
 /**
@@ -675,8 +1291,6 @@ const statusBadgeClass = computed(() => {
  * Returns the errand timeline sorted chronologically.
  *
  * The backend is the source of truth for timeline events.
- * Sorting here protects the UI if Firebase returns events in
- * an unexpected order.
  *
  * @returns {Array<Object>} Chronologically ordered timeline events.
  */
@@ -686,7 +1300,9 @@ const timelineEvents = computed(() => {
   }
 
   return [...errand.value.timeline].sort(
-      (a, b) => Number(a.timestamp || 0) - Number(b.timestamp || 0)
+      (a, b) =>
+          Number(a.timestamp || 0) -
+          Number(b.timestamp || 0)
   )
 })
 
@@ -699,7 +1315,10 @@ const timelineEvents = computed(() => {
 async function fetchErrandDetails(id) {
   if (!id) {
     error.value = 'No errand ID provided.'
+    errand.value = null
     loading.value = false
+    resetPageMetadata()
+
     return
   }
 
@@ -707,11 +1326,39 @@ async function fetchErrandDetails(id) {
   error.value = ''
 
   try {
-    const res = await studentConnect.getErrand(id)
-    errand.value = res.data || res
+    const res =
+        await studentConnect.getErrand(id)
+
+    if (!res?.success) {
+      throw new Error(
+          res?.message ||
+          'Failed to load errand details'
+      )
+    }
+
+    errand.value =
+        res.data || null
+
+    if (!errand.value) {
+      throw new Error(
+          res?.message ||
+          'The requested student errand could not be retrieved.'
+      )
+    }
+
+    updatePageMetadata()
   } catch (err) {
-    error.value = err.message || 'Failed to load errand details'
-    ElMessage.error(error.value)
+    errand.value = null
+
+    error.value =
+        err?.message ||
+        'Failed to load errand details'
+
+    resetPageMetadata()
+
+    ElMessage.error(
+        error.value
+    )
   } finally {
     loading.value = false
   }
@@ -740,39 +1387,52 @@ function navigateTo(path) {
 /**
  * Accepts the current errand as the authenticated helper.
  *
- * The requester is explicitly blocked on the client because a
- * student cannot accept their own errand. The backend must enforce
- * the same authorization rule independently.
- *
  * @returns {Promise<void>}
  */
 async function handleAccept() {
-  if (!errand.value || actionLoading.value) {
+  if (
+      !errand.value ||
+      actionLoading.value
+  ) {
     return
   }
 
   if (isCreator.value) {
-    ElMessage.warning('You cannot accept your own errand.')
+    ElMessage.warning(
+        'You cannot accept your own errand.'
+    )
+
     return
   }
 
   if (currentStatus.value !== 'open') {
-    ElMessage.warning('This errand is no longer available.')
+    ElMessage.warning(
+        'This errand is no longer available.'
+    )
+
     return
   }
 
   actionLoading.value = true
 
   try {
-    const res = await studentConnect.acceptErrand(errand.value.id)
-    errand.value = res.data || res
+    const res =
+        await studentConnect.acceptErrand(
+            errand.value.id
+        )
+
+    errand.value =
+        res.data || res
+
+    updatePageMetadata()
 
     ElMessage.success(
         'You accepted this errand! Thank you for helping a peer.'
     )
   } catch (err) {
     ElMessage.error(
-        err.message || 'Could not accept errand'
+        err?.message ||
+        'Could not accept errand'
     )
   } finally {
     actionLoading.value = false
@@ -782,14 +1442,13 @@ async function handleAccept() {
 /**
  * Marks the current errand as completed by the assigned helper.
  *
- * Only the assigned helper may complete an errand. The requester
- * is explicitly blocked even if malformed client state suggests
- * otherwise. The backend must enforce the same rule.
- *
  * @returns {Promise<void>}
  */
 async function handleComplete() {
-  if (!errand.value || actionLoading.value) {
+  if (
+      !errand.value ||
+      actionLoading.value
+  ) {
     return
   }
 
@@ -797,6 +1456,7 @@ async function handleComplete() {
     ElMessage.warning(
         'You cannot complete your own errand.'
     )
+
     return
   }
 
@@ -804,6 +1464,7 @@ async function handleComplete() {
     ElMessage.warning(
         'Only the assigned helper can complete this errand.'
     )
+
     return
   }
 
@@ -811,6 +1472,7 @@ async function handleComplete() {
     ElMessage.warning(
         'This errand is no longer in progress.'
     )
+
     return
   }
 
@@ -831,18 +1493,23 @@ async function handleComplete() {
   actionLoading.value = true
 
   try {
-    const res = await studentConnect.completeErrand(
-        errand.value.id
-    )
+    const res =
+        await studentConnect.completeErrand(
+            errand.value.id
+        )
 
-    errand.value = res.data || res
+    errand.value =
+        res.data || res
+
+    updatePageMetadata()
 
     ElMessage.success(
         'Errand marked as completed! Great job.'
     )
   } catch (err) {
     ElMessage.error(
-        err.message || 'Could not complete errand'
+        err?.message ||
+        'Could not complete errand'
     )
   } finally {
     actionLoading.value = false
@@ -855,7 +1522,11 @@ async function handleComplete() {
  * @returns {Promise<void>} Resolves after cancellation or user dismissal.
  */
 async function handleCancel() {
-  if (!errand.value || actionLoading.value || !canCancel.value) {
+  if (
+      !errand.value ||
+      actionLoading.value ||
+      !canCancel.value
+  ) {
     return
   }
 
@@ -876,11 +1547,25 @@ async function handleCancel() {
   actionLoading.value = true
 
   try {
-    const response = await studentConnect.cancelErrand(errand.value.id)
-    errand.value = response?.data ?? response
-    ElMessage.success('Errand cancelled.')
+    const response =
+        await studentConnect.cancelErrand(
+            errand.value.id
+        )
+
+    errand.value =
+        response?.data ??
+        response
+
+    updatePageMetadata()
+
+    ElMessage.success(
+        'Errand cancelled.'
+    )
   } catch (error) {
-    ElMessage.error(error?.message || 'Could not cancel errand.')
+    ElMessage.error(
+        error?.message ||
+        'Could not cancel errand.'
+    )
   } finally {
     actionLoading.value = false
   }
@@ -889,13 +1574,13 @@ async function handleCancel() {
 /**
  * Releases the current helper's acceptance of the errand.
  *
- * The errand returns to the open state and the backend appends
- * an acceptance_cancelled timeline event.
- *
  * @returns {Promise<void>}
  */
 async function handleCancelAcceptance() {
-  if (!errand.value || actionLoading.value) {
+  if (
+      !errand.value ||
+      actionLoading.value
+  ) {
     return
   }
 
@@ -903,6 +1588,7 @@ async function handleCancelAcceptance() {
     ElMessage.warning(
         'Only the assigned helper can release this errand.'
     )
+
     return
   }
 
@@ -910,6 +1596,7 @@ async function handleCancelAcceptance() {
     ElMessage.warning(
         'This errand is no longer in progress.'
     )
+
     return
   }
 
@@ -930,18 +1617,23 @@ async function handleCancelAcceptance() {
   actionLoading.value = true
 
   try {
-    const res = await studentConnect.cancelErrandAcceptance(
-        errand.value.id
-    )
+    const res =
+        await studentConnect.cancelErrandAcceptance(
+            errand.value.id
+        )
 
-    errand.value = res.data || res
+    errand.value =
+        res.data || res
+
+    updatePageMetadata()
 
     ElMessage.success(
         'You released the errand. It is available for another student.'
     )
   } catch (err) {
     ElMessage.error(
-        err.message || 'Could not release errand'
+        err?.message ||
+        'Could not release errand'
     )
   } finally {
     actionLoading.value = false
@@ -955,7 +1647,8 @@ async function handleCancelAcceptance() {
  * @returns {string} Formatted local date and time.
  */
 function formatDeadline(timestamp) {
-  const numericTimestamp = Number(timestamp)
+  const numericTimestamp =
+      Number(timestamp)
 
   if (
       !Number.isFinite(numericTimestamp) ||
@@ -964,18 +1657,22 @@ function formatDeadline(timestamp) {
     return 'No deadline'
   }
 
-  const date = new Date(
-      numericTimestamp * 1000
-  )
+  const date =
+      new Date(
+          numericTimestamp * 1000
+      )
 
   if (Number.isNaN(date.getTime())) {
     return 'Invalid deadline'
   }
 
-  return date.toLocaleString('en-GB', {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  })
+  return date.toLocaleString(
+      'en-GB',
+      {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }
+  )
 }
 
 /**
@@ -985,7 +1682,8 @@ function formatDeadline(timestamp) {
  * @returns {string} Formatted local timestamp.
  */
 function formatTimelineTimestamp(timestamp) {
-  const numericTimestamp = Number(timestamp)
+  const numericTimestamp =
+      Number(timestamp)
 
   if (
       !Number.isFinite(numericTimestamp) ||
@@ -994,18 +1692,22 @@ function formatTimelineTimestamp(timestamp) {
     return 'Unknown time'
   }
 
-  const date = new Date(
-      numericTimestamp * 1000
-  )
+  const date =
+      new Date(
+          numericTimestamp * 1000
+      )
 
   if (Number.isNaN(date.getTime())) {
     return 'Unknown time'
   }
 
-  return date.toLocaleString('en-GB', {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  })
+  return date.toLocaleString(
+      'en-GB',
+      {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }
+  )
 }
 
 /**
@@ -1086,7 +1788,11 @@ function timelineIconClass(type) {
 
     case 'created':
     default:
-      return 'bg-indigo-100 text-indigo-700'
+      return 'bg-brand-100 text-brand-700'
   }
 }
+
+onUnmounted(() => {
+  resetPageMetadata()
+})
 </script>

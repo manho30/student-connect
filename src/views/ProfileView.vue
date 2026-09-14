@@ -15,7 +15,7 @@
     <section
         class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
     >
-      <div class="h-24 bg-gradient-to-r from-indigo-500 to-indigo-600"></div>
+      <div class="h-24 bg-gradient-to-r from-brand-500 to-brand-600"></div>
 
       <div class="px-5 pb-5 sm:px-6">
         <div class="-mt-10 flex flex-col sm:flex-row sm:items-end sm:justify-between">
@@ -23,7 +23,7 @@
             <el-avatar
                 :size="80"
                 shape="square"
-                class="!border-4 !border-white !bg-indigo-100 !text-2xl !font-bold !text-indigo-600 !shadow-md"
+                class="!border-4 !border-white !bg-brand-100 !text-2xl !font-bold !text-brand-600 !shadow-md"
             >
               {{ userInitial }}
             </el-avatar>
@@ -118,11 +118,11 @@
         <!-- Name -->
         <div
             class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition"
-            :class="isEditing ? 'border-indigo-100 bg-indigo-50/30' : 'hover:border-indigo-100 hover:bg-indigo-50/30'"
+            :class="isEditing ? 'border-brand-100 bg-brand-50/30' : 'hover:border-brand-100 hover:bg-brand-50/30'"
         >
           <div class="mb-2 flex items-center gap-2">
             <div
-                class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600"
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
             >
               <i class="fi fi-rr-user text-xs"></i>
             </div>
@@ -151,11 +151,11 @@
 
         <!-- Email -->
         <div
-            class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition hover:border-indigo-100 hover:bg-indigo-50/30"
+            class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition hover:border-brand-100 hover:bg-brand-50/30"
         >
           <div class="mb-2 flex items-center gap-2">
             <div
-                class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600"
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
             >
               <i class="fi fi-rr-envelope text-xs"></i>
             </div>
@@ -177,11 +177,11 @@
         <!-- Phone -->
         <div
             class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition"
-            :class="isEditing ? 'border-indigo-100 bg-indigo-50/30' : 'hover:border-indigo-100 hover:bg-indigo-50/30'"
+            :class="isEditing ? 'border-brand-100 bg-brand-50/30' : 'hover:border-brand-100 hover:bg-brand-50/30'"
         >
           <div class="mb-2 flex items-center gap-2">
             <div
-                class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600"
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
             >
               <i class="fi fi-rr-phone-call text-xs"></i>
             </div>
@@ -209,11 +209,11 @@
 
         <!-- Role -->
         <div
-            class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition hover:border-indigo-100 hover:bg-indigo-50/30"
+            class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition hover:border-brand-100 hover:bg-brand-50/30"
         >
           <div class="mb-2 flex items-center gap-2">
             <div
-                class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600"
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
             >
               <i class="fi fi-rr-badge text-xs"></i>
             </div>
@@ -234,11 +234,11 @@
 
         <!-- Provider -->
         <div
-            class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition hover:border-indigo-100 hover:bg-indigo-50/30"
+            class="rounded-xl border border-slate-100 bg-slate-50 p-4 transition hover:border-brand-100 hover:bg-brand-50/30"
         >
           <div class="mb-2 flex items-center gap-2">
             <div
-                class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600"
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600"
             >
               <i class="fi fi-rr-shield-check text-xs"></i>
             </div>
@@ -320,345 +320,6 @@
             ></i>
             Save Changes
           </el-button>
-        </div>
-      </div>
-    </section>
-
-    <!-- My Services -->
-    <section
-        class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-    >
-      <!-- Header -->
-      <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div class="flex items-center gap-2">
-            <div
-                class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600"
-            >
-              <i class="fi fi-rr-apps"></i>
-            </div>
-
-            <div>
-              <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">
-                My Services
-              </h3>
-
-              <p class="mt-0.5 text-xs text-slate-400">
-                Services you created or joined
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <el-button
-            size="small"
-            :loading="servicesLoading"
-            :disabled="servicesLoading"
-            @click="loadMyServices"
-        >
-          <i
-              v-if="!servicesLoading"
-              class="fi fi-rr-refresh mr-1.5"
-          ></i>
-          Refresh
-        </el-button>
-      </div>
-
-      <!-- Loading -->
-      <div
-          v-if="servicesLoading"
-          class="space-y-3"
-      >
-        <div
-            v-for="index in 5"
-            :key="index"
-            class="h-20 animate-pulse rounded-xl bg-slate-100"
-        ></div>
-      </div>
-
-      <!-- Initial Error -->
-      <div
-          v-else-if="servicesLoadError && !hasMyServices"
-          class="rounded-xl border border-rose-100 bg-rose-50 p-5 text-center"
-      >
-        <i class="fi fi-rr-exclamation text-xl text-rose-500"></i>
-
-        <p class="mt-2 text-sm font-semibold text-rose-700">
-          Unable to load your services
-        </p>
-
-        <p class="mt-1 text-xs text-rose-600">
-          Some service history may be temporarily unavailable.
-        </p>
-
-        <el-button
-            class="mt-3"
-            size="small"
-            type="danger"
-            plain
-            @click="loadMyServices"
-        >
-          Try Again
-        </el-button>
-      </div>
-
-      <div
-          v-else
-          class="space-y-7"
-      >
-        <!-- Partial Error -->
-        <div
-            v-if="servicesLoadError"
-            class="flex items-start gap-2 rounded-xl border border-amber-100 bg-amber-50 px-3 py-2.5"
-        >
-          <i class="fi fi-rr-info mt-0.5 text-amber-600"></i>
-
-          <p class="text-xs leading-relaxed text-amber-700">
-            Some service types could not be loaded. The available services are shown below.
-          </p>
-        </div>
-
-        <!-- Summary -->
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <div
-              v-for="summary in serviceSummary"
-              :key="summary.label"
-              class="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5"
-          >
-            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              {{ summary.label }}
-            </p>
-
-            <p class="mt-1 text-lg font-bold leading-none text-slate-800">
-              {{ summary.value }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Created -->
-        <div>
-          <div class="mb-3 flex items-end justify-between">
-            <div>
-              <h4 class="text-sm font-bold text-slate-800">
-                Created
-              </h4>
-
-              <p class="mt-0.5 text-xs text-slate-400">
-                Services you created
-              </p>
-            </div>
-
-            <span class="text-xs font-semibold text-slate-400">
-          {{ createdServiceCount }}
-        </span>
-          </div>
-
-          <div class="overflow-hidden rounded-xl border border-slate-200">
-            <template
-                v-for="collection in createdServiceCollections"
-                :key="`created-${collection.key}`"
-            >
-              <div
-                  v-if="collection.items.length"
-                  class="divide-y divide-slate-100"
-              >
-                <div
-                    v-for="item in collection.items"
-                    :key="`created-${collection.key}-${item.id}`"
-                    class="group flex items-center gap-3 px-4 py-3.5 transition hover:bg-slate-50"
-                >
-                  <!-- Service Icon -->
-                  <div
-                      class="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:flex"
-                      :class="serviceTypeIconClass(collection.key)"
-                  >
-                    <i :class="serviceTypeIcon(collection.key)"></i>
-                  </div>
-
-                  <!-- Main -->
-                  <div class="min-w-0 flex-1">
-                    <div class="flex min-w-0 items-center gap-2">
-                  <span
-                      class="shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400"
-                  >
-                    {{ collection.title }}
-                  </span>
-
-                      <span
-                          class="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
-                          :class="serviceStatusClass(item, collection.key)"
-                      >
-                    {{ serviceStatusLabel(item, collection.key) }}
-                  </span>
-                    </div>
-
-                    <h5 class="mt-1 truncate text-sm font-semibold text-slate-800">
-                      {{ serviceTitle(item, collection.key) }}
-                    </h5>
-
-                    <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
-                  <span class="inline-flex items-center gap-1">
-                    <i class="fi fi-rr-calendar"></i>
-                    {{ serviceDate(item, collection.key) }}
-                  </span>
-
-                      <span
-                          v-if="serviceTime(item, collection.key)"
-                          class="inline-flex items-center gap-1"
-                      >
-                    <i class="fi fi-rr-clock"></i>
-                    {{ serviceTime(item, collection.key) }}
-                  </span>
-
-                      <span
-                          v-if="serviceMeta(item, collection.key)"
-                          class="inline-flex items-center gap-1"
-                      >
-                    <i :class="serviceMetaIcon(collection.key)"></i>
-                    {{ serviceMeta(item, collection.key) }}
-                  </span>
-                    </div>
-                  </div>
-
-                  <!-- Action -->
-                  <el-button
-                      size="small"
-                      plain
-                      class="!shrink-0"
-                      @click="openService(collection.route, item.id)"
-                  >
-                    <span class="hidden sm:inline">View</span>
-                    <i class="fi fi-rr-arrow-small-right sm:ml-1"></i>
-                  </el-button>
-                </div>
-              </div>
-            </template>
-
-            <!-- Empty -->
-            <div
-                v-if="!createdServiceCount"
-                class="px-4 py-8 text-center"
-            >
-              <i class="fi fi-rr-layer-plus text-lg text-slate-300"></i>
-
-              <p class="mt-2 text-xs font-medium text-slate-500">
-                You haven't created any services yet.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Joined -->
-        <div>
-          <div class="mb-3 flex items-end justify-between">
-            <div>
-              <h4 class="text-sm font-bold text-slate-800">
-                Joined
-              </h4>
-
-              <p class="mt-0.5 text-xs text-slate-400">
-                Services you participated in
-              </p>
-            </div>
-
-            <span class="text-xs font-semibold text-slate-400">
-          {{ joinedServiceCount }}
-        </span>
-          </div>
-
-          <div class="overflow-hidden rounded-xl border border-slate-200">
-            <template
-                v-for="collection in joinedServiceCollections"
-                :key="`joined-${collection.key}`"
-            >
-              <div
-                  v-if="collection.items.length"
-                  class="divide-y divide-slate-100"
-              >
-                <div
-                    v-for="item in collection.items"
-                    :key="`joined-${collection.key}-${item.id}`"
-                    class="group flex items-center gap-3 px-4 py-3.5 transition hover:bg-slate-50"
-                >
-                  <!-- Service Icon -->
-                  <div
-                      class="hidden h-10 w-10 shrink-0 items-center justify-center rounded-xl sm:flex"
-                      :class="serviceTypeIconClass(collection.key)"
-                  >
-                    <i :class="serviceTypeIcon(collection.key)"></i>
-                  </div>
-
-                  <!-- Main -->
-                  <div class="min-w-0 flex-1">
-                    <div class="flex min-w-0 items-center gap-2">
-                  <span
-                      class="shrink-0 text-[10px] font-bold uppercase tracking-wider text-slate-400"
-                  >
-                    {{ collection.title }}
-                  </span>
-
-                      <span
-                          class="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider"
-                          :class="serviceStatusClass(item, collection.key)"
-                      >
-                    {{ serviceStatusLabel(item, collection.key) }}
-                  </span>
-                    </div>
-
-                    <h5 class="mt-1 truncate text-sm font-semibold text-slate-800">
-                      {{ serviceTitle(item, collection.key) }}
-                    </h5>
-
-                    <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
-                  <span class="inline-flex items-center gap-1">
-                    <i class="fi fi-rr-calendar"></i>
-                    {{ serviceDate(item, collection.key) }}
-                  </span>
-
-                      <span
-                          v-if="serviceTime(item, collection.key)"
-                          class="inline-flex items-center gap-1"
-                      >
-                    <i class="fi fi-rr-clock"></i>
-                    {{ serviceTime(item, collection.key) }}
-                  </span>
-
-                      <span
-                          v-if="serviceMeta(item, collection.key)"
-                          class="inline-flex items-center gap-1"
-                      >
-                    <i :class="serviceMetaIcon(collection.key)"></i>
-                    {{ serviceMeta(item, collection.key) }}
-                  </span>
-                    </div>
-                  </div>
-
-                  <!-- Action -->
-                  <el-button
-                      size="small"
-                      plain
-                      class="!shrink-0"
-                      @click="openService(collection.route, item.id)"
-                  >
-                    <span class="hidden sm:inline">View</span>
-                    <i class="fi fi-rr-arrow-small-right sm:ml-1"></i>
-                  </el-button>
-                </div>
-              </div>
-            </template>
-
-            <!-- Empty -->
-            <div
-                v-if="!joinedServiceCount"
-                class="px-4 py-8 text-center"
-            >
-              <i class="fi fi-rr-users text-lg text-slate-300"></i>
-
-              <p class="mt-2 text-xs font-medium text-slate-500">
-                You haven't joined any services yet.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </section>
@@ -930,7 +591,7 @@ function serviceTypeIcon(type) {
 
 function serviceTypeIconClass(type) {
   if (type === 'carpool') {
-    return 'bg-indigo-50 text-indigo-600'
+    return 'bg-brand-50 text-brand-600'
   }
 
   if (type === 'errands') {
@@ -942,7 +603,7 @@ function serviceTypeIconClass(type) {
   }
 
   if (type === 'activities') {
-    return 'bg-indigo-50 text-indigo-600'
+    return 'bg-brand-50 text-brand-600'
   }
 
   return 'bg-slate-50 text-slate-600'
@@ -1534,7 +1195,7 @@ const roleBadgeClass = computed(() => {
       return 'bg-amber-50 text-amber-700'
 
     default:
-      return 'bg-indigo-50 text-indigo-700'
+      return 'bg-brand-50 text-brand-700'
   }
 })
 
@@ -1552,7 +1213,7 @@ const roleDotClass = computed(() => {
       return 'bg-amber-500'
 
     default:
-      return 'bg-indigo-500'
+      return 'bg-brand-500'
   }
 })
 

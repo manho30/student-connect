@@ -1,20 +1,76 @@
 @import "tailwindcss";
 
+/* ========================================
+   Design Tokens
+======================================== */
+
+:root {
+  --brand-50: #f0fdfa;
+  --brand-100: #ccfbf1;
+  --brand-200: #99f6e4;
+  --brand-300: #5eead4;
+  --brand-400: #2dd4bf;
+  --brand-500: #14b8a6;
+  --brand-600: #0d9488;
+  --brand-700: #0f766e;
+  --brand-800: #115e59;
+  --brand-900: #134e4a;
+
+  --brand-ring: rgba(13, 148, 136, 0.28);
+}
+
+/* ========================================
+   Tailwind Theme
+======================================== */
+
+@theme {
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+}
+
+/* ========================================
+   Element Plus Theme
+======================================== */
+
+:root {
+  --el-color-primary: var(--brand-600);
+  --el-color-primary-light-3: var(--brand-400);
+  --el-color-primary-light-5: var(--brand-300);
+  --el-color-primary-light-7: var(--brand-200);
+  --el-color-primary-light-8: var(--brand-100);
+  --el-color-primary-light-9: var(--brand-50);
+  --el-color-primary-dark-2: var(--brand-700);
+}
+
+/* ========================================
+   Base
+======================================== */
+
 @layer base {
   body {
     background-color: #f8fafc;
     color: #1e293b;
   }
+
+  ::selection {
+    background-color: var(--brand-500);
+    color: #ffffff;
+  }
 }
 
-/* Custom Material / Student-friendly card styles & tweaks */
+/* ========================================
+   Element Plus Customization
+======================================== */
+
 .el-button--primary {
-  --el-button-bg-color: #4f46e5;
-  --el-button-border-color: #4f46e5;
-  --el-button-hover-bg-color: #4338ca;
-  --el-button-hover-border-color: #4338ca;
-  --el-button-active-bg-color: #3730a3;
-  --el-button-active-border-color: #3730a3;
   font-weight: 600;
   border-radius: 0.75rem;
 }
@@ -24,14 +80,16 @@
   overflow: hidden;
 }
 
-.el-input__wrapper, .el-textarea__inner {
+.el-input__wrapper,
+.el-textarea__inner {
   border-radius: 0.75rem !important;
   box-shadow: 0 0 0 1px #e2e8f0 inset !important;
-  transition: all 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 
-.el-input__wrapper.is-focus, .el-textarea__inner:focus {
-  box-shadow: 0 0 0 2px #6366f1 inset !important;
+.el-input__wrapper.is-focus,
+.el-textarea__inner:focus {
+  box-shadow: 0 0 0 2px var(--brand-500) inset !important;
 }
 
 .el-tag {
@@ -39,8 +97,12 @@
   font-weight: 500;
 }
 
-/* Keep Element Plus date/time picker popups stable while hovering. */
+/* ========================================
+   Component-specific Fixes
+======================================== */
+
+/* Keep Element Plus date/time picker stable while hovering. */
 .carpool-date-picker,
 .carpool-time-picker {
-  will-change: auto !important;
+  will-change: auto;
 }

@@ -10,7 +10,7 @@
     <div class="flex items-center justify-between">
       <button
           id="back-to-study-btn"
-          class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs"
+          class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors cursor-pointer bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs"
           type="button"
           @click="navigateTo('/study')"
       >
@@ -32,12 +32,25 @@
       </button>
 
       <div
-          v-if="study && isOwner && canEdit"
+          v-if="study"
           class="flex items-center gap-2"
       >
+        <!-- Share -->
         <button
+            id="share-study-btn"
+            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-white text-slate-700 hover:bg-slate-50 hover:text-brand-700 transition-colors cursor-pointer border border-slate-200 shadow-xs"
+            type="button"
+            @click="shareStudy"
+        >
+          <i class="fi fi-rr-share text-xs"></i>
+          <span>Share</span>
+        </button>
+
+        <!-- Edit -->
+        <button
+            v-if="isOwner && canEdit"
             id="edit-study-detail-btn"
-            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors cursor-pointer border border-indigo-200"
+            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-brand-50 text-brand-700 hover:bg-brand-100 transition-colors cursor-pointer border border-brand-200"
             type="button"
             @click="navigateToEdit"
         >
@@ -54,7 +67,7 @@
         class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-xs"
     >
       <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent mb-3"
+          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-600 border-t-transparent mb-3"
       ></div>
 
       <p class="text-sm font-semibold text-slate-600">
@@ -89,7 +102,7 @@
 
       <button
           id="view-all-study-btn"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
+          class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
           type="button"
           @click="navigateTo('/study')"
       >
@@ -105,7 +118,7 @@
     >
       <!-- Hero Header -->
       <div
-          class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white p-6 sm:p-8"
+          class="bg-gradient-to-r from-brand-900 to-slate-900 text-white p-6 sm:p-8"
       >
         <div
             class="flex flex-wrap items-center justify-between gap-3 mb-4"
@@ -121,14 +134,14 @@
             </span>
 
             <span
-                class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-indigo-200 border border-white/10"
+                class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-brand-200 border border-white/10"
             >
               {{ study.subject || 'Study' }}
             </span>
 
             <span
                 v-if="isOwner"
-                class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30"
+                class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-500/30 text-brand-200 border border-brand-400/30"
             >
               Your Study
             </span>
@@ -179,7 +192,7 @@
             <div
                 class="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5"
             >
-              <i class="fi fi-rr-book-alt text-indigo-500"></i>
+              <i class="fi fi-rr-book-alt text-brand-500"></i>
 
               <span class="truncate">
                 {{ study.subject || '—' }}
@@ -199,7 +212,7 @@
             <div
                 class="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5"
             >
-              <i class="fi fi-rr-users text-indigo-500"></i>
+              <i class="fi fi-rr-users text-brand-500"></i>
 
               <span>
                 {{ memberCount }} / {{ study.capacity }}
@@ -235,23 +248,23 @@
 
         <!-- Session Schedule -->
         <div
-            class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4"
+            class="bg-brand-50/50 border border-brand-100 rounded-xl p-4"
         >
           <!-- Header -->
           <div class="flex items-center justify-between gap-3 mb-6">
             <h4
                 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2"
             >
-              <i class="fi fi-rr-calendar text-indigo-600"></i>
+              <i class="fi fi-rr-calendar text-brand-600"></i>
               <span>Session Schedule</span>
             </h4>
 
             <span
                 v-if="scheduleDuration"
-                class="text-[10px] font-semibold text-indigo-500"
+                class="text-[10px] font-semibold text-brand-500"
             >
-      {{ scheduleDuration }}
-    </span>
+              {{ scheduleDuration }}
+            </span>
           </div>
 
           <!-- Horizontal Timeline -->
@@ -259,7 +272,7 @@
             <div class="relative">
               <!-- Connecting Line -->
               <div
-                  class="absolute left-[7px] right-[7px] top-[5px] h-px bg-indigo-200"
+                  class="absolute left-[7px] right-[7px] top-[5px] h-px bg-brand-200"
                   aria-hidden="true"
               ></div>
 
@@ -267,14 +280,14 @@
                 <!-- Start -->
                 <div class="flex flex-col items-start">
                   <div
-                      class="w-[11px] h-[11px] rounded-full bg-indigo-600 ring-4 ring-indigo-50 mb-4"
+                      class="w-[11px] h-[11px] rounded-full bg-brand-600 ring-4 ring-brand-50 mb-4"
                   ></div>
 
                   <span
-                      class="text-[10px] font-bold text-indigo-600 uppercase tracking-wider"
+                      class="text-[10px] font-bold text-brand-600 uppercase tracking-wider"
                   >
-            Starts
-          </span>
+                    Starts
+                  </span>
 
                   <p class="text-sm font-bold text-slate-800 mt-1">
                     {{ schedule.start.date }}
@@ -288,14 +301,14 @@
                 <!-- End -->
                 <div class="flex flex-col items-end text-right">
                   <div
-                      class="w-[11px] h-[11px] rounded-full bg-indigo-400 ring-4 ring-indigo-50 mb-4"
+                      class="w-[11px] h-[11px] rounded-full bg-brand-400 ring-4 ring-brand-50 mb-4"
                   ></div>
 
                   <span
-                      class="text-[10px] font-bold text-indigo-500 uppercase tracking-wider"
+                      class="text-[10px] font-bold text-brand-500 uppercase tracking-wider"
                   >
-            Ends
-          </span>
+                    Ends
+                  </span>
 
                   <p class="text-sm font-bold text-slate-800 mt-1">
                     {{ schedule.end.date }}
@@ -313,12 +326,12 @@
         <!-- Location -->
         <div
             v-if="study.location"
-            class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4"
+            class="bg-brand-50/50 border border-brand-100 rounded-xl p-4"
         >
           <h4
               class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5"
           >
-            <i class="fi fi-rr-marker text-indigo-500"></i>
+            <i class="fi fi-rr-marker text-brand-500"></i>
             <span>Location</span>
           </h4>
 
@@ -332,12 +345,12 @@
         <!-- Description -->
         <div
             v-if="study.description"
-            class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4"
+            class="bg-brand-50/50 border border-brand-100 rounded-xl p-4"
         >
           <h4
               class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5"
           >
-            <i class="fi fi-rr-info text-indigo-500"></i>
+            <i class="fi fi-rr-info text-brand-500"></i>
             <span>About This Study</span>
           </h4>
 
@@ -347,7 +360,6 @@
             {{ study.description }}
           </p>
         </div>
-
 
         <!-- Members -->
         <div
@@ -379,7 +391,7 @@
                 class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 transition-all duration-200 hover:shadow-sm"
             >
               <div
-                  class="w-9 h-9 shrink-0 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs"
+                  class="w-9 h-9 shrink-0 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs"
               >
                 {{ getMemberInitial(member) }}
               </div>
@@ -415,7 +427,7 @@
 
               <span
                   v-if="getUserId(member) === getOwnerId()"
-                  class="shrink-0 px-2 py-1 rounded-lg bg-indigo-100 text-indigo-700 text-[9px] font-bold uppercase tracking-wide"
+                  class="shrink-0 px-2 py-1 rounded-lg bg-brand-100 text-brand-700 text-[9px] font-bold uppercase tracking-wide"
               >
                 Host
               </span>
@@ -469,7 +481,7 @@
             <template v-if="isOwner && canEdit">
               <button
                   id="owner-edit-study-btn"
-                  class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-colors border border-indigo-200 cursor-pointer"
+                  class="flex-1 sm:flex-none px-5 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl font-bold text-xs transition-colors border border-brand-200 cursor-pointer"
                   type="button"
                   @click="navigateToEdit"
               >
@@ -494,7 +506,7 @@
             <template v-else-if="canParticipate">
               <button
                   id="join-study-detail-btn"
-                  class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer"
+                  class="w-full sm:w-auto px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer"
                   type="button"
                   @click="handleJoin"
               >
@@ -521,7 +533,12 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import {
+  computed,
+  onUnmounted,
+  ref,
+  watch
+} from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import studentConnect from '@/api'
@@ -611,7 +628,10 @@ const isFull = computed(() => {
  * @returns {boolean} True when the session is expired.
  */
 const isStudyExpired = computed(() => {
-  const startTime = Number(study.value?.schedule?.startTime)
+  const startTime = Number(
+      study.value?.schedule?.startTime
+  )
+
   return Number.isFinite(startTime) &&
       startTime > 0 &&
       Date.now() >= startTime * 1000
@@ -623,12 +643,25 @@ const isStudyExpired = computed(() => {
  * @returns {string} open, full, cancelled, or expired.
  */
 const statusKey = computed(() => {
-  const explicitStatus = String(study.value?.status || '').toLowerCase()
-  if (explicitStatus === 'cancelled' || explicitStatus === 'expired') {
+  const explicitStatus =
+      String(
+          study.value?.status || ''
+      ).toLowerCase()
+
+  if (
+      explicitStatus === 'cancelled' ||
+      explicitStatus === 'expired'
+  ) {
     return explicitStatus
   }
-  if (isStudyExpired.value) return 'expired'
-  return isFull.value ? 'full' : 'open'
+
+  if (isStudyExpired.value) {
+    return 'expired'
+  }
+
+  return isFull.value
+      ? 'full'
+      : 'open'
 })
 
 /**
@@ -730,7 +763,9 @@ const isJoined = computed(() => {
  * @returns {boolean} True for non-terminal sessions.
  */
 const canEdit = computed(() => {
-  return ['open', 'full'].includes(statusKey.value)
+  return ['open', 'full'].includes(
+      statusKey.value
+  )
 })
 
 /**
@@ -739,7 +774,9 @@ const canEdit = computed(() => {
  * @returns {boolean} True for active sessions.
  */
 const canLeave = computed(() => {
-  return ['open', 'full'].includes(statusKey.value)
+  return ['open', 'full'].includes(
+      statusKey.value
+  )
 })
 
 /**
@@ -760,11 +797,16 @@ const canParticipate = computed(() => {
 function unixSecondsToDate(timestamp) {
   const seconds = Number(timestamp)
 
-  if (!Number.isFinite(seconds) || seconds <= 0) {
+  if (
+      !Number.isFinite(seconds) ||
+      seconds <= 0
+  ) {
     return null
   }
 
-  const date = new Date(seconds * 1000)
+  const date = new Date(
+      seconds * 1000
+  )
 
   return Number.isNaN(date.getTime())
       ? null
@@ -788,17 +830,23 @@ function formatScheduleTimestamp(timestamp) {
   }
 
   return {
-    date: new Intl.DateTimeFormat('en-MY', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).format(date),
+    date: new Intl.DateTimeFormat(
+        'en-MY',
+        {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        }
+    ).format(date),
 
-    time: new Intl.DateTimeFormat('en-MY', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    }).format(date)
+    time: new Intl.DateTimeFormat(
+        'en-MY',
+        {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true
+        }
+    ).format(date)
   }
 }
 
@@ -878,6 +926,342 @@ function getMemberInitial(member) {
 }
 
 /**
+ * Creates or updates a metadata tag in the document head.
+ *
+ * @param {string} key Metadata name or property.
+ * @param {string} content Metadata content.
+ * @param {string} attribute Attribute used to identify the tag.
+ * @returns {void}
+ */
+function setMeta(
+    key,
+    content,
+    attribute = 'name'
+) {
+  if (!content) {
+    return
+  }
+
+  let element =
+      document.head.querySelector(
+          `meta[${attribute}="${key}"]`
+      )
+
+  if (!element) {
+    element = document.createElement('meta')
+
+    element.setAttribute(
+        attribute,
+        key
+    )
+
+    document.head.appendChild(element)
+  }
+
+  element.setAttribute(
+      'content',
+      content
+  )
+}
+
+/**
+ * Creates or updates the canonical URL.
+ *
+ * @param {string} url Canonical page URL.
+ * @returns {void}
+ */
+function setCanonicalUrl(url) {
+  let element =
+      document.head.querySelector(
+          'link[data-student-connect-canonical="true"]'
+      )
+
+  if (!element) {
+    element = document.createElement('link')
+
+    element.setAttribute(
+        'rel',
+        'canonical'
+    )
+
+    element.setAttribute(
+        'data-student-connect-canonical',
+        'true'
+    )
+
+    document.head.appendChild(element)
+  }
+
+  element.setAttribute(
+      'href',
+      url
+  )
+}
+
+/**
+ * Updates document metadata for the current Study page.
+ *
+ * @returns {void}
+ */
+function updatePageMetadata() {
+  if (!study.value) {
+    return
+  }
+
+  const origin =
+      window.location.origin
+
+  const url =
+      `${origin}/study?id=${encodeURIComponent(
+          study.value.id
+      )}`
+
+  const titleText =
+      String(
+          study.value.title ||
+          'Study Group'
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  const subject =
+      String(
+          study.value.subject ||
+          'Study'
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  const location =
+      String(
+          study.value.location ||
+          'campus'
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  const descriptionText =
+      String(
+          study.value.description ||
+          ''
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  const description =
+      descriptionText
+          ? `${subject} study group at ${location}: ${descriptionText}`
+          : `Join the ${subject} study group at ${location}.`
+
+  const title =
+      `${titleText} | Student Connect`
+
+  document.title = title
+
+  setMeta(
+      'description',
+      description
+  )
+
+  setMeta(
+      'og:title',
+      title,
+      'property'
+  )
+
+  setMeta(
+      'og:description',
+      description,
+      'property'
+  )
+
+  setMeta(
+      'og:url',
+      url,
+      'property'
+  )
+
+  setMeta(
+      'og:type',
+      'website',
+      'property'
+  )
+
+  setMeta(
+      'og:site_name',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'twitter:card',
+      'summary'
+  )
+
+  setMeta(
+      'twitter:title',
+      title
+  )
+
+  setMeta(
+      'twitter:description',
+      description
+  )
+
+  setCanonicalUrl(url)
+}
+
+/**
+ * Restores the default Student Connect document metadata.
+ *
+ * @returns {void}
+ */
+function resetPageMetadata() {
+  const origin =
+      window.location.origin
+
+  document.title =
+      'Student Connect'
+
+  setMeta(
+      'description',
+      'Student Connect helps students find carpools, errands, study groups, and campus activities.'
+  )
+
+  setMeta(
+      'og:title',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'og:description',
+      'Student Connect helps students connect and collaborate on campus.',
+      'property'
+  )
+
+  setMeta(
+      'og:type',
+      'website',
+      'property'
+  )
+
+  setMeta(
+      'og:site_name',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'twitter:card',
+      'summary'
+  )
+
+  setMeta(
+      'twitter:title',
+      'Student Connect'
+  )
+
+  setMeta(
+      'twitter:description',
+      'Student Connect helps students connect and collaborate on campus.'
+  )
+
+  setCanonicalUrl(origin)
+}
+
+/**
+ * Shares the current Study group using the Web Share API
+ * or copies the Study URL to the clipboard as a fallback.
+ *
+ * @returns {Promise<void>} Resolves after the share operation completes.
+ */
+async function shareStudy() {
+  if (!study.value?.id) {
+    ElMessage.error(
+        'Study ID is missing'
+    )
+
+    return
+  }
+
+  const url =
+      `${window.location.origin}/study?id=${encodeURIComponent(
+          study.value.id
+      )}`
+
+  const titleText =
+      String(
+          study.value.title ||
+          'Study Group'
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  const subject =
+      String(
+          study.value.subject ||
+          'Study'
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  const location =
+      String(
+          study.value.location ||
+          'campus'
+      )
+          .replace(/\s+/g, ' ')
+          .trim()
+
+  const title =
+      `${titleText} | Student Connect`
+
+  const description =
+      `Join the ${subject} study group at ${location}.`
+
+  try {
+    if (
+        navigator.share &&
+        typeof navigator.share === 'function'
+    ) {
+      await navigator.share({
+        title,
+        text: description,
+        url
+      })
+
+      return
+    }
+
+    if (
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === 'function'
+    ) {
+      await navigator.clipboard.writeText(url)
+
+      ElMessage.success(
+          'Study link copied to clipboard.'
+      )
+
+      return
+    }
+
+    ElMessage.warning(
+        'Sharing is not supported on this device.'
+    )
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      return
+    }
+
+    ElMessage.error(
+        'Could not share the study.'
+    )
+  }
+}
+
+/**
  * Fetches the requested Study from the backend.
  *
  * @param {string} id Study identifier.
@@ -885,9 +1269,14 @@ function getMemberInitial(member) {
  */
 async function fetchStudyDetails(id) {
   if (!id) {
-    error.value = 'No study ID provided.'
+    error.value =
+        'No study ID provided.'
+
     study.value = null
     loading.value = false
+
+    resetPageMetadata()
+
     return
   }
 
@@ -914,6 +1303,8 @@ async function fetchStudyDetails(id) {
           'The requested study could not be retrieved.'
       )
     }
+
+    updatePageMetadata()
   } catch (err) {
     study.value = null
 
@@ -921,7 +1312,11 @@ async function fetchStudyDetails(id) {
         err?.message ||
         'Failed to load study details'
 
-    ElMessage.error(error.value)
+    resetPageMetadata()
+
+    ElMessage.error(
+        error.value
+    )
   } finally {
     loading.value = false
   }
@@ -945,6 +1340,8 @@ async function handleJoin() {
 
     study.value =
         response?.data ?? response
+
+    updatePageMetadata()
 
     ElMessage.success(
         'You joined the study.'
@@ -980,6 +1377,8 @@ async function handleLeave() {
 
     study.value =
         response?.data ?? response
+
+    updatePageMetadata()
 
     ElMessage.success(
         'You left the study.'
@@ -1029,15 +1428,29 @@ function navigateTo(path) {
  */
 function navigateToEdit() {
   if (!study.value?.id) {
-    ElMessage.error('Study ID is missing')
+    ElMessage.error(
+        'Study ID is missing'
+    )
+
     return
   }
 
   router.push({
     path: '/study/edit',
     query: {
-      id: String(study.value.id)
+      id: String(
+          study.value.id
+      )
     }
   })
 }
+
+/**
+ * Restores the default page metadata when leaving the Study detail page.
+ *
+ * @returns {void}
+ */
+onUnmounted(() => {
+  resetPageMetadata()
+})
 </script>

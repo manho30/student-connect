@@ -6,7 +6,7 @@
       <button
           id="carpool-form-back-btn"
           :disabled="submitting"
-          class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
+          class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors cursor-pointer bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs disabled:cursor-not-allowed disabled:opacity-50"
           @click="handleCancel"
       >
         <svg
@@ -53,7 +53,7 @@
       <!-- Loading State for Edit -->
       <div v-if="loading" class="py-12 text-center">
         <div
-            class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent mb-3"
+            class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-600 border-t-transparent mb-3"
         ></div>
 
         <p class="text-sm font-semibold text-slate-600">
@@ -71,7 +71,7 @@
         </p>
 
         <button
-            class="bg-indigo-600 text-white font-bold text-xs px-4 py-2 rounded-xl cursor-pointer"
+            class="bg-brand-600 text-white font-bold text-xs px-4 py-2 rounded-xl cursor-pointer"
             @click="handleCancel"
         >
           Return to Carpool List

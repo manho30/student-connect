@@ -4,18 +4,20 @@
 <template>
   <div
       id="carpool-detail-container"
-      class="max-w-4xl mx-auto space-y-6"
+      class="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6"
   >
     <!-- Back & Navigation Bar -->
-    <div class="flex items-center justify-between">
+    <div
+        class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+    >
       <button
           id="back-to-carpools-btn"
-          class="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors cursor-pointer bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-xs"
+          class="inline-flex w-fit items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-brand-600 transition-colors cursor-pointer bg-white px-3.5 sm:px-4 py-2.5 rounded-xl border border-slate-200 shadow-xs"
           type="button"
           @click="navigateTo('/carpool')"
       >
         <svg
-            class="w-4 h-4"
+            class="w-4 h-4 shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -31,10 +33,26 @@
         <span>Back to Carpools</span>
       </button>
 
-      <div v-if="carpool && isOwner && canEdit" class="flex items-center gap-2">
+      <div
+          v-if="carpool"
+          class="flex items-center gap-2"
+      >
+        <!-- Share -->
         <button
+            id="share-carpool-btn"
+            class="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl bg-white text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer border border-slate-200 shadow-xs"
+            type="button"
+            @click="shareCarpool"
+        >
+          <i class="fi fi-rr-share text-xs"></i>
+          <span>Share</span>
+        </button>
+
+        <!-- Edit -->
+        <button
+            v-if="isOwner && canEdit"
             id="edit-carpool-detail-btn"
-            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors cursor-pointer border border-indigo-200"
+            class="inline-flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-xl bg-brand-50 text-brand-700 hover:bg-brand-100 transition-colors cursor-pointer border border-brand-200"
             type="button"
             @click="navigateToEdit"
         >
@@ -45,10 +63,15 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" id="carpool-detail-loading"
-         class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-xs">
+    <div
+        v-if="loading"
+        id="carpool-detail-loading"
+        class="bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 text-center shadow-xs"
+    >
       <div
-          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent mb-3"></div>
+          class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-brand-600 border-t-transparent mb-3"
+      ></div>
+
       <p class="text-sm font-semibold text-slate-600">
         Loading carpool details...
       </p>
@@ -58,7 +81,7 @@
     <div
         v-else-if="error || !carpool"
         id="carpool-detail-error"
-        class="bg-white rounded-2xl border border-rose-200 p-10 text-center shadow-xs space-y-4"
+        class="bg-white rounded-2xl border border-rose-200 p-6 sm:p-10 text-center shadow-xs space-y-4"
     >
       <div
           class="w-14 h-14 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto"
@@ -71,7 +94,7 @@
           Carpool Not Found
         </h3>
 
-        <p class="text-xs text-slate-500 max-w-md mx-auto">
+        <p class="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
           {{
             error ||
             'The requested carpool could not be retrieved.'
@@ -81,7 +104,7 @@
 
       <button
           id="view-all-carpools-btn"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
+          class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl cursor-pointer"
           type="button"
           @click="navigateTo('/carpool')"
       >
@@ -90,31 +113,45 @@
     </div>
 
     <!-- Main Detail Card -->
-    <div v-else id="carpool-detail-card" class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+    <div
+        v-else
+        id="carpool-detail-card"
+        class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden"
+    >
       <!-- Hero Header -->
-      <div class="bg-gradient-to-r from-indigo-900 to-slate-900 text-white p-6 sm:p-8">
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div
+          class="bg-gradient-to-r from-brand-900 to-slate-900 text-white p-5 sm:p-8"
+      >
+        <div
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-5"
+        >
           <div class="flex items-center gap-2 flex-wrap">
             <span
                 :class="[
-                'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
+                'px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider',
                 statusBadgeClass
               ]"
             >
               {{ statusLabel }}
             </span>
 
-            <span class="px-3 py-1 rounded-full text-xs font-bold bg-white/10 text-indigo-200 border border-white/10">
+            <span
+                class="px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold bg-white/10 text-brand-200 border border-white/10"
+            >
               {{ carpool.capacity }} Pax
             </span>
 
-            <span v-if="isOwner"
-                  class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+            <span
+                v-if="isOwner"
+                class="px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-bold bg-brand-500/30 text-brand-200 border border-brand-400/30"
+            >
               Your Ride
             </span>
           </div>
 
-          <div class="text-2xl font-bold text-white flex items-baseline gap-1">
+          <div
+              class="text-xl sm:text-2xl font-bold text-white flex items-baseline gap-1"
+          >
             <span>
               {{
                 Number(carpool.cost) > 0
@@ -123,38 +160,56 @@
               }}
             </span>
 
-            <span class="text-xs font-normal text-slate-300">
+            <span class="text-[10px] sm:text-xs font-normal text-slate-300">
               / passenger
             </span>
           </div>
         </div>
 
         <!-- Route Visual -->
-        <div class="space-y-4 pt-2">
-          <div class="flex items-start gap-4">
-            <div class="flex flex-col items-center mt-1">
-              <div class="w-3.5 h-3.5 rounded-full bg-slate-300 border-2 border-indigo-900 shrink-0"></div>
+        <div class="pt-1">
+          <div class="flex items-stretch gap-3 sm:gap-4">
+            <!-- Route Line -->
+            <div class="flex flex-col items-center pt-1">
+              <div
+                  class="w-3.5 h-3.5 rounded-full bg-slate-300 border-2 border-brand-900 shrink-0"
+              ></div>
 
-              <div class="w-0.5 h-10 bg-indigo-400/40"></div>
+              <div class="w-0.5 flex-1 min-h-10 bg-brand-400/40 my-1"></div>
 
-              <div class="w-3.5 h-3.5 rounded-full bg-indigo-400 border-2 border-indigo-900 shrink-0"></div>
+              <div
+                  class="w-3.5 h-3.5 rounded-full bg-brand-400 border-2 border-brand-900 shrink-0"
+              ></div>
             </div>
 
-            <div class="space-y-4 flex-1">
+            <!-- Route Information -->
+            <div class="space-y-5 flex-1 min-w-0">
               <div>
-                <span class="text-[10px] text-indigo-200 uppercase font-bold tracking-wider">
+                <span
+                    class="text-[9px] sm:text-[10px] text-brand-200 uppercase font-bold tracking-wider"
+                >
                   Departure Point
                 </span>
 
-                <p class="text-lg font-bold text-white">{{ carpool.origin || '—' }}</p>
+                <p
+                    class="text-base sm:text-lg font-bold text-white leading-snug break-words"
+                >
+                  {{ carpool.origin || '—' }}
+                </p>
               </div>
 
               <div>
-                <span class="text-[10px] text-indigo-200 uppercase font-bold tracking-wider">
+                <span
+                    class="text-[9px] sm:text-[10px] text-brand-200 uppercase font-bold tracking-wider"
+                >
                   Destination
                 </span>
 
-                <p class="text-lg font-bold text-white">{{ carpool.destination || '—' }}</p>
+                <p
+                    class="text-base sm:text-lg font-bold text-white leading-snug break-words"
+                >
+                  {{ carpool.destination || '—' }}
+                </p>
               </div>
             </div>
           </div>
@@ -162,47 +217,66 @@
       </div>
 
       <!-- Detail Grid & Information -->
-      <div class="p-6 sm:p-8 space-y-6">
+      <div class="p-4 sm:p-8 space-y-5 sm:space-y-6">
         <!-- Key Metadata Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
           <!-- Date -->
-          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-            <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+          <div
+              class="bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-100 min-w-0"
+          >
+            <div
+                class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold tracking-wider"
+            >
               Date
             </div>
 
-            <div class="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5">
-              <i class="fi fi-rr-calendar text-indigo-500"></i>
+            <div
+                class="text-xs sm:text-sm font-bold text-slate-800 mt-1.5 flex items-start gap-1.5"
+            >
+              <i class="fi fi-rr-calendar text-brand-500 mt-0.5 shrink-0"></i>
 
-              <span>
+              <span class="break-words">
                 {{ formatDateTime(carpool.departure).date || '—' }}
               </span>
             </div>
           </div>
 
           <!-- Departure Time -->
-          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-            <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+          <div
+              class="bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-100 min-w-0"
+          >
+            <div
+                class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold tracking-wider"
+            >
               Departure Time
             </div>
 
-            <div class="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5">
-              <i class="fi fi-rr-clock-three text-indigo-500"></i>
+            <div
+                class="text-xs sm:text-sm font-bold text-slate-800 mt-1.5 flex items-start gap-1.5"
+            >
+              <i class="fi fi-rr-clock-three text-brand-500 mt-0.5 shrink-0"></i>
 
-              <span>
+              <span class="break-words">
                 {{ formatDateTime(carpool.departure).time || '—' }}
               </span>
             </div>
           </div>
 
           <!-- Seats Filled -->
-          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-            <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+          <div
+              class="bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-100 min-w-0"
+          >
+            <div
+                class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold tracking-wider"
+            >
               Seats Filled
             </div>
 
-            <div class="text-sm font-bold text-slate-800 mt-1 flex items-center gap-1.5">
-              <i class="fi fi-rr-users text-indigo-500"></i>
+            <div
+                class="text-xs sm:text-sm font-bold text-slate-800 mt-1.5 flex items-start gap-1.5"
+            >
+              <i class="fi fi-rr-users text-brand-500 mt-0.5 shrink-0"></i>
+
               <span>
                 {{ participantCount }} / {{ carpool.capacity }}
               </span>
@@ -210,17 +284,19 @@
           </div>
 
           <!-- Available Slots -->
-          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-100">
-            <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">
+          <div
+              class="bg-slate-50 p-3 sm:p-3.5 rounded-xl border border-slate-100 min-w-0"
+          >
+            <div
+                class="text-[9px] sm:text-[10px] text-slate-400 uppercase font-bold tracking-wider"
+            >
               Available Slots
             </div>
 
             <div
-                class="text-sm font-bold text-emerald-600 mt-1 flex items-center gap-1.5"
+                class="text-xs sm:text-sm font-bold text-emerald-600 mt-1.5 flex items-start gap-1.5"
             >
-              <i
-                  class="fi fi-rr-chair text-emerald-500"
-              ></i>
+              <i class="fi fi-rr-chair text-emerald-500 mt-0.5 shrink-0"></i>
 
               <span>
                 {{ availableSeats }} Seats Open
@@ -232,43 +308,51 @@
         <!-- Meeting Notes & Instructions -->
         <div
             v-if="carpool.notes"
-            class="bg-amber-50/60 border border-amber-200/80 rounded-xl p-4"
+            class="bg-amber-50/60 border border-amber-200/80 rounded-xl p-3.5 sm:p-4"
         >
           <h4
-              class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-1 flex items-center gap-1.5"
+              class="text-[10px] sm:text-xs font-bold text-amber-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5"
           >
-            <i class="fi fi-rr-info text-amber-600"></i>
+            <i class="fi fi-rr-info text-amber-600 shrink-0"></i>
 
             <span>Pickup & Ride Notes</span>
           </h4>
 
           <p
-              class="text-xs text-amber-950 leading-relaxed"
+              class="text-xs text-amber-950 leading-relaxed break-words"
           >
             {{ carpool.notes }}
           </p>
         </div>
 
         <!-- Participants -->
-
         <div class="space-y-3 pt-2 border-t border-slate-100">
-          <div class="flex items-center justify-between">
-            <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+          <div class="flex items-center justify-between gap-3">
+            <h4
+                class="text-[10px] sm:text-xs font-bold text-slate-800 uppercase tracking-wider"
+            >
               Students on this trip
             </h4>
-            <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">
+
+            <span
+                class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold shrink-0"
+            >
               {{ participantCount }}
             </span>
           </div>
-          <div v-if="participants.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+
+          <div
+              v-if="participants.length > 0"
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3"
+          >
             <div
                 v-for="participant in participants"
                 :key="participant.id"
-                class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 transition-all duration-200 hover:shadow-sm"
+                class="flex items-center gap-3 p-3 bg-slate-50 border border-slate-100 rounded-xl transition-all duration-200 hover:shadow-sm min-w-0"
             >
               <!-- Avatar -->
               <div
-                  class="w-9 h-9 shrink-0 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs"
+                  class="w-9 h-9 shrink-0 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs"
               >
                 {{ getParticipantInitial(participant) }}
               </div>
@@ -293,7 +377,10 @@
                   You
                 </p>
 
-                <p v-else class="text-[10px] text-slate-400 mt-0.5">
+                <p
+                    v-else
+                    class="text-[10px] text-slate-400 mt-0.5"
+                >
                   Participant
                 </p>
               </div>
@@ -301,7 +388,7 @@
               <!-- Role badge -->
               <span
                   v-if="participant.id === carpool.owner?.id"
-                  class="shrink-0 px-2 py-1 rounded-lg bg-indigo-100 text-indigo-700 text-[9px] font-bold uppercase tracking-wide"
+                  class="shrink-0 px-2 py-1 rounded-lg bg-brand-100 text-brand-700 text-[9px] font-bold uppercase tracking-wide"
               >
                 Host
               </span>
@@ -316,7 +403,6 @@
           </div>
 
           <!-- Empty state -->
-
           <div
               v-else
               class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200"
@@ -327,28 +413,38 @@
               <i class="fi fi-rr-users text-slate-400 text-xs"></i>
             </div>
 
-            <p class="text-xs text-slate-400">
+            <p class="text-xs text-slate-400 leading-relaxed">
               No students have joined this carpool yet.
             </p>
           </div>
         </div>
 
         <!-- Bottom Actions -->
-        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div class="text-xs text-slate-500">
+        <div
+            class="pt-4 border-t border-slate-100 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <!-- Host -->
+          <div class="text-xs text-slate-500 leading-relaxed">
             Trip hosted by
             <strong class="text-slate-800">
               {{ carpool.owner?.name || 'Student' }}
-              <strong v-if="carpool.owner?.id === currentUser.id" class="text-xs text-shadow-slate-500 font-normal">(You)</strong>
+
+              <span
+                  v-if="carpool.owner?.id === currentUser?.id"
+                  class="text-slate-500 font-normal"
+              >
+                (You)
+              </span>
             </strong>
           </div>
 
-          <div class="flex items-center gap-3 w-full sm:w-auto">
+          <!-- Actions -->
+          <div class="flex items-stretch gap-2.5 w-full sm:w-auto">
             <!-- Owner Actions -->
             <template v-if="isOwner && canEdit">
               <button
                   id="owner-edit-carpool-btn"
-                  class="flex-1 sm:flex-none px-5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-colors border border-indigo-200 cursor-pointer"
+                  class="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl font-bold text-xs transition-colors border border-brand-200 cursor-pointer"
                   type="button"
                   @click="navigateToEdit"
               >
@@ -357,7 +453,7 @@
 
               <button
                   id="owner-leave-carpool-btn"
-                  class="flex-1 sm:flex-none px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs transition-colors border border-rose-200 cursor-pointer"
+                  class="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl font-bold text-xs transition-colors border border-rose-200 cursor-pointer"
                   type="button"
                   @click="handleDelete"
               >
@@ -395,7 +491,7 @@
             <template v-else-if="canParticipate">
               <button
                   id="join-carpool-detail-btn"
-                  class="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer"
+                  class="w-full sm:w-auto px-6 sm:px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-xs shadow-md transition-colors cursor-pointer"
                   type="button"
                   @click="handleJoin"
               >
@@ -403,7 +499,7 @@
               </button>
             </template>
 
-            <!-- Fully Booked -->
+            <!-- Fully Booked / Terminal -->
             <template v-else>
               <button
                   id="fully-booked-carpool-btn"
@@ -422,9 +518,18 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch
+} from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  ElMessage,
+  ElMessageBox
+} from 'element-plus'
 import studentConnect from '@/api'
 import { formatDateTime } from '@/helper/dateTimeConvert'
 
@@ -446,7 +551,10 @@ const carpool = ref(null)
 const loading = ref(true)
 const error = ref('')
 
-const currentTimestamp = ref(Math.floor(Date.now() / 1000))
+const currentTimestamp = ref(
+    Math.floor(Date.now() / 1000)
+)
+
 let timeUpdateInterval = null
 
 /**
@@ -483,7 +591,9 @@ const availableSeats = computed(() => {
     return 0
   }
 
-  const capacity = Number(carpool.value.capacity || 0)
+  const capacity = Number(
+      carpool.value.capacity || 0
+  )
 
   return Math.max(
       0,
@@ -514,7 +624,9 @@ const isFull = computed(() => {
  * @returns {boolean} True when the current time is at or after departure.
  */
 const isDeparturePassed = computed(() => {
-  const departure = Number(carpool.value?.departure)
+  const departure = Number(
+      carpool.value?.departure
+  )
 
   if (!Number.isFinite(departure) || departure <= 0) {
     return false
@@ -529,12 +641,21 @@ const isDeparturePassed = computed(() => {
  * @returns {string} open, full, cancelled, or expired.
  */
 const statusKey = computed(() => {
-  const explicitStatus = String(carpool.value?.status || '').toLowerCase()
-  if (explicitStatus === 'cancelled' || explicitStatus === 'expired') {
+  const explicitStatus = String(
+      carpool.value?.status || ''
+  ).toLowerCase()
+
+  if (
+      explicitStatus === 'cancelled' ||
+      explicitStatus === 'expired'
+  ) {
     return explicitStatus
   }
 
-  if (isDeparturePassed.value) return 'expired'
+  if (isDeparturePassed.value) {
+    return 'expired'
+  }
+
   return isFull.value ? 'full' : 'open'
 })
 
@@ -601,7 +722,9 @@ const isJoined = computed(() => {
  * @returns {boolean} True for non-terminal carpools.
  */
 const canEdit = computed(() => {
-  return ['open', 'full'].includes(statusKey.value)
+  return ['open', 'full'].includes(
+      statusKey.value
+  )
 })
 
 /**
@@ -610,7 +733,9 @@ const canEdit = computed(() => {
  * @returns {boolean} True for active carpools.
  */
 const canLeave = computed(() => {
-  return ['open', 'full'].includes(statusKey.value)
+  return ['open', 'full'].includes(
+      statusKey.value
+  )
 })
 
 /**
@@ -619,7 +744,10 @@ const canLeave = computed(() => {
  * @returns {boolean} True when the carpool is open and not departed.
  */
 const canParticipate = computed(() => {
-  return statusKey.value === 'open' && !isDeparturePassed.value
+  return (
+      statusKey.value === 'open' &&
+      !isDeparturePassed.value
+  )
 })
 
 /**
@@ -628,7 +756,9 @@ const canParticipate = computed(() => {
  * @returns {void} Updates the reactive current timestamp.
  */
 function updateCurrentTimestamp() {
-  currentTimestamp.value = Math.floor(Date.now() / 1000)
+  currentTimestamp.value = Math.floor(
+      Date.now() / 1000
+  )
 }
 
 /**
@@ -643,6 +773,253 @@ function getParticipantInitial(participant) {
   ).trim()
 
   return name.charAt(0).toUpperCase()
+}
+
+/**
+ * Creates or updates a meta tag in the document head.
+ *
+ * @param {string} key - Meta tag name or property.
+ * @param {string} content - Meta tag content.
+ * @param {string} attribute - Attribute used to identify the meta tag.
+ * @returns {void} Updates the corresponding meta element.
+ */
+function setMeta(
+    key,
+    content,
+    attribute = 'name'
+) {
+  let meta = document.head.querySelector(
+      `meta[${attribute}="${key}"]`
+  )
+
+  if (!meta) {
+    meta = document.createElement('meta')
+
+    meta.setAttribute(
+        attribute,
+        key
+    )
+
+    document.head.appendChild(meta)
+  }
+
+  meta.setAttribute(
+      'content',
+      content
+  )
+}
+
+/**
+ * Updates document and social sharing metadata for the current carpool.
+ *
+ * @returns {void} Updates the document title and relevant meta tags.
+ */
+function updatePageMetadata() {
+  if (!carpool.value) {
+    return
+  }
+
+  const origin = window.location.origin
+
+  const url = `${origin}/carpool?id=${encodeURIComponent(
+      carpool.value.id
+  )}`
+
+  const originName =
+      carpool.value.origin ||
+      'Unknown origin'
+
+  const destinationName =
+      carpool.value.destination ||
+      'Unknown destination'
+
+  const title =
+      `${originName} → ${destinationName} | Student Connect`
+
+  const description =
+      `Join this student carpool from ${originName} to ${destinationName}.`
+
+  document.title = title
+
+  setMeta(
+      'description',
+      description
+  )
+
+  setMeta(
+      'og:title',
+      title,
+      'property'
+  )
+
+  setMeta(
+      'og:description',
+      description,
+      'property'
+  )
+
+  setMeta(
+      'og:url',
+      url,
+      'property'
+  )
+
+  setMeta(
+      'og:type',
+      'website',
+      'property'
+  )
+
+  setMeta(
+      'og:site_name',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'twitter:card',
+      'summary'
+  )
+
+  setMeta(
+      'twitter:title',
+      title
+  )
+
+  setMeta(
+      'twitter:description',
+      description
+  )
+}
+
+/**
+ * Resets the page metadata to the Student Connect defaults.
+ *
+ * @returns {void} Restores the default document metadata.
+ */
+function resetPageMetadata() {
+  document.title = 'Student Connect'
+
+  setMeta(
+      'description',
+      'Student Connect helps students connect, share rides, and discover campus services.'
+  )
+
+  setMeta(
+      'og:title',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'og:description',
+      'Connect with students and discover campus services.',
+      'property'
+  )
+
+  setMeta(
+      'og:url',
+      window.location.origin,
+      'property'
+  )
+
+  setMeta(
+      'og:type',
+      'website',
+      'property'
+  )
+
+  setMeta(
+      'og:site_name',
+      'Student Connect',
+      'property'
+  )
+
+  setMeta(
+      'twitter:card',
+      'summary'
+  )
+
+  setMeta(
+      'twitter:title',
+      'Student Connect'
+  )
+
+  setMeta(
+      'twitter:description',
+      'Connect with students and discover campus services.'
+  )
+}
+
+/**
+ * Shares the current carpool using the Web Share API or clipboard fallback.
+ *
+ * @returns {Promise<void>} Resolves after the share operation completes.
+ */
+async function shareCarpool() {
+  if (!carpool.value?.id) {
+    ElMessage.error('Carpool ID is missing')
+    return
+  }
+
+  const url =
+      `${window.location.origin}/carpool?id=${encodeURIComponent(
+          carpool.value.id
+      )}`
+
+  const originName =
+      carpool.value.origin ||
+      'Unknown origin'
+
+  const destinationName =
+      carpool.value.destination ||
+      'Unknown destination'
+
+  const title =
+      `${originName} → ${destinationName} | Student Connect`
+
+  const description =
+      `Join this student carpool from ${originName} to ${destinationName}.`
+
+  try {
+    if (
+        navigator.share &&
+        typeof navigator.share === 'function'
+    ) {
+      await navigator.share({
+        title,
+        text: description,
+        url
+      })
+
+      return
+    }
+
+    if (
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === 'function'
+    ) {
+      await navigator.clipboard.writeText(url)
+
+      ElMessage.success(
+          'Carpool link copied to clipboard.'
+      )
+
+      return
+    }
+
+    ElMessage.warning(
+        'Sharing is not supported on this device.'
+    )
+  } catch (err) {
+    if (err?.name === 'AbortError') {
+      return
+    }
+
+    ElMessage.error(
+        'Could not share the carpool.'
+    )
+  }
 }
 
 /**
@@ -666,7 +1043,8 @@ async function fetchCarpoolDetails(id) {
   error.value = ''
 
   try {
-    const response = await studentConnect.getCarPool(id)
+    const response =
+        await studentConnect.getCarPool(id)
 
     if (!response?.success) {
       throw new Error(
@@ -675,7 +1053,9 @@ async function fetchCarpoolDetails(id) {
       )
     }
 
-    carpool.value = response.data || null
+    carpool.value =
+        response.data ||
+        null
 
     if (!carpool.value) {
       throw new Error(
@@ -683,12 +1063,16 @@ async function fetchCarpoolDetails(id) {
           'The requested carpool could not be retrieved.'
       )
     }
+
+    updatePageMetadata()
   } catch (err) {
     carpool.value = null
 
     error.value =
         err?.message ||
         'Failed to load carpool details'
+
+    resetPageMetadata()
 
     ElMessage.error(error.value)
   } finally {
@@ -707,17 +1091,23 @@ watch(
 )
 
 onMounted(() => {
-  timeUpdateInterval = window.setInterval(
-      updateCurrentTimestamp,
-      1000
-  )
+  timeUpdateInterval =
+      window.setInterval(
+          updateCurrentTimestamp,
+          1000
+      )
 })
 
 onUnmounted(() => {
   if (timeUpdateInterval !== null) {
-    window.clearInterval(timeUpdateInterval)
+    window.clearInterval(
+        timeUpdateInterval
+    )
+
     timeUpdateInterval = null
   }
+
+  resetPageMetadata()
 })
 
 /**
@@ -739,7 +1129,10 @@ function navigateTo(path) {
  */
 function navigateToEdit() {
   if (!carpool.value?.id) {
-    ElMessage.error('Carpool ID is missing')
+    ElMessage.error(
+        'Carpool ID is missing'
+    )
+
     return
   }
 
@@ -762,17 +1155,26 @@ function navigateToEdit() {
  */
 async function handleJoin() {
   if (!carpool.value?.id) {
-    ElMessage.error('Carpool ID is missing')
+    ElMessage.error(
+        'Carpool ID is missing'
+    )
+
     return
   }
 
   if (isDeparturePassed.value) {
-    ElMessage.warning('This carpool has already departed.')
+    ElMessage.warning(
+        'This carpool has already departed.'
+    )
+
     return
   }
 
   try {
-    const response = await studentConnect.joinCarPool(carpool.value.id)
+    const response =
+        await studentConnect.joinCarPool(
+            carpool.value.id
+        )
 
     if (!response?.success) {
       throw new Error(
@@ -782,7 +1184,10 @@ async function handleJoin() {
     }
 
     if (response.data) {
-      carpool.value = response.data
+      carpool.value =
+          response.data
+
+      updatePageMetadata()
     } else {
       await fetchCarpoolDetails(
           carpool.value.id
@@ -811,27 +1216,34 @@ async function handleJoin() {
  * @throws {Error} When the delete request fails or returns an unsuccessful response.
  */
 async function handleDelete() {
-  const confirmed = await ElMessageBox.confirm(
-      'Are you sure you want to cancel this carpool? This action cannot be undone.',
-      'Confirm Cancellation',
-      {
-        confirmButtonText: 'Yes, Cancel',
-        cancelButtonText: 'No, Keep',
-        type: 'warning',
-      }
-  ).catch(() => false)
+  const confirmed =
+      await ElMessageBox.confirm(
+          'Are you sure you want to cancel this carpool? This action cannot be undone.',
+          'Confirm Cancellation',
+          {
+            confirmButtonText: 'Yes, Cancel',
+            cancelButtonText: 'No, Keep',
+            type: 'warning'
+          }
+      ).catch(() => false)
 
   if (!confirmed) {
     return
   }
 
   if (!carpool.value?.id) {
-    ElMessage.error('Carpool ID is missing')
+    ElMessage.error(
+        'Carpool ID is missing'
+    )
+
     return
   }
 
   try {
-    const response = await studentConnect.deleteCarPool(carpool.value.id)
+    const response =
+        await studentConnect.deleteCarPool(
+            carpool.value.id
+        )
 
     if (!response?.success) {
       throw new Error(
@@ -864,12 +1276,18 @@ async function handleDelete() {
  */
 async function handleLeave() {
   if (!carpool.value?.id) {
-    ElMessage.error('Carpool ID is missing')
+    ElMessage.error(
+        'Carpool ID is missing'
+    )
+
     return
   }
 
   try {
-    const response = await studentConnect.leaveCarPool(carpool.value.id)
+    const response =
+        await studentConnect.leaveCarPool(
+            carpool.value.id
+        )
 
     if (!response?.success) {
       throw new Error(
@@ -879,7 +1297,10 @@ async function handleLeave() {
     }
 
     if (response.data) {
-      carpool.value = response.data
+      carpool.value =
+          response.data
+
+      updatePageMetadata()
     } else {
       await fetchCarpoolDetails(
           carpool.value.id

@@ -10,22 +10,17 @@
     />
 
     <!-- LISTING VIEW -->
-    <div
-        v-else
-        class="space-y-6"
-    >
-      <!-- Header -->
+    <div v-else class="space-y-6">
+      <!-- Header Section -->
       <header
-          class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end"
+          class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4"
       >
         <div class="space-y-1">
-          <h1
-              class="text-3xl font-bold tracking-tight text-slate-900"
-          >
+          <h1 class="text-3xl font-bold text-slate-900 tracking-tight">
             Collaborate in Student Study Groups
           </h1>
 
-          <p class="text-sm text-slate-500 sm:text-base">
+          <p class="text-slate-500 text-sm sm:text-base">
             Prepare for exams, tackle difficult assignments, and learn
             together with other students.
           </p>
@@ -33,11 +28,12 @@
 
         <button
             id="open-create-study-btn"
-            class="flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-100 transition-all hover:bg-indigo-700"
+            type="button"
+            class="bg-brand-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-brand-100 hover:bg-brand-700 transition-all flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap"
             @click="navigateToCreate"
         >
           <svg
-              class="h-5 w-5"
+              class="w-5 h-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -56,12 +52,12 @@
 
       <!-- Search & Filter -->
       <section
-          class="flex flex-col items-stretch gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs md:flex-row md:items-center"
+          class="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row gap-4 items-stretch md:items-center"
       >
         <!-- Search -->
-        <div class="relative flex-1">
+        <div class="flex-1 relative">
           <svg
-              class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
+              class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -78,9 +74,9 @@
               id="study-search-input"
               v-model="searchQuery"
               type="text"
-              placeholder="Search by title, subject, location..."
-              class="w-full rounded-xl border border-slate-100 bg-slate-50 py-2.5 pl-12 pr-4 text-sm text-slate-800 outline-none transition-all focus:border-transparent focus:bg-white focus:ring-2 focus:ring-indigo-500"
-          >
+              placeholder="Search study groups by title, subject or location..."
+              class="w-full pl-12 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none text-slate-800 text-sm transition-all"
+          />
         </div>
 
         <!-- Divider -->
@@ -96,10 +92,11 @@
               v-for="filter in filters"
               :key="filter.id"
               :id="'study-filter-tab-' + filter.id"
+              type="button"
               :class="[
                 'cursor-pointer whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition-colors',
                 activeFilter === filter.id
-                  ? 'bg-indigo-50 text-indigo-700'
+                  ? 'bg-brand-50 text-brand-700'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               ]"
               @click="activeFilter = filter.id"
@@ -112,24 +109,86 @@
       <!-- Loading State -->
       <div
           v-if="loading"
-          class="flex justify-center py-10 text-sm text-slate-500"
+          id="study-loading"
+          class="space-y-4"
       >
-        Loading study groups...
+        <!-- Loading Header -->
+        <div class="flex items-center gap-3 px-1">
+          <div
+              class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"
+          ></div>
+
+          <p class="text-sm font-medium text-slate-500">
+            Loading study groups...
+          </p>
+        </div>
+
+        <!-- Skeleton Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div
+              v-for="index in 6"
+              :key="index"
+              class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse"
+          >
+            <!-- Badge -->
+            <div class="flex items-center justify-between mb-5">
+              <div class="h-5 w-20 bg-slate-200 rounded-full"></div>
+              <div class="h-4 w-14 bg-slate-100 rounded"></div>
+            </div>
+
+            <!-- Title -->
+            <div class="h-5 w-3/4 bg-slate-200 rounded mb-3"></div>
+
+            <!-- Description -->
+            <div class="space-y-2 mb-5">
+              <div class="h-3 w-full bg-slate-100 rounded"></div>
+              <div class="h-3 w-5/6 bg-slate-100 rounded"></div>
+            </div>
+
+            <!-- Subject / Location -->
+            <div class="space-y-3 mb-5">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-slate-200 rounded-full"></div>
+                <div class="h-3 w-1/2 bg-slate-100 rounded"></div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-slate-200 rounded-full"></div>
+                <div class="h-3 w-2/3 bg-slate-100 rounded"></div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div
+                class="pt-4 border-t border-slate-100 flex justify-between items-center"
+            >
+              <div class="h-4 w-20 bg-slate-100 rounded"></div>
+              <div class="h-9 w-24 bg-slate-200 rounded-xl"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Error State -->
       <div
           v-else-if="loadError"
-          class="rounded-2xl border border-red-100 bg-red-50 p-6 text-center"
+          id="study-error"
+          class="bg-rose-50 border border-rose-100 rounded-2xl p-8 text-center"
       >
-        <p class="text-sm font-medium text-red-700">
+        <div
+            class="w-12 h-12 mx-auto mb-4 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center"
+        >
+          <i class="fi fi-rr-exclamation text-xl"></i>
+        </div>
+
+        <p class="text-sm font-semibold text-rose-700">
           {{ loadError }}
         </p>
 
         <button
             id="study-retry-btn"
             type="button"
-            class="mt-3 cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+            class="mt-4 px-5 py-2.5 rounded-xl bg-rose-600 text-white text-sm font-bold hover:bg-rose-700 transition-colors cursor-pointer"
             @click="loadStudyGroups"
         >
           Try Again
@@ -138,16 +197,26 @@
 
       <!-- Study Group Lists -->
       <div v-else class="space-y-8">
+        <!-- Active Groups -->
         <section>
           <div class="mb-3 flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Currently Active</h2>
-              <p class="text-xs text-slate-500">Open study sessions and groups with available capacity.</p>
+              <h2 class="text-lg font-bold text-slate-900">
+                Currently Active
+              </h2>
+
+              <p class="text-xs text-slate-500">
+                Open study groups and sessions with available capacity.
+              </p>
             </div>
-            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+
+            <span
+                class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700"
+            >
               {{ activeGroups.length }}
             </span>
           </div>
+
           <StudyGroupList
               :groups="activeGroups"
               :current-user="currentUser"
@@ -158,16 +227,26 @@
           />
         </section>
 
+        <!-- Archive -->
         <section>
           <div class="mb-3 flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Archive</h2>
-              <p class="text-xs text-slate-500">Inactive study sessions from the last 3 days.</p>
+              <h2 class="text-lg font-bold text-slate-900">
+                Archive
+              </h2>
+
+              <p class="text-xs text-slate-500">
+                Inactive study groups from the last 3 days.
+              </p>
             </div>
-            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+
+            <span
+                class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600"
+            >
               {{ archivedGroups.length }}
             </span>
           </div>
+
           <StudyGroupList
               v-if="archivedGroups.length"
               :groups="archivedGroups"
@@ -177,8 +256,12 @@
               @leave="handleLeave"
               @select="handleSelect"
           />
-          <p v-else class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-            No inactive study sessions from the last 3 days.
+
+          <p
+              v-else
+              class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500"
+          >
+            No inactive study groups from the last 3 days.
           </p>
         </section>
       </div>
@@ -190,7 +273,8 @@
 import {
   ref,
   computed,
-  onMounted
+  onMounted,
+  watch
 } from 'vue'
 
 import {
@@ -221,13 +305,14 @@ const loading = ref(false)
 const loadError = ref('')
 
 /**
- * Returns the current authenticated Firebase user.
+ * Represents the currently authenticated student.
  *
- * @returns {Object|null} Current authenticated user.
+ * @returns {Object} Current student information.
  */
-const currentUser = computed(() => {
-  return user.value || null
-})
+const currentUser = computed(() => ({
+  id: user.value?.uid || '',
+  name: user.value?.displayName || user.value?.email || 'Student'
+}))
 
 /**
  * Normalizes a service activity timestamp to Unix milliseconds.
@@ -242,29 +327,42 @@ function normalizeActivityTimestamp(value) {
         : value.timestamp ?? value.seconds ?? value.value
   }
 
-  if (value instanceof Date) return value.getTime()
+  if (value instanceof Date) {
+    return value.getTime()
+  }
 
-  if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
+  if (
+      typeof value === 'number' ||
+      (typeof value === 'string' && /^\d+$/.test(value))
+  ) {
     const numericValue = Number(value)
+
     return Number.isFinite(numericValue)
-        ? numericValue < 100000000000 ? numericValue * 1000 : numericValue
+        ? numericValue < 100000000000
+            ? numericValue * 1000
+            : numericValue
         : 0
   }
 
   const parsed = Date.parse(value || '')
-  return Number.isFinite(parsed) ? parsed : 0
+
+  return Number.isFinite(parsed)
+      ? parsed
+      : 0
 }
 
 /**
- * Gets the currently selected study ID from the route query.
+ * Reads the study group ID from the current route query.
  *
- * @returns {string|null} Study ID or null when no study is selected.
+ * @returns {string|null} Study group ID or null when displaying the list.
  */
 const studyId = computed(() => {
   const id = route.query.id
 
   if (Array.isArray(id)) {
-    return id[0] ? String(id[0]) : null
+    return id[0]
+        ? String(id[0])
+        : null
   }
 
   return id
@@ -288,13 +386,9 @@ const filters = [
 ]
 
 /**
- * Loads all available study groups from the backend.
+ * Loads the latest study groups list from the Student Connect API.
  *
- * The loading state prevents the empty-state component from appearing
- * before the backend response has been received.
- *
- * @returns {Promise<void>} Resolves after the study groups are loaded.
- * @throws {Error} When the backend request fails.
+ * @returns {Promise<void>}
  */
 async function loadStudyGroups() {
   loading.value = true
@@ -304,31 +398,38 @@ async function loadStudyGroups() {
     const response =
         await studentConnect.getAllStudyGroups()
 
-    if (!response?.success) {
+    if (response?.success === false) {
       throw new Error(
           response?.message ||
-          'Failed to load study groups.'
+          'Failed to load study groups'
       )
     }
 
-    const data =
-        response?.data ?? response
-
-    groups.value =
-        Array.isArray(data)
-            ? data
-            : []
-  } catch (err) {
+    /**
+     * Support both:
+     *
+     * { success, message, data }
+     *
+     * and legacy direct array responses.
+     */
+    if (Array.isArray(response?.data)) {
+      groups.value = response.data
+    } else if (Array.isArray(response)) {
+      groups.value = response
+    } else {
+      groups.value = []
+    }
+  } catch (error) {
     console.error(
         'Failed to load study groups:',
-        err
+        error
     )
 
     groups.value = []
 
     loadError.value =
-        err?.message ||
-        'Failed to load study groups.'
+        error?.message ||
+        'Failed to load study groups'
 
     ElMessage.error(
         loadError.value
@@ -341,7 +442,7 @@ async function loadStudyGroups() {
 /**
  * Extracts a comparable user identifier.
  *
- * @param {Object|string|null} member User or member object.
+ * @param {Object|string|null} member - User or member object.
  * @returns {string} Comparable user identifier.
  */
 function getUserId(member) {
@@ -365,7 +466,7 @@ function getUserId(member) {
 /**
  * Determines whether the authenticated user belongs to a study group.
  *
- * @param {Object} group Study group resource.
+ * @param {Object} group - Study group resource.
  * @returns {boolean} True when the user is a member.
  */
 function isCurrentUserMember(group) {
@@ -387,7 +488,7 @@ function isCurrentUserMember(group) {
 /**
  * Determines whether a study group has remaining capacity.
  *
- * @param {Object} group Study group resource.
+ * @param {Object} group - Study group resource.
  * @returns {boolean} True when at least one slot remains.
  */
 function hasOpenSlot(group) {
@@ -410,9 +511,9 @@ function hasOpenSlot(group) {
 }
 
 /**
- * Determines whether a study group has available membership slots.
+ * Determines whether a study group is currently open.
  *
- * @param {Object} group Study group resource.
+ * @param {Object} group - Study group resource.
  * @returns {boolean} True when the group is open and has capacity.
  */
 function isGroupOpen(group) {
@@ -421,11 +522,14 @@ function isGroupOpen(group) {
           group?.status || 'open'
       ).toLowerCase()
 
-  return status === 'open' && hasOpenSlot(group)
+  return (
+      status === 'open' &&
+      hasOpenSlot(group)
+  )
 }
 
 /**
- * Computes the study groups displayed in the listing.
+ * Computes study groups filtered by search keywords and selected filter.
  *
  * @returns {Array<Object>} Filtered study groups.
  */
@@ -434,18 +538,18 @@ const filteredGroups = computed(() => {
     ...(groups.value || [])
   ]
 
-  if (searchQuery.value.trim()) {
-    const query =
-        searchQuery.value
-            .toLowerCase()
-            .trim()
+  const query =
+      searchQuery.value
+          .trim()
+          .toLowerCase()
 
+  if (query) {
     list = list.filter((group) => {
       const searchableFields = [
-        group.title,
-        group.subject,
-        group.description,
-        group.location
+        group?.title,
+        group?.subject,
+        group?.description,
+        group?.location
       ]
 
       return searchableFields.some((value) => {
@@ -478,14 +582,46 @@ const filteredGroups = computed(() => {
  * @returns {string} open, full, cancelled, or expired.
  */
 function getStudyStatus(group) {
-  const status = String(group?.status || '').toLowerCase()
-  if (status === 'cancelled' || status === 'expired') return status
-  const startTime = normalizeActivityTimestamp(group?.schedule?.startTime)
-  if (startTime > 0 && startTime < Date.now()) return 'expired'
+  const status =
+      String(
+          group?.status || ''
+      ).toLowerCase()
 
-  const capacity = Number(group?.capacity)
-  const memberCount = Array.isArray(group?.members) ? group.members.length : 0
-  return capacity > 0 && memberCount >= capacity ? 'full' : 'open'
+  if (
+      [
+        'cancelled',
+        'expired'
+      ].includes(status)
+  ) {
+    return status
+  }
+
+  const scheduleEndTime =
+      normalizeActivityTimestamp(
+          group?.schedule?.endTime
+      )
+
+  if (
+      scheduleEndTime > 0 &&
+      scheduleEndTime < Date.now()
+  ) {
+    return 'expired'
+  }
+
+  const capacity =
+      Number(group?.capacity)
+
+  const memberCount =
+      Array.isArray(group?.members)
+          ? group.members.length
+          : 0
+
+  return (
+      capacity > 0 &&
+      memberCount >= capacity
+  )
+      ? 'full'
+      : 'open'
 }
 
 /**
@@ -495,11 +631,29 @@ function getStudyStatus(group) {
  * @returns {boolean} True when the inactive record is recent.
  */
 function isRecentInactiveStudy(group) {
-  const status = getStudyStatus(group)
-  if (status !== 'cancelled' && status !== 'expired') return false
+  const status =
+      getStudyStatus(group)
 
-  const timestamp = normalizeActivityTimestamp(group?.updatedAt || group?.createdAt)
-  return timestamp > 0 && Date.now() - timestamp <= 72 * 60 * 60 * 1000
+  if (
+      ![
+        'cancelled',
+        'expired'
+      ].includes(status)
+  ) {
+    return false
+  }
+
+  const timestamp =
+      normalizeActivityTimestamp(
+          group?.updatedAt ||
+          group?.createdAt
+      )
+
+  return (
+      timestamp > 0 &&
+      Date.now() - timestamp <=
+      72 * 60 * 60 * 1000
+  )
 }
 
 /**
@@ -509,8 +663,26 @@ function isRecentInactiveStudy(group) {
  */
 const activeGroups = computed(() => {
   return filteredGroups.value
-      .filter((group) => ['open', 'full'].includes(getStudyStatus(group)))
-      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
+      .filter((group) => {
+        return [
+          'open',
+          'full'
+        ].includes(
+            getStudyStatus(group)
+        )
+      })
+      .sort((first, second) => {
+        return (
+            normalizeActivityTimestamp(
+                second?.updatedAt ||
+                second?.createdAt
+            ) -
+            normalizeActivityTimestamp(
+                first?.updatedAt ||
+                first?.createdAt
+            )
+        )
+      })
 })
 
 /**
@@ -521,26 +693,41 @@ const activeGroups = computed(() => {
 const archivedGroups = computed(() => {
   return filteredGroups.value
       .filter(isRecentInactiveStudy)
-      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
+      .sort((first, second) => {
+        return (
+            normalizeActivityTimestamp(
+                second?.updatedAt ||
+                second?.createdAt
+            ) -
+            normalizeActivityTimestamp(
+                first?.updatedAt ||
+                first?.createdAt
+            )
+        )
+      })
 })
 
 /**
  * Navigates to the study group creation page.
  *
- * @returns {Promise<void>} Resolves after navigation completes.
+ * @returns {Promise<void>}
  */
 async function navigateToCreate() {
   await router.push('/study/new')
 }
 
 /**
- * Opens a specific study group detail page.
+ * Opens the detail page for a specific study group.
  *
- * @param {string|number} id Study group identifier.
- * @returns {Promise<void>} Resolves after navigation completes.
+ * @param {string|number} id - Study group identifier.
+ * @returns {Promise<void>}
  */
 async function handleSelect(id) {
   if (!id) {
+    ElMessage.error(
+        'Study group ID is missing'
+    )
+
     return
   }
 
@@ -555,30 +742,43 @@ async function handleSelect(id) {
 /**
  * Joins a study group using the authenticated user.
  *
- * @param {string|number} id Study group identifier.
- * @returns {Promise<void>} Resolves after the join operation completes.
+ * @param {string|number} id - Study group identifier.
+ * @returns {Promise<void>}
  */
 async function handleJoin(id) {
   if (!id) {
+    ElMessage.error(
+        'Study group ID is missing'
+    )
+
     return
   }
 
   try {
-    await studentConnect.joinStudyGroup(id)
+    const response =
+        await studentConnect.joinStudyGroup(id)
+
+    if (response?.success === false) {
+      throw new Error(
+          response?.message ||
+          'Could not join this study group'
+      )
+    }
 
     await loadStudyGroups()
 
     ElMessage.success(
+        response?.message ||
         'You joined the study group.'
     )
-  } catch (err) {
+  } catch (error) {
     console.error(
         'Failed to join study group:',
-        err
+        error
     )
 
     ElMessage.error(
-        err?.message ||
+        error?.message ||
         'Could not join this study group.'
     )
   }
@@ -587,43 +787,66 @@ async function handleJoin(id) {
 /**
  * Leaves a study group using the authenticated user.
  *
- * @param {string|number} id Study group identifier.
- * @returns {Promise<void>} Resolves after the leave operation completes.
+ * @param {string|number} id - Study group identifier.
+ * @returns {Promise<void>}
  */
 async function handleLeave(id) {
   if (!id) {
+    ElMessage.error(
+        'Study group ID is missing'
+    )
+
     return
   }
 
   try {
-    await studentConnect.leaveStudyGroup(id)
+    const response =
+        await studentConnect.leaveStudyGroup(id)
+
+    if (response?.success === false) {
+      throw new Error(
+          response?.message ||
+          'Could not leave this study group'
+      )
+    }
 
     await loadStudyGroups()
 
     ElMessage.info(
+        response?.message ||
         'You left the study group.'
     )
-  } catch (err) {
+  } catch (error) {
     console.error(
         'Failed to leave study group:',
-        err
+        error
     )
 
     ElMessage.error(
-        err?.message ||
+        error?.message ||
         'Could not leave this study group.'
     )
   }
 }
 
 /**
- * Loads study groups when the listing view is opened.
- *
- * @returns {void} Starts the initial study group request.
+ * Loads study groups when the listing view is initially displayed.
  */
 onMounted(() => {
   if (!studyId.value) {
     loadStudyGroups()
   }
 })
+
+/**
+ * Reloads study groups when returning from a study group detail page.
+ */
+watch(
+    () => route.query.id,
+    (newId) => {
+      if (!newId) {
+        loadStudyGroups()
+      }
+    }
+)
 </script>
