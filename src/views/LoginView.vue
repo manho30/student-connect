@@ -3,11 +3,11 @@
     <div class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl shadow-slate-200/50 space-y-6">
       <!-- Header & Branding -->
       <div class="text-center space-y-3">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 text-white mx-auto mb-1">
-          <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
-        </div>
+        <img
+            src="/logo.svg"
+            alt="Student Connect"
+            class="inline-block w-16 h-16 object-contain mx-auto mb-1"
+        />
         <div>
           <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
             Student Connect

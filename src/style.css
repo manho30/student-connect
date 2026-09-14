@@ -1,22 +1,75 @@
 @import "tailwindcss";
 
+:root {
+  --student-primary: #f8a884;
+  --student-primary-strong: #a95132;
+  --student-secondary: #648e7a;
+  --student-secondary-strong: #3f6653;
+  --student-highlight: #f2b84b;
+  --student-ink: #111827;
+  --color-indigo-50: #fff3ed;
+  --color-indigo-100: #ffe3d5;
+  --color-indigo-200: #ffc7ad;
+  --color-indigo-300: #f8a884;
+  --color-indigo-400: #e98d68;
+  --color-indigo-500: #c96f4e;
+  --color-indigo-600: #f8a884;
+  --color-indigo-700: #a95132;
+  --color-indigo-800: #7d3d28;
+  --color-indigo-900: #4c2118;
+  --color-indigo-950: #32150f;
+  --color-emerald-50: #eef7f1;
+  --color-emerald-100: #d9ebe0;
+  --color-emerald-500: #648e7a;
+  --color-emerald-600: #3f6653;
+  --color-emerald-700: #315342;
+  --color-amber-50: #fff8e8;
+  --color-amber-100: #ffedbf;
+  --color-amber-400: #f2b84b;
+  --color-amber-500: #f2b84b;
+  --color-amber-600: #a56e08;
+  --color-amber-700: #7d5205;
+}
+
 @layer base {
   body {
     background-color: #f8fafc;
-    color: #1e293b;
+    color: var(--student-ink);
   }
 }
 
 /* Custom Material / Student-friendly card styles & tweaks */
 .el-button--primary {
-  --el-button-bg-color: #4f46e5;
-  --el-button-border-color: #4f46e5;
-  --el-button-hover-bg-color: #4338ca;
-  --el-button-hover-border-color: #4338ca;
-  --el-button-active-bg-color: #3730a3;
-  --el-button-active-border-color: #3730a3;
+  --el-button-bg-color: var(--student-primary);
+  --el-button-border-color: var(--student-primary-strong);
+  --el-button-hover-bg-color: #e98d68;
+  --el-button-hover-border-color: var(--student-primary-strong);
+  --el-button-active-bg-color: var(--student-primary-strong);
+  --el-button-active-border-color: var(--student-primary-strong);
+  --el-button-text-color: var(--student-ink);
   font-weight: 600;
   border-radius: 0.75rem;
+}
+
+.el-button--success {
+  --el-button-bg-color: var(--student-secondary);
+  --el-button-border-color: var(--student-secondary-strong);
+  --el-button-hover-bg-color: var(--student-secondary-strong);
+  --el-button-hover-border-color: var(--student-secondary-strong);
+}
+
+.el-button--warning {
+  --el-button-bg-color: var(--student-highlight);
+  --el-button-border-color: #a56e08;
+  --el-button-hover-bg-color: #dda52f;
+  --el-button-hover-border-color: #7d5205;
+  --el-button-text-color: var(--student-ink);
+}
+
+/* Peach is intentionally paired with dark text for accessible contrast. */
+.bg-indigo-600.text-white,
+.bg-indigo-700.text-white {
+  color: var(--student-ink) !important;
 }
 
 .el-dialog {
@@ -31,7 +84,7 @@
 }
 
 .el-input__wrapper.is-focus, .el-textarea__inner:focus {
-  box-shadow: 0 0 0 2px #6366f1 inset !important;
+  box-shadow: 0 0 0 2px var(--student-primary-strong) inset !important;
 }
 
 .el-tag {

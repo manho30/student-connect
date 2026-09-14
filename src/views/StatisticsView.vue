@@ -955,7 +955,7 @@ const trendSeries = [
   {
     key: 'users',
     label: 'Users',
-    color: '#4f46e5'
+    color: '#F8A884'
   },
   {
     key: 'carpool',

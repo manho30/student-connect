@@ -8,11 +8,11 @@
       <div class="flex items-center gap-6 lg:gap-8">
         <!-- Brand Logo -->
         <router-link to="/carpool" class="flex items-center gap-2.5 group">
-          <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-            </svg>
-          </div>
+          <img
+              src=".public/logo.png"
+              alt="Student Connect"
+              class="w-8 h-8 object-contain transition-transform group-hover:scale-105"
+          />
           <span class="font-bold text-xl tracking-tight text-indigo-950">Student Connect</span>
         </router-link>
 
