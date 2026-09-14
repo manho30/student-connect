@@ -18,10 +18,10 @@
             class="flex items-center gap-2.5 group shrink-0"
         >
           <div
-              class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-[0_6px_20px_rgba(15,23,42,0.08)] ring-1 ring-slate-100"
+              class="mx-auto flex h-14 w-14 items-center justify-center"
           >
             <img
-                src="@/public/icon.png"
+                src="@/assets/icon.png"
                 alt="Student Connect Logo"
                 class="h-8 w-8 object-contain"
             />
@@ -322,20 +322,61 @@
          ========================================================= -->
     <footer
         v-if="isNotLoginPage"
-        class="hidden md:block shrink-0 border-t border-slate-200 bg-white px-4 py-5 sm:px-8"
+        class="hidden w-full border-t border-slate-200 bg-white px-4 py-8 md:block md:px-6"
     >
       <div
-          class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 sm:flex-row"
+          class="mx-auto flex max-w-7xl items-center justify-between gap-6"
       >
-        <p class="text-center text-xs text-slate-500 sm:text-left">
-          © {{ new Date().getFullYear() }}
+        <!-- Brand -->
+        <div class="flex min-w-0 items-center gap-3">
+          <a
+              href="/"
+              aria-label="Student Connect Home"
+              class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-slate-200 transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            <img
+                src="/src/assets/icon.png"
+                alt="Student Connect Logo"
+                width="28"
+                height="28"
+                loading="lazy"
+                class="size-7 select-none object-contain"
+            />
+          </a>
 
-          <span class="font-semibold text-slate-700">
-            Student Connect
-          </span>
+          <div class="min-w-0">
+            <a
+                href="/"
+                class="text-sm font-semibold text-slate-900 no-underline transition-opacity hover:opacity-80"
+            >
+              Student Connect
+            </a>
 
-          . All rights reserved.
-        </p>
+            <p class="mt-0.5 text-xs text-slate-500">
+              Connecting students, simplifying campus life.
+            </p>
+          </div>
+        </div>
+
+        <!-- Links -->
+        <nav
+            aria-label="Footer"
+            class="flex shrink-0 items-center gap-5"
+        >
+          <RouterLink
+              to="/about"
+              class="text-xs font-medium text-slate-500 no-underline transition-colors hover:text-brand-600"
+          >
+            About
+          </RouterLink>
+
+          <RouterLink
+              to="/mission"
+              class="text-xs font-medium text-slate-500 no-underline transition-colors hover:text-brand-600"
+          >
+            Mission
+          </RouterLink>
+        </nav>
       </div>
     </footer>
 

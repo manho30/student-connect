@@ -3,13 +3,11 @@
     <div class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl shadow-slate-200/50 space-y-6">
       <!-- Header & Branding -->
       <div class="space-y-4 text-center">
-        <div
-            class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-[0_6px_20px_rgba(15,23,42,0.08)] ring-1 ring-slate-100"
-        >
+        <div class="mx-auto flex h-15 w-15 items-center justify-center">
           <img
-              src="@/public/icon.png"
+              src="@/assets/icon.png"
               alt="Student Connect Logo"
-              class="h-8 w-8 object-contain"
+              class="object-contain"
           />
         </div>
 
