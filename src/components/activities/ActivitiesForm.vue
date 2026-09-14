@@ -296,10 +296,10 @@
       <!-- Upload Area -->
       <label
           for="activity-poster"
-          class="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition hover:border-indigo-400 hover:bg-indigo-50/40"
+          class="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition hover:border-brand-400 hover:bg-brand-50/40"
       >
         <div
-            class="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-indigo-50 text-indigo-600"
+            class="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-brand-50 text-brand-600"
         >
           <i class="fi fi-rr-picture text-lg"></i>
         </div>

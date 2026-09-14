@@ -9,7 +9,7 @@
       <label
           class="mb-1.5 block text-xs font-semibold text-slate-700"
       >
-        <i class="fi fi-rr-heading mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-heading mr-1 text-brand-500"></i>
         Study Title
       </label>
 
@@ -33,7 +33,7 @@
       <label
           class="mb-1.5 block text-xs font-semibold text-slate-700"
       >
-        <i class="fi fi-rr-book-alt mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-book-alt mr-1 text-brand-500"></i>
         Subject
       </label>
 
@@ -57,7 +57,7 @@
       <label
           class="mb-1.5 block text-xs font-semibold text-slate-700"
       >
-        <i class="fi fi-rr-info mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-info mr-1 text-brand-500"></i>
         Description
       </label>
 
@@ -81,7 +81,7 @@
     <div>
       <div class="mb-2 flex items-center justify-between">
     <span class="text-xs font-semibold text-slate-700">
-      <i class="fi fi-rr-calendar mr-1 text-indigo-500"></i>
+      <i class="fi fi-rr-calendar mr-1 text-brand-500"></i>
       Session Schedule
     </span>
 
@@ -156,7 +156,7 @@
       <label
           class="mb-1.5 block text-xs font-semibold text-slate-700"
       >
-        <i class="fi fi-rr-marker mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-marker mr-1 text-brand-500"></i>
         Location
       </label>
 
@@ -180,7 +180,7 @@
       <label
           class="mb-1.5 block text-xs font-semibold text-slate-700"
       >
-        <i class="fi fi-rr-users mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-users mr-1 text-brand-500"></i>
         Study Capacity
       </label>
 

@@ -19,7 +19,7 @@
       <!-- Create Study Prompt -->
       <div
           v-if="showCreatePrompt"
-          class="bg-white rounded-2xl p-6 border-2 border-dashed border-slate-200 shadow-xs flex flex-col justify-between bg-slate-50/50 group hover:border-indigo-300 transition-all min-h-[220px]"
+          class="bg-white rounded-2xl p-6 border-2 border-dashed border-slate-200 shadow-xs flex flex-col justify-between bg-slate-50/50 group hover:border-brand-300 transition-all min-h-[220px]"
       >
         <div
             class="flex-1 flex flex-col items-center justify-center text-center space-y-4"
@@ -28,7 +28,7 @@
               class="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-xs border border-slate-100 group-hover:scale-110 transition-transform"
           >
             <svg
-                class="w-7 h-7 text-indigo-500"
+                class="w-7 h-7 text-brand-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -57,7 +57,7 @@
           <button
               id="prompt-create-study-btn"
               type="button"
-              class="text-indigo-600 font-bold text-sm hover:underline underline-offset-4 cursor-pointer"
+              class="text-brand-600 font-bold text-sm hover:underline underline-offset-4 cursor-pointer"
               @click="handleOpenCreate"
           >
             Create a study session
@@ -73,7 +73,7 @@
         class="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center my-6 shadow-xs"
     >
       <div
-          class="w-16 h-16 mx-auto mb-4 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center"
+          class="w-16 h-16 mx-auto mb-4 bg-brand-50 text-brand-600 rounded-full flex items-center justify-center"
       >
         <svg
             class="w-8 h-8"
@@ -104,7 +104,7 @@
       <button
           id="empty-create-study-btn"
           type="button"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
+          class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-xs transition-colors cursor-pointer"
           @click="handleOpenCreate"
       >
         Create Study

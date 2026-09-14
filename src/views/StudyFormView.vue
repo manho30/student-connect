@@ -6,7 +6,7 @@
     <div class="flex items-center justify-between">
       <button
           id="study-form-back-btn"
-          class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-xs transition-colors hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+          class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-xs transition-colors hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
           :disabled="submitting"
           @click="handleCancel"
       >
@@ -63,7 +63,7 @@
           class="py-12 text-center"
       >
         <div
-            class="mb-3 inline-block h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"
+            class="mb-3 inline-block h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent"
         />
 
         <p class="text-sm font-semibold text-slate-600">
@@ -81,7 +81,7 @@
         </p>
 
         <button
-            class="cursor-pointer rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-indigo-700"
+            class="cursor-pointer rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-brand-700"
             @click="handleCancel"
         >
           Return to Study Groups

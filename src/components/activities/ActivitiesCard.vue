@@ -1,70 +1,179 @@
 <template>
   <article
       :id="`activity-card-${activity.id}`"
-      class="flex cursor-pointer flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-xs transition-all duration-200 hover:border-indigo-300 hover:shadow-sm"
+      class="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md focus-within:ring-2 focus-within:ring-brand-200"
+      tabindex="0"
+      role="button"
+      :aria-label="`View activity: ${activity.title}`"
       @click="emit('select', activity.id)"
+      @keydown.enter="emit('select', activity.id)"
+      @keydown.space.prevent="emit('select', activity.id)"
   >
-    <div class="space-y-4">
-      <div class="relative aspect-video overflow-hidden rounded-xl bg-indigo-50">
-        <img
-            v-if="activity.posterUrl"
-            :src="activity.posterUrl"
-            :alt="`${activity.title} poster`"
-            class="h-full w-full object-cover"
-        />
-        <div v-else class="flex h-full items-center justify-center text-indigo-400">
+    <!-- Poster -->
+    <div class="relative aspect-video overflow-hidden bg-brand-50">
+      <img
+          v-if="activity.posterUrl"
+          :src="activity.posterUrl"
+          :alt="`${activity.title} poster`"
+          class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          loading="lazy"
+      />
+
+      <div
+          v-else
+          class="flex h-full items-center justify-center bg-gradient-to-br from-brand-50 via-white to-brand-100 text-brand-400"
+      >
+        <div class="flex flex-col items-center gap-2">
           <i class="fi fi-rr-calendar-star text-4xl"></i>
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-brand-500">
+            Activity
+          </span>
         </div>
       </div>
 
-      <div class="flex items-start justify-between gap-3">
-        <span class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-indigo-700">
+      <!-- Poster Overlay -->
+      <div class="absolute inset-x-0 top-0 flex items-start justify-between gap-2 p-3">
+        <span
+            class="max-w-[65%] truncate rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-brand-700 shadow-sm backdrop-blur"
+        >
           {{ activity.category || 'Activity' }}
         </span>
+
         <span
-            class="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
+            class="shrink-0 rounded-full px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider shadow-sm backdrop-blur"
             :class="statusClass"
         >
           {{ statusLabel }}
         </span>
       </div>
 
-      <div class="space-y-1.5">
-        <h3 class="line-clamp-2 text-base font-bold leading-snug text-slate-900">
+      <!-- Date Badge -->
+      <div
+          v-if="eventDateParts"
+          class="absolute bottom-3 left-3 flex w-14 flex-col overflow-hidden rounded-xl bg-white text-center shadow-md"
+      >
+        <span
+            class="bg-brand-600 px-1 py-1 text-[9px] font-extrabold uppercase tracking-wider text-white"
+        >
+          {{ eventDateParts.month }}
+        </span>
+
+        <span class="px-1 py-1.5 text-xl font-black leading-none text-slate-900">
+          {{ eventDateParts.day }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex flex-1 flex-col p-5">
+      <!-- Title -->
+      <div class="space-y-2">
+        <h3
+            class="line-clamp-2 text-base font-bold leading-snug text-slate-900 transition-colors group-hover:text-brand-700"
+        >
           {{ activity.title }}
         </h3>
-        <p class="line-clamp-2 text-xs leading-relaxed text-slate-500">
+
+        <p
+            v-if="activity.description"
+            class="line-clamp-2 text-xs leading-relaxed text-slate-500"
+        >
           {{ activity.description }}
         </p>
       </div>
 
-      <div class="space-y-2 rounded-xl border border-slate-100 bg-slate-50 p-3">
-        <p class="flex items-center gap-2 text-xs font-semibold text-slate-700">
-          <i class="fi fi-rr-calendar text-indigo-500"></i>
-          {{ formatDate(activity.eventDate) }}
-        </p>
-        <p class="flex items-center gap-2 text-xs font-semibold text-slate-700">
-          <i class="fi fi-rr-clock text-indigo-500"></i>
-          Registration {{ activity.registrationDeadline ? `closes ${formatDate(activity.registrationDeadline)}` : 'deadline not specified' }}
-        </p>
-        <p class="flex items-center gap-2 truncate text-xs font-semibold text-slate-700">
-          <i class="fi fi-rr-marker text-rose-500"></i>
-          {{ activity.location }}
-        </p>
-      </div>
-    </div>
+      <!-- Event Information -->
+      <div class="mt-4 space-y-2.5">
+        <!-- Date -->
+        <div class="flex items-start gap-3">
+          <div
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600"
+          >
+            <i class="fi fi-rr-calendar text-sm"></i>
+          </div>
 
-    <div class="mt-6 flex items-center justify-between gap-3" @click.stop>
-      <span class="truncate text-[11px] text-slate-400">
-        By {{ activity.owner?.name || 'Student' }}
-      </span>
-      <button
-          type="button"
-          class="rounded-xl bg-indigo-600 px-4 py-2.5 text-xs font-bold text-white transition-colors hover:bg-indigo-700"
-          @click="emit('select', activity.id)"
+          <div class="min-w-0 pt-0.5">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Event Date
+            </p>
+
+            <p class="mt-0.5 text-xs font-semibold text-slate-700">
+              {{ formatDate(activity.eventDate) }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Registration -->
+        <div class="flex items-start gap-3">
+          <div
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600"
+          >
+            <i class="fi fi-rr-clock text-sm"></i>
+          </div>
+
+          <div class="min-w-0 pt-0.5">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Registration
+            </p>
+
+            <p class="mt-0.5 truncate text-xs font-semibold text-slate-700">
+              {{
+                activity.registrationDeadline
+                    ? `Closes ${formatDate(activity.registrationDeadline)}`
+                    : 'Deadline not specified'
+              }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="flex items-start gap-3">
+          <div
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-500"
+          >
+            <i class="fi fi-rr-marker text-sm"></i>
+          </div>
+
+          <div class="min-w-0 pt-0.5">
+            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+              Location
+            </p>
+
+            <p
+                class="mt-0.5 truncate text-xs font-semibold text-slate-700"
+                :title="activity.location || 'Location not specified'"
+            >
+              {{ activity.location || 'Location not specified' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div
+          class="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4"
+          @click.stop
       >
-        View Activity
-      </button>
+        <div class="min-w-0">
+          <p class="text-[10px] font-medium uppercase tracking-wider text-slate-400">
+            Promoted by
+          </p>
+
+          <p class="mt-0.5 truncate text-xs font-semibold text-slate-600">
+            {{ activity.owner?.name || 'Student' }}
+          </p>
+        </div>
+
+        <button
+            :id="`view-activity-${activity.id}-btn`"
+            type="button"
+            class="flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-all hover:bg-brand-700 hover:shadow-md active:scale-[0.98]"
+            @click="emit('select', activity.id)"
+        >
+          View
+          <i class="fi fi-rr-arrow-small-right text-sm"></i>
+        </button>
+      </div>
     </div>
   </article>
 </template>
@@ -73,28 +182,79 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  activity: { type: Object, required: true },
-  currentUser: { type: Object, default: null }
+  activity: {
+    type: Object,
+    required: true
+  },
+
+  currentUser: {
+    type: Object,
+    default: null
+  }
 })
 
 const emit = defineEmits(['select'])
 
 /**
+ * Converts common API timestamp formats into Unix seconds.
+ *
+ * @param {*} value - Timestamp value from the API.
+ * @returns {number} Unix timestamp or zero.
+ */
+function getTimestamp(value) {
+  if (typeof value === 'number') {
+    return value > 100000000000
+        ? Math.floor(value / 1000)
+        : value
+  }
+
+  if (typeof value === 'string' && /^\d+$/.test(value)) {
+    const numericValue = Number(value)
+
+    return numericValue > 100000000000
+        ? Math.floor(numericValue / 1000)
+        : numericValue
+  }
+
+  const parsed = Date.parse(value || '')
+
+  return Number.isNaN(parsed)
+      ? 0
+      : Math.floor(parsed / 1000)
+}
+
+/**
  * Returns the activity's derived lifecycle status.
  *
- * @returns {string} open, completed, cancelled, or expired.
+ * @returns {string} Activity lifecycle status.
  */
 const statusKey = computed(() => {
-  const explicitStatus = String(props.activity.status || '').toLowerCase()
-  if (['cancelled', 'completed'].includes(explicitStatus)) return explicitStatus
+  const explicitStatus = String(
+      props.activity.status || ''
+  ).toLowerCase()
 
-  const registrationDeadline = Number(props.activity.registrationDeadline)
-  const eventDate = Number(props.activity.eventDate)
+  if (
+      ['cancelled', 'completed', 'expired'].includes(explicitStatus)
+  ) {
+    return explicitStatus
+  }
+
+  const registrationDeadline = getTimestamp(
+      props.activity.registrationDeadline
+  )
+
+  const eventDate = getTimestamp(
+      props.activity.eventDate
+  )
+
   const now = Math.floor(Date.now() / 1000)
-  return registrationDeadline > 0 && registrationDeadline <= now ||
-    eventDate > 0 && eventDate <= now
-    ? 'expired'
-    : 'open'
+
+  return (
+      (registrationDeadline > 0 && registrationDeadline <= now) ||
+      (eventDate > 0 && eventDate <= now)
+  )
+      ? 'expired'
+      : 'open'
 })
 
 /**
@@ -118,29 +278,66 @@ const statusLabel = computed(() => {
  */
 const statusClass = computed(() => {
   return {
-    open: 'bg-emerald-100 text-emerald-700',
-    completed: 'bg-slate-100 text-slate-500',
-    cancelled: 'bg-rose-100 text-rose-600',
-    expired: 'bg-amber-100 text-amber-700'
-  }[statusKey.value]
+    open: 'bg-emerald-500 text-white',
+    completed: 'bg-slate-600 text-white',
+    cancelled: 'bg-rose-500 text-white',
+    expired: 'bg-amber-500 text-white'
+  }[statusKey.value] || 'bg-slate-100 text-slate-600'
+})
+
+/**
+ * Returns the event date split into month and day for the poster badge.
+ *
+ * @returns {{month: string, day: string}|null} Date parts or null.
+ */
+const eventDateParts = computed(() => {
+  const timestamp = getTimestamp(props.activity.eventDate)
+
+  if (!timestamp) {
+    return null
+  }
+
+  const date = new Date(timestamp * 1000)
+
+  if (Number.isNaN(date.getTime())) {
+    return null
+  }
+
+  const month = new Intl.DateTimeFormat('en-MY', {
+    month: 'short'
+  }).format(date)
+
+  return {
+    month: month.toUpperCase(),
+    day: String(date.getDate()).padStart(2, '0')
+  }
 })
 
 /**
  * Formats a Unix timestamp for activity display.
  *
- * @param {number|string} value - Unix timestamp in seconds.
+ * @param {*} value - Unix timestamp or date value.
  * @returns {string} Local date and time.
  */
 function formatDate(value) {
-  const date = new Date(Number(value) * 1000)
-  return Number.isNaN(date.getTime())
-      ? 'Date unavailable'
-      : new Intl.DateTimeFormat('en-MY', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(date)
+  const timestamp = getTimestamp(value)
+
+  if (!timestamp) {
+    return 'Date unavailable'
+  }
+
+  const date = new Date(timestamp * 1000)
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Date unavailable'
+  }
+
+  return new Intl.DateTimeFormat('en-MY', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(date)
 }
 </script>

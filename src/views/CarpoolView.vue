@@ -1,4 +1,5 @@
 <!-- views/CarpoolView.vue -->
+
 <template>
   <div id="carpool-view-container">
     <!-- DETAIL VIEW -->
@@ -27,7 +28,7 @@
         <button
             id="open-create-carpool-btn"
             type="button"
-            class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap"
+            class="bg-brand-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-brand-100 hover:bg-brand-700 transition-all flex items-center gap-2 text-sm cursor-pointer whitespace-nowrap"
             @click="navigateToCreate"
         >
           <svg
@@ -48,10 +49,11 @@
         </button>
       </header>
 
-      <!-- Search & Filter Bar -->
+      <!-- Search & Filter -->
       <section
           class="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 flex flex-col md:flex-row gap-4 items-stretch md:items-center"
       >
+        <!-- Search -->
         <div class="flex-1 relative">
           <svg
               class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
@@ -72,13 +74,14 @@
               v-model="searchQuery"
               type="text"
               placeholder="Where are you headed? (Search origin or destination)"
-              class="w-full pl-12 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-slate-800 text-sm transition-all"
+              class="w-full pl-12 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-100 focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none text-slate-800 text-sm transition-all"
           />
         </div>
 
+        <!-- Divider -->
         <div
-            class="hidden md:block w-px h-8 bg-slate-200 self-center"
-        ></div>
+            class="hidden h-8 w-px self-center bg-slate-200 md:block"
+        />
 
         <!-- Filter Tabs -->
         <div
@@ -87,14 +90,14 @@
           <button
               v-for="tab in filterTabs"
               :key="tab.id"
-              :id="'filter-tab-' + tab.id"
+              :id="'carpool-filter-tab-' + tab.id"
               type="button"
               :class="[
-              'px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer',
-              activeFilter === tab.id
-                ? 'bg-indigo-50 text-indigo-700'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            ]"
+                'cursor-pointer whitespace-nowrap rounded-lg px-3.5 py-2 text-xs font-semibold transition-colors',
+                activeFilter === tab.id
+                  ? 'bg-brand-50 text-brand-700'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              ]"
               @click="activeFilter = tab.id"
           >
             {{ tab.label }}
@@ -105,24 +108,90 @@
       <!-- Loading State -->
       <div
           v-if="loading"
-          class="flex justify-center py-10 text-sm text-slate-500"
+          id="carpool-loading"
+          class="space-y-4"
       >
-        Loading carpools...
+        <!-- Loading Header -->
+        <div class="flex items-center gap-3 px-1">
+          <div
+              class="w-5 h-5 border-2 border-brand-600 border-t-transparent rounded-full animate-spin"
+          ></div>
+
+          <p class="text-sm font-medium text-slate-500">
+            Loading carpools...
+          </p>
+        </div>
+
+        <!-- Skeleton Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div
+              v-for="index in 6"
+              :key="index"
+              class="bg-white border border-slate-200 rounded-2xl p-5 animate-pulse"
+          >
+            <!-- Badge -->
+            <div class="flex items-center justify-between mb-5">
+              <div class="h-5 w-20 bg-slate-200 rounded-full"></div>
+              <div class="h-4 w-14 bg-slate-100 rounded"></div>
+            </div>
+
+            <!-- Route -->
+            <div class="space-y-3 mb-5">
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-slate-200 rounded-full"></div>
+                <div class="h-4 w-2/3 bg-slate-200 rounded"></div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <div class="w-4 h-4 bg-slate-200 rounded-full"></div>
+                <div class="h-4 w-3/4 bg-slate-200 rounded"></div>
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div class="space-y-3 mb-5">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-slate-200 rounded-full"></div>
+                <div class="h-3 w-1/2 bg-slate-100 rounded"></div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 bg-slate-200 rounded-full"></div>
+                <div class="h-3 w-2/5 bg-slate-100 rounded"></div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div
+                class="pt-4 border-t border-slate-100 flex justify-between items-center"
+            >
+              <div class="h-4 w-20 bg-slate-100 rounded"></div>
+              <div class="h-9 w-24 bg-slate-200 rounded-xl"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Error State -->
       <div
           v-else-if="loadError"
-          class="bg-red-50 border border-red-100 rounded-2xl p-6 text-center"
+          id="carpool-error"
+          class="bg-rose-50 border border-rose-100 rounded-2xl p-8 text-center"
       >
-        <p class="text-sm font-medium text-red-700">
+        <div
+            class="w-12 h-12 mx-auto mb-4 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center"
+        >
+          <i class="fi fi-rr-exclamation text-xl"></i>
+        </div>
+
+        <p class="text-sm font-semibold text-rose-700">
           {{ loadError }}
         </p>
 
         <button
             id="carpool-retry-btn"
             type="button"
-            class="mt-3 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors cursor-pointer"
+            class="mt-4 px-5 py-2.5 rounded-xl bg-rose-600 text-white text-sm font-bold hover:bg-rose-700 transition-colors cursor-pointer"
             @click="loadCarpools"
         >
           Try Again
@@ -131,16 +200,26 @@
 
       <!-- Carpool Lists -->
       <div v-else class="space-y-8">
+        <!-- Currently Active -->
         <section>
           <div class="mb-3 flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Currently Active</h2>
-              <p class="text-xs text-slate-500">Open carpools and rides with available capacity.</p>
+              <h2 class="text-lg font-bold text-slate-900">
+                Currently Active
+              </h2>
+
+              <p class="text-xs text-slate-500">
+                Open carpools and rides with available capacity.
+              </p>
             </div>
-            <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+
+            <span
+                class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700"
+            >
               {{ activeCarpools.length }}
             </span>
           </div>
+
           <CarpoolList
               :carpools="activeCarpools"
               :current-user="currentUser"
@@ -152,16 +231,26 @@
           />
         </section>
 
+        <!-- Archive -->
         <section>
           <div class="mb-3 flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-bold text-slate-900">Archive</h2>
-              <p class="text-xs text-slate-500">Inactive carpools from the last 3 days.</p>
+              <h2 class="text-lg font-bold text-slate-900">
+                Archive
+              </h2>
+
+              <p class="text-xs text-slate-500">
+                Inactive carpools from the last 3 days.
+              </p>
             </div>
-            <span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
+
+            <span
+                class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600"
+            >
               {{ archivedCarpools.length }}
             </span>
           </div>
+
           <CarpoolList
               v-if="archivedCarpools.length"
               :carpools="archivedCarpools"
@@ -172,7 +261,11 @@
               @edit="handleEdit"
               @select="handleSelect"
           />
-          <p v-else class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+
+          <p
+              v-else
+              class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500"
+          >
             No inactive carpools from the last 3 days.
           </p>
         </section>
@@ -205,8 +298,8 @@ import {
   user
 } from '@/services/auth'
 
-import CarpoolList from '../components/carpool/CarpoolList.vue'
-import CarpoolDetail from '../components/carpool/CarpoolDetail.vue'
+import CarpoolList from '@/components/carpool/CarpoolList.vue'
+import CarpoolDetail from '@/components/carpool/CarpoolDetail.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -224,9 +317,9 @@ const currentTimestamp = ref(
 let timeUpdateInterval = null
 
 /**
- * Represents the current Firebase-authenticated student.
+ * Represents the currently authenticated student.
  *
- * @returns {Object} Current student identity information.
+ * @returns {Object} Current student information.
  */
 const currentUser = computed(() => ({
   id: String(
@@ -240,9 +333,9 @@ const currentUser = computed(() => ({
 }))
 
 /**
- * Reads the carpool ID from the route query.
+ * Reads the carpool ID from the current route query.
  *
- * @returns {string|null} Carpool resource ID, or null on the listing page.
+ * @returns {string|null} Carpool ID or null when displaying the list.
  */
 const carpoolId = computed(() => {
   const id = route.query.id
@@ -276,7 +369,7 @@ const filterTabs = [
 /**
  * Updates the current Unix timestamp.
  *
- * @returns {void} Updates the reactive current timestamp.
+ * @returns {void}
  */
 function updateCurrentTimestamp() {
   currentTimestamp.value =
@@ -288,8 +381,8 @@ function updateCurrentTimestamp() {
  *
  * Supports numeric seconds, milliseconds, and timestamp objects.
  *
- * @param {number|string|Object} value - Timestamp value.
- * @returns {number} Unix timestamp in seconds, or 0 when invalid.
+ * @param {*} value - Timestamp value.
+ * @returns {number} Unix timestamp in seconds, or zero when invalid.
  */
 function normalizeTimestamp(value) {
   if (
@@ -330,17 +423,28 @@ function normalizeActivityTimestamp(value) {
         : value.timestamp ?? value.seconds ?? value.value
   }
 
-  if (value instanceof Date) return value.getTime()
+  if (value instanceof Date) {
+    return value.getTime()
+  }
 
-  if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
+  if (
+      typeof value === 'number' ||
+      (typeof value === 'string' && /^\d+$/.test(value))
+  ) {
     const numericValue = Number(value)
+
     return Number.isFinite(numericValue)
-        ? numericValue < 100000000000 ? numericValue * 1000 : numericValue
+        ? numericValue < 100000000000
+            ? numericValue * 1000
+            : numericValue
         : 0
   }
 
   const parsed = Date.parse(value || '')
-  return Number.isFinite(parsed) ? parsed : 0
+
+  return Number.isFinite(parsed)
+      ? parsed
+      : 0
 }
 
 /**
@@ -359,14 +463,17 @@ function isDeparturePassed(carpool) {
     return false
   }
 
-  return currentTimestamp.value >= departure
+  return (
+      currentTimestamp.value >=
+      departure
+  )
 }
 
 /**
  * Returns normalized participant IDs from a carpool.
  *
- * Supports the current participant object-map schema and
- * legacy participant arrays.
+ * Supports both the current participant object-map schema
+ * and legacy participant arrays.
  *
  * @param {Object} carpool - Carpool resource.
  * @returns {string[]} Participant Firebase UIDs.
@@ -480,7 +587,10 @@ function isCurrentUserOwner(carpool) {
     return false
   }
 
-  return getOwnerId(carpool) === currentUserId
+  return (
+      getOwnerId(carpool) ===
+      currentUserId
+  )
 }
 
 /**
@@ -490,7 +600,9 @@ function isCurrentUserOwner(carpool) {
  * @returns {number} Current participant count.
  */
 function getParticipantCount(carpool) {
-  return getParticipantIds(carpool).length
+  return getParticipantIds(
+      carpool
+  ).length
 }
 
 /**
@@ -519,7 +631,8 @@ function isCarpoolAvailable(carpool) {
   }
 
   return (
-      getParticipantCount(carpool) < capacity &&
+      getParticipantCount(carpool) <
+      capacity &&
       !isDeparturePassed(carpool)
   )
 }
@@ -531,12 +644,32 @@ function isCarpoolAvailable(carpool) {
  * @returns {string} open, full, cancelled, or expired.
  */
 function getCarpoolStatus(carpool) {
-  const status = String(carpool?.status || '').toLowerCase()
-  if (status === 'cancelled' || status === 'expired') return status
-  if (isDeparturePassed(carpool)) return 'expired'
+  const status =
+      String(
+          carpool?.status || ''
+      ).toLowerCase()
 
-  const capacity = Number(carpool?.capacity)
-  return capacity > 0 && getParticipantCount(carpool) >= capacity
+  if (
+      status === 'cancelled' ||
+      status === 'expired'
+  ) {
+    return status
+  }
+
+  if (isDeparturePassed(carpool)) {
+    return 'expired'
+  }
+
+  const capacity =
+      Number(
+          carpool?.capacity
+      )
+
+  return (
+      capacity > 0 &&
+      getParticipantCount(carpool) >=
+      capacity
+  )
       ? 'full'
       : 'open'
 }
@@ -548,18 +681,31 @@ function getCarpoolStatus(carpool) {
  * @returns {boolean} True when the inactive record is recent.
  */
 function isRecentInactiveCarpool(carpool) {
-  const status = getCarpoolStatus(carpool)
-  if (status !== 'cancelled' && status !== 'expired') return false
+  const status =
+      getCarpoolStatus(carpool)
 
-  const timestamp = normalizeActivityTimestamp(carpool?.updatedAt || carpool?.createdAt)
-  return timestamp > 0 && Date.now() - timestamp <= 72 * 60 * 60 * 1000
+  if (
+      status !== 'cancelled' &&
+      status !== 'expired'
+  ) {
+    return false
+  }
+
+  const timestamp =
+      normalizeActivityTimestamp(
+          carpool?.updatedAt ||
+          carpool?.createdAt
+      )
+
+  return (
+      timestamp > 0 &&
+      Date.now() - timestamp <=
+      72 * 60 * 60 * 1000
+  )
 }
 
 /**
  * Converts a value into lowercase searchable text.
- *
- * Objects are recursively flattened so nested departure data
- * can also be searched.
  *
  * @param {*} value - Value to normalize.
  * @returns {string} Searchable lowercase text.
@@ -586,11 +732,7 @@ function toSearchText(value) {
 }
 
 /**
- * Builds searchable text from the current Carpool API schema.
- *
- * Searchable fields:
- * origin, destination, notes, departure,
- * status, and owner name.
+ * Builds searchable text from the Carpool API schema.
  *
  * @param {Object} carpool - Carpool resource.
  * @returns {string} Combined searchable text.
@@ -610,10 +752,9 @@ function getCarpoolSearchText(carpool) {
 }
 
 /**
- * Loads all carpools from the Student Connect API.
+ * Loads the latest carpools list from the Student Connect API.
  *
- * @returns {Promise<void>} Resolves after loading completes.
- * @throws {Error} When the API request fails.
+ * @returns {Promise<void>}
  */
 async function loadCarpools() {
   loading.value = true
@@ -624,23 +765,40 @@ async function loadCarpools() {
         await studentConnect
             .getAllCarPoolList()
 
-    if (!response?.success) {
+    if (response?.success === false) {
       throw new Error(
           response?.message ||
-          'Failed to load carpool list'
+          'Failed to load carpools'
       )
     }
 
-    carpools.value =
-        Array.isArray(response.data)
-            ? response.data
-            : []
+    /**
+     * Support both:
+     *
+     * { success, message, data }
+     *
+     * and legacy direct array responses.
+     */
+    if (Array.isArray(response?.data)) {
+      carpools.value =
+          response.data
+    } else if (Array.isArray(response)) {
+      carpools.value =
+          response
+    } else {
+      carpools.value = []
+    }
   } catch (error) {
+    console.error(
+        'Failed to load carpools:',
+        error
+    )
+
     carpools.value = []
 
     loadError.value =
         error?.message ||
-        'Failed to load carpool list'
+        'Failed to load carpools'
 
     ElMessage.error(
         loadError.value
@@ -651,48 +809,9 @@ async function loadCarpools() {
 }
 
 /**
- * Reloads the carpool list when returning to the listing page.
- *
- * @param {string|undefined} newId - Current carpool route ID.
- * @returns {void} Starts a reload when no detail ID exists.
- */
-function handleRouteChange(newId) {
-  if (!newId) {
-    loadCarpools()
-  }
-}
-
-onMounted(() => {
-  if (!carpoolId.value) {
-    loadCarpools()
-  }
-
-  timeUpdateInterval =
-      window.setInterval(
-          updateCurrentTimestamp,
-          1000
-      )
-})
-
-onUnmounted(() => {
-  if (timeUpdateInterval !== null) {
-    window.clearInterval(
-        timeUpdateInterval
-    )
-
-    timeUpdateInterval = null
-  }
-})
-
-watch(
-    () => route.query.id,
-    handleRouteChange
-)
-
-/**
  * Filters carpools using the search query and selected filter.
  *
- * @returns {Array<Object>} Filtered carpool resources.
+ * @returns {Array<Object>} Filtered carpools.
  */
 const filteredCarpools = computed(() => {
   let list = Array.isArray(
@@ -719,8 +838,7 @@ const filteredCarpools = computed(() => {
       'available'
   ) {
     list = list.filter(
-        (carpool) =>
-            isCarpoolAvailable(carpool)
+        isCarpoolAvailable
     )
   }
 
@@ -746,8 +864,26 @@ const filteredCarpools = computed(() => {
  */
 const activeCarpools = computed(() => {
   return filteredCarpools.value
-      .filter((carpool) => ['open', 'full'].includes(getCarpoolStatus(carpool)))
-      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
+      .filter((carpool) => {
+        return [
+          'open',
+          'full'
+        ].includes(
+            getCarpoolStatus(carpool)
+        )
+      })
+      .sort((first, second) => {
+        return (
+            normalizeActivityTimestamp(
+                second?.updatedAt ||
+                second?.createdAt
+            ) -
+            normalizeActivityTimestamp(
+                first?.updatedAt ||
+                first?.createdAt
+            )
+        )
+      })
 })
 
 /**
@@ -758,31 +894,41 @@ const activeCarpools = computed(() => {
 const archivedCarpools = computed(() => {
   return filteredCarpools.value
       .filter(isRecentInactiveCarpool)
-      .sort((first, second) => normalizeActivityTimestamp(second.updatedAt || second.createdAt) - normalizeActivityTimestamp(first.updatedAt || first.createdAt))
+      .sort((first, second) => {
+        return (
+            normalizeActivityTimestamp(
+                second?.updatedAt ||
+                second?.createdAt
+            ) -
+            normalizeActivityTimestamp(
+                first?.updatedAt ||
+                first?.createdAt
+            )
+        )
+      })
 })
 
 /**
  * Navigates to the carpool creation page.
  *
- * @returns {void} Performs router navigation.
+ * @returns {void}
  */
 function navigateToCreate() {
-  router.push(
-      '/carpool/new'
-  )
+  router.push('/carpool/new')
 }
 
 /**
- * Navigates to a carpool detail page.
+ * Opens the detail page for a specific carpool.
  *
- * @param {string} id - Carpool resource ID.
- * @returns {void} Performs router navigation.
+ * @param {string|number} id - Carpool identifier.
+ * @returns {void}
  */
 function handleSelect(id) {
   if (!id) {
     ElMessage.error(
         'Carpool ID is missing'
     )
+
     return
   }
 
@@ -798,13 +944,14 @@ function handleSelect(id) {
  * Navigates to the carpool edit page.
  *
  * @param {Object} carpool - Carpool resource.
- * @returns {void} Performs router navigation.
+ * @returns {void}
  */
 function handleEdit(carpool) {
   if (!carpool?.id) {
     ElMessage.error(
         'Carpool ID is missing'
     )
+
     return
   }
 
@@ -819,15 +966,15 @@ function handleEdit(carpool) {
 /**
  * Joins a carpool through the Student Connect API.
  *
- * @param {string} id - Carpool resource ID.
- * @returns {Promise<void>} Resolves after joining.
- * @throws {Error} When the API request fails.
+ * @param {string|number} id - Carpool identifier.
+ * @returns {Promise<void>}
  */
 async function handleJoin(id) {
   if (!id) {
     ElMessage.error(
         'Carpool ID is missing'
     )
+
     return
   }
 
@@ -847,6 +994,7 @@ async function handleJoin(id) {
     ElMessage.warning(
         'This carpool has already departed.'
     )
+
     return
   }
 
@@ -855,7 +1003,7 @@ async function handleJoin(id) {
         await studentConnect
             .joinCarPool(id)
 
-    if (!response?.success) {
+    if (response?.success === false) {
       throw new Error(
           response?.message ||
           'Could not join carpool'
@@ -865,10 +1013,15 @@ async function handleJoin(id) {
     await loadCarpools()
 
     ElMessage.success(
-        response.message ||
+        response?.message ||
         'You joined the carpool!'
     )
   } catch (error) {
+    console.error(
+        'Failed to join carpool:',
+        error
+    )
+
     ElMessage.error(
         error?.message ||
         'Could not join the carpool'
@@ -879,15 +1032,15 @@ async function handleJoin(id) {
 /**
  * Leaves a carpool through the Student Connect API.
  *
- * @param {string} id - Carpool resource ID.
- * @returns {Promise<void>} Resolves after leaving.
- * @throws {Error} When the API request fails.
+ * @param {string|number} id - Carpool identifier.
+ * @returns {Promise<void>}
  */
 async function handleLeave(id) {
   if (!id) {
     ElMessage.error(
         'Carpool ID is missing'
     )
+
     return
   }
 
@@ -896,7 +1049,7 @@ async function handleLeave(id) {
         await studentConnect
             .leaveCarPool(id)
 
-    if (!response?.success) {
+    if (response?.success === false) {
       throw new Error(
           response?.message ||
           'Could not leave carpool'
@@ -906,14 +1059,59 @@ async function handleLeave(id) {
     await loadCarpools()
 
     ElMessage.success(
-        response.message ||
+        response?.message ||
         'You left the carpool.'
     )
   } catch (error) {
+    console.error(
+        'Failed to leave carpool:',
+        error
+    )
+
     ElMessage.error(
         error?.message ||
         'Could not leave carpool'
     )
   }
 }
+
+/**
+ * Loads carpools when the listing view is initially displayed.
+ */
+onMounted(() => {
+  if (!carpoolId.value) {
+    loadCarpools()
+  }
+
+  timeUpdateInterval =
+      window.setInterval(
+          updateCurrentTimestamp,
+          1000
+      )
+})
+
+/**
+ * Clears the timestamp update interval when the view is destroyed.
+ */
+onUnmounted(() => {
+  if (timeUpdateInterval !== null) {
+    window.clearInterval(
+        timeUpdateInterval
+    )
+
+    timeUpdateInterval = null
+  }
+})
+
+/**
+ * Reloads carpools when returning from a carpool detail page.
+ */
+watch(
+    () => route.query.id,
+    (newId) => {
+      if (!newId) {
+        loadCarpools()
+      }
+    }
+)
 </script>

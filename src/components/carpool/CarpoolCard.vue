@@ -1,247 +1,290 @@
 <template>
-  <div
-      :id="'carpool-card-' + carpool.id"
-      :class="[
-      'bg-white rounded-2xl p-6 border shadow-xs flex flex-col justify-between transition-all duration-200 relative cursor-pointer',
-      statusKey !== 'open'
-        ? 'border-slate-200 opacity-85'
-        : 'border-slate-200 hover:border-indigo-300 hover:shadow-sm'
-    ]"
+  <article
+      :id="`carpool-card-${carpool.id}`"
+      class="flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-white shadow-sm"
+      tabindex="0"
+      role="button"
+      :aria-label="`View carpool from ${carpool.origin} to ${carpool.destination}`"
       @click="$emit('select', carpool.id)"
+      @keydown.enter="$emit('select', carpool.id)"
+      @keydown.space.prevent="$emit('select', carpool.id)"
   >
-    <div class="space-y-4">
-      <!-- Status Badge & Cost & Creator Edit -->
-      <div class="flex justify-between items-center gap-2">
-        <div class="flex items-center gap-2">
-          <span
-              :class="[
-              'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
-              statusBadgeClass
-            ]"
-          >
-            {{ statusLabel }}
-          </span>
+    <!-- Header -->
+    <div class="flex items-center justify-between gap-3 px-5 pt-5">
+      <div class="flex min-w-0 items-center gap-2">
+        <span
+            :class="[
+            'shrink-0 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide',
+            statusBadgeClass
+          ]"
+        >
+          {{ statusLabel }}
+        </span>
 
-          <span
-              v-if="isCreator && canEdit"
-              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200"
-          >
-        Your Ride
-      </span>
-        </div>
-
-        <div class="flex items-center gap-2" @click.stop>
-          <button
-              v-if="isCreator"
-              :id="'edit-carpool-btn-' + carpool.id"
-              type="button"
-              class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors flex items-center gap-1 cursor-pointer border border-indigo-100"
-              title="Edit this ride"
-              @click="$emit('edit', carpool)"
-          >
-            <i class="fi fi-rr-edit text-xs"></i>
-            <span>Edit</span>
-          </button>
-
-          <span
-              :class="[
-          'font-bold text-lg',
-          statusKey !== 'open' ? 'text-slate-400' : 'text-indigo-600'
-        ]"
-          >
-        {{
-              carpool.cost !== undefined && Number(carpool.cost) > 0
-                  ? `RM${Number(carpool.cost).toFixed(2)}`
-                  : 'Free'
-            }}
-      </span>
-        </div>
+        <span
+            v-if="isCreator"
+            class="truncate text-[10px] font-medium text-brand-600"
+        >
+          Your ride
+        </span>
       </div>
 
-      <!-- Route Visual Line -->
-      <div class="space-y-2">
-        <div class="flex items-center gap-3">
-          <div class="w-2 h-2 rounded-full bg-slate-300 shrink-0"></div>
+      <span
+          :class="[
+          'shrink-0 text-sm font-semibold',
+          statusKey === 'open'
+            ? 'text-brand-600'
+            : 'text-slate-400'
+        ]"
+      >
+        {{
+          carpool.cost !== undefined && Number(carpool.cost) > 0
+              ? `RM${Number(carpool.cost).toFixed(2)}`
+              : 'Free'
+        }}
+      </span>
+    </div>
 
-          <div class="font-semibold text-slate-800 text-sm truncate">
-            {{ carpool.origin }}
-          </div>
-        </div>
+    <!-- Main Content -->
+    <div class="flex flex-1 flex-col px-5 pb-5 pt-4">
 
+      <!-- Route -->
+      <div class="relative">
+
+        <!-- Route connector -->
         <div
-            class="h-6 border-l-2 border-dashed border-slate-200 ml-[3px]"
+            class="absolute left-[9px] top-[10px] bottom-[10px] w-px bg-slate-200"
         ></div>
 
-        <div class="flex items-center gap-3">
-          <div class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></div>
-
-          <div class="font-semibold text-slate-800 text-sm truncate">
-            {{ carpool.destination }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Meta Grid -->
-      <div class="grid grid-cols-2 gap-2 pt-2">
-        <div
-            class="bg-slate-50 p-2.5 rounded-lg border border-slate-100/80"
-        >
+        <!-- Origin -->
+        <div class="relative flex items-start gap-3">
           <div
-              class="text-[10px] text-slate-500 uppercase font-bold tracking-wider"
+              class="relative z-10 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white"
           >
-            Date & Time
+            <span class="h-2 w-2 rounded-full bg-slate-400 ring-4 ring-slate-100"></span>
           </div>
 
-          <div class="text-xs font-semibold text-slate-800 mt-0.5">
-            {{
-              formatDateTime(carpool.departure).date
-            }} at {{
-              formatDateTime(carpool.departure).time
-            }}
-          </div>
-        </div>
+          <div class="min-w-0 flex-1 pb-4">
+            <p class="text-[9px] font-semibold uppercase tracking-wider text-slate-400">
+              From
+            </p>
 
-        <div
-            class="bg-slate-50 p-2.5 rounded-lg border border-slate-100/80"
-        >
-          <div
-              class="text-[10px] text-slate-500 uppercase font-bold tracking-wider"
-          >
-            Joined
-          </div>
-
-          <div class="text-xs font-semibold text-slate-800 mt-0.5">
-            {{ participantCount }} / {{ carpool.capacity }} Seats
-          </div>
-        </div>
-      </div>
-
-      <!-- Host & Notes -->
-      <div class="space-y-1.5">
-        <div
-            class="text-[11px] text-slate-400 flex items-center justify-between"
-        >
-          <div class="flex items-center gap-1.5">
-            <i class="fi fi-rr-user text-xs"></i>
-
-            <span>
-          Hosted by
-          <strong class="text-slate-600 font-semibold">
-            {{ carpool.owner?.name || 'Student' }}
-            <strong
-                v-if="carpool.owner?.id === currentUser.id"
-                class="text-xs text-indigo-600 font-normal"
+            <p
+                class="mt-1 truncate text-sm font-medium leading-tight text-slate-700"
+                :title="carpool.origin"
             >
-              (You)
-            </strong>
-          </strong>
-        </span>
-          </div>
-
-          <div
-              v-if="participantCount > 0"
-              class="text-[10px] text-indigo-600 font-medium"
-          >
-            {{ participantCount }}
-            student{{ participantCount === 1 ? '' : 's' }}
-            on board
+              {{ carpool.origin }}
+            </p>
           </div>
         </div>
 
-        <p
-            v-if="carpool.notes"
-            class="text-xs text-slate-500 bg-slate-50/60 p-2.5 rounded-lg border border-slate-100 line-clamp-2"
+        <!-- Destination -->
+        <div class="relative flex items-start gap-3">
+          <div
+              class="relative z-10 mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-50"
+          >
+            <i class="fi fi-rr-marker text-[8px] text-brand-600"></i>
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p class="text-[9px] font-semibold uppercase tracking-wider text-brand-600">
+              To
+            </p>
+
+            <p
+                class="mt-1 truncate text-sm font-medium leading-tight text-slate-800"
+                :title="carpool.destination"
+            >
+              {{ carpool.destination }}
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Trip Information -->
+      <div class="mt-5 grid grid-cols-2 gap-3">
+        <!-- Departure -->
+        <div class="rounded-xl bg-brand-50/50 px-3 py-2.5">
+          <div class="flex items-center gap-1.5">
+            <i class="fi fi-rr-calendar text-[10px] text-brand-600"></i>
+
+            <span class="text-[9px] font-medium uppercase tracking-wider text-brand-700">
+              Departure
+            </span>
+          </div>
+
+          <p class="mt-1 text-xs font-medium text-slate-700">
+            {{ formatDateTime(carpool.departure).date }}
+          </p>
+
+          <p class="text-[11px] text-brand-700">
+            {{ formatDateTime(carpool.departure).time }}
+          </p>
+        </div>
+
+        <!-- Seats -->
+        <div class="rounded-xl bg-slate-50 px-3 py-2.5">
+          <div class="flex items-center gap-1.5">
+            <i class="fi fi-rr-users text-[10px] text-slate-400"></i>
+
+            <span class="text-[9px] font-medium uppercase tracking-wider text-slate-500">
+              Seats
+            </span>
+          </div>
+
+          <div class="mt-1 flex items-baseline gap-1">
+            <span class="text-xs font-semibold text-slate-700">
+              {{ participantCount }}
+            </span>
+
+            <span class="text-[11px] text-slate-400">
+              / {{ capacity }}
+            </span>
+          </div>
+
+          <div class="mt-2 h-1 overflow-hidden rounded-full bg-slate-200">
+            <div
+                class="h-full rounded-full"
+                :class="seatProgressClass"
+                :style="{ width: `${seatProgress}%` }"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Host -->
+      <div class="mt-4 flex items-center gap-2">
+        <div
+            class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400"
         >
-          <i class="fi fi-rr-info text-slate-400 mr-1"></i>
+          <i class="fi fi-rr-user text-[9px]"></i>
+        </div>
+
+        <div class="min-w-0">
+          <p class="text-[9px] font-medium uppercase tracking-wider text-slate-400">
+            Hosted by
+          </p>
+
+          <p class="truncate text-[11px] font-medium text-slate-600">
+            {{ carpool.owner?.name || 'Student' }}
+
+            <span
+                v-if="isCreator"
+                class="text-brand-600"
+            >
+              · You
+            </span>
+          </p>
+        </div>
+
+        <span
+            v-if="participantCount > 0"
+            class="ml-auto shrink-0 text-[10px] text-slate-400"
+        >
+          {{ participantCount }}
+          {{ participantCount === 1 ? 'student' : 'students' }}
+        </span>
+      </div>
+
+      <!-- Notes -->
+      <div
+          v-if="carpool.notes"
+          class="mt-3 flex items-start gap-2"
+      >
+        <i class="fi fi-rr-info mt-0.5 shrink-0 text-[10px] text-slate-300"></i>
+
+        <p class="line-clamp-2 text-[11px] leading-relaxed text-slate-400">
           {{ carpool.notes }}
         </p>
       </div>
-    </div>
 
-    <!-- Actions -->
-    <div class="mt-6 space-y-2" @click.stop>
-      <!-- Host Actions -->
-      <div v-if="isCreator && canEdit" class="grid grid-cols-2 gap-2">
-        <button
-            :id="'edit-creator-btn-' + carpool.id"
-            type="button"
-            class="w-full py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer border border-indigo-200"
-            @click="$emit('edit', carpool)"
-        >
-          <i class="fi fi-rr-edit text-xs"></i>
-          <span>Edit Ride</span>
-        </button>
+      <!-- Actions -->
+      <div
+          class="mt-4"
+          @click.stop
+      >
+        <!-- Creator -->
+        <template v-if="isCreator && canEdit">
+          <div class="grid grid-cols-2 gap-2">
+            <button
+                :id="`edit-creator-btn-${carpool.id}`"
+                type="button"
+                class="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-brand-50 py-2 text-[11px] font-medium text-brand-700"
+                @click="$emit('edit', carpool)"
+            >
+              <i class="fi fi-rr-edit text-[10px]"></i>
+              Edit Ride
+            </button>
 
+            <button
+                :id="`leave-carpool-${carpool.id}`"
+                type="button"
+                class="flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-slate-50 py-2 text-[11px] font-medium text-slate-600"
+                @click="$emit('leave', carpool.id)"
+            >
+              Cancel Spot
+            </button>
+          </div>
+        </template>
+
+        <!-- Passenger -->
         <button
-            :id="'leave-carpool-' + carpool.id"
+            v-else-if="isJoined && canLeave"
+            :id="`leave-carpool-${carpool.id}`"
             type="button"
-            class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
+            class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-slate-50 py-2.5 text-[11px] font-medium text-slate-600"
             @click="$emit('leave', carpool.id)"
         >
-          <span>Cancel Spot</span>
+          <i class="fi fi-rr-sign-out-alt text-xs"></i>
+          Leave Carpool
+        </button>
+
+        <!-- Expired / Cancelled -->
+        <button
+            v-else-if="statusKey === 'expired' || statusKey === 'cancelled'"
+            :id="`join-carpool-${carpool.id}`"
+            type="button"
+            disabled
+            class="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-slate-50 py-2.5 text-[11px] font-medium text-slate-400"
+        >
+          <i
+              :class="
+              statusKey === 'cancelled'
+                ? 'fi fi-rr-cross-circle'
+                : 'fi fi-rr-time-past'
+            "
+          ></i>
+
+          {{ statusLabel }}
+        </button>
+
+        <!-- Available -->
+        <button
+            v-else-if="statusKey === 'open'"
+            :id="`join-carpool-${carpool.id}`"
+            type="button"
+            class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-brand-600 py-2.5 text-[11px] font-semibold text-white"
+            @click="$emit('join', carpool.id)"
+        >
+          Join Ride
+          <i class="fi fi-rr-arrow-small-right text-xs"></i>
+        </button>
+
+        <!-- Full -->
+        <button
+            v-else
+            :id="`join-carpool-${carpool.id}`"
+            type="button"
+            disabled
+            class="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-slate-50 py-2.5 text-[11px] font-medium text-slate-400"
+        >
+          <i class="fi fi-rr-users text-xs"></i>
+          {{ statusLabel }}
         </button>
       </div>
-
-      <!-- Current User Is a Passenger -->
-      <button
-          v-else-if="isJoined && canLeave"
-          :id="'leave-carpool-' + carpool.id"
-          type="button"
-          class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-          @click="$emit('leave', carpool.id)"
-      >
-        <svg
-            class="w-4 h-4 text-shadow-rose-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-        >
-          <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-          />
-        </svg>
-
-        <span>Leave Carpool</span>
-      </button>
-
-      <!-- Departure Has Passed -->
-      <button
-          v-else-if="statusKey === 'expired' || statusKey === 'cancelled'"
-          :id="'join-carpool-' + carpool.id"
-          type="button"
-          disabled
-          class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
-      >
-        {{ statusLabel }}
-      </button>
-
-      <!-- Seats Available -->
-      <button
-          v-else-if="statusKey === 'open'"
-          :id="'join-carpool-' + carpool.id"
-          type="button"
-          class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer"
-          @click="$emit('join', carpool.id)"
-      >
-        Join Ride
-      </button>
-
-      <!-- Fully Booked -->
-      <button
-          v-else
-          :id="'join-carpool-' + carpool.id"
-          type="button"
-          disabled
-          class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl font-bold text-xs cursor-not-allowed"
-      >
-        {{ statusLabel }}
-      </button>
     </div>
-
-  </div>
+  </article>
 </template>
 
 <script setup>
@@ -267,50 +310,108 @@ defineEmits([
   'select'
 ])
 
-const currentTimestamp = ref(Math.floor(Date.now() / 1000))
+const currentTimestamp = ref(
+    Math.floor(Date.now() / 1000)
+)
+
 let timeUpdateInterval = null
 
 /**
  * Determines whether the current user owns the carpool.
  *
- * @returns {boolean} True when the current user's ID matches owner.id.
+ * @returns {boolean} True when the current user owns the carpool.
  */
 const isCreator = computed(() => {
   if (!props.currentUser?.id) {
     return false
   }
 
-  return props.carpool.owner?.id === props.currentUser.id
+  return String(props.carpool.owner?.id || '') ===
+      String(props.currentUser.id)
 })
 
 /**
- * Calculates the number of students currently participating in the carpool.
+ * Calculates the number of students currently participating.
  *
  * @returns {number} Number of participants.
  */
 const participantCount = computed(() => {
-  if (!Array.isArray(props.carpool.participants)) {
-    return 0
+  if (Array.isArray(props.carpool.participants)) {
+    return props.carpool.participants.length
   }
 
-  return props.carpool.participants.length
+  if (
+      props.carpool.participants &&
+      typeof props.carpool.participants === 'object'
+  ) {
+    return Object.keys(props.carpool.participants).length
+  }
+
+  return 0
+})
+
+/**
+ * Returns the configured carpool capacity.
+ *
+ * @returns {number} Carpool capacity.
+ */
+const capacity = computed(() => {
+  const value = Number(props.carpool.capacity)
+
+  return Number.isFinite(value) && value > 0
+      ? value
+      : 0
 })
 
 /**
  * Determines whether the carpool has reached its capacity.
  *
- * @returns {boolean} True when the participant count reaches the carpool capacity.
+ * @returns {boolean} True when the carpool is full.
  */
 const isFull = computed(() => {
-  const capacity = Number(props.carpool.capacity || 0)
-
-  return participantCount.value >= capacity
+  return capacity.value > 0 &&
+      participantCount.value >= capacity.value
 })
 
 /**
- * Determines whether the carpool departure time has passed.
+ * Calculates the percentage of occupied seats.
  *
- * @returns {boolean} True when the current time is at or after departure.
+ * @returns {number} Occupancy percentage.
+ */
+const seatProgress = computed(() => {
+  if (!capacity.value) {
+    return 0
+  }
+
+  return Math.min(
+      100,
+      Math.round(
+          (participantCount.value / capacity.value) * 100
+      )
+  )
+})
+
+/**
+ * Returns the seat progress bar styling.
+ *
+ * @returns {string} Tailwind classes.
+ */
+const seatProgressClass = computed(() => {
+  if (statusKey.value === 'full') {
+    return 'bg-slate-400'
+  }
+
+  if (seatProgress.value >= 75) {
+    return 'bg-amber-500'
+  }
+
+  return 'bg-brand-500'
+})
+
+/**
+ * Determines whether the current departure time has passed.
+ *
+ * @returns {boolean} True when departure has passed.
  */
 const isDeparturePassed = computed(() => {
   const departure = Number(props.carpool.departure)
@@ -328,12 +429,23 @@ const isDeparturePassed = computed(() => {
  * @returns {string} open, full, cancelled, or expired.
  */
 const statusKey = computed(() => {
-  const explicitStatus = String(props.carpool.status || '').toLowerCase()
-  if (explicitStatus === 'cancelled' || explicitStatus === 'expired') {
+  const explicitStatus = String(
+      props.carpool.status || ''
+  ).toLowerCase()
+
+  if (
+      ['cancelled', 'expired'].includes(explicitStatus)
+  ) {
     return explicitStatus
   }
-  if (isDeparturePassed.value) return 'expired'
-  return isFull.value ? 'full' : 'open'
+
+  if (isDeparturePassed.value) {
+    return 'expired'
+  }
+
+  return isFull.value
+      ? 'full'
+      : 'open'
 })
 
 /**
@@ -351,7 +463,7 @@ const statusLabel = computed(() => {
 })
 
 /**
- * Returns the list-card status badge styling.
+ * Returns the status badge styling.
  *
  * @returns {string} Tailwind classes.
  */
@@ -361,57 +473,77 @@ const statusBadgeClass = computed(() => {
     full: 'bg-slate-100 text-slate-500',
     cancelled: 'bg-rose-100 text-rose-600',
     expired: 'bg-amber-100 text-amber-700'
-  }[statusKey.value]
+  }[statusKey.value] || 'bg-slate-100 text-slate-600'
 })
 
 /**
- * Determines whether the owner may edit this carpool.
+ * Determines whether the owner may edit the carpool.
  *
- * @returns {boolean} True when the carpool is not terminal.
+ * @returns {boolean} True when the carpool is editable.
  */
 const canEdit = computed(() => {
   return ['open', 'full'].includes(statusKey.value)
 })
 
 /**
- * Determines whether a participant may leave this carpool.
+ * Determines whether a participant may leave the carpool.
  *
- * @returns {boolean} True when the carpool is active.
+ * @returns {boolean} True when leaving is allowed.
  */
 const canLeave = computed(() => {
   return ['open', 'full'].includes(statusKey.value)
 })
 
 /**
- * Determines whether the current user is already a participant.
+ * Determines whether the current user has joined the carpool.
  *
- * @returns {boolean} True when the current user's ID exists in participants.
+ * @returns {boolean} True when the current user is a participant.
  */
 const isJoined = computed(() => {
   if (!props.currentUser?.id) {
     return false
   }
 
-  if (!Array.isArray(props.carpool.participants)) {
-    return false
+  const currentUserId = String(
+      props.currentUser.id
+  )
+
+  if (Array.isArray(props.carpool.participants)) {
+    return props.carpool.participants.some(
+        (participant) =>
+            String(participant?.id || '') === currentUserId
+    )
   }
 
-  return props.carpool.participants.some(
-      (participant) => participant?.id === props.currentUser.id
-  )
+  if (
+      props.carpool.participants &&
+      typeof props.carpool.participants === 'object'
+  ) {
+    return Object.prototype.hasOwnProperty.call(
+        props.carpool.participants,
+        currentUserId
+    )
+  }
+
+  return false
 })
 
 /**
- * Updates the local current Unix timestamp.
+ * Updates the current Unix timestamp.
  *
  * @returns {void}
  */
 function updateCurrentTimestamp() {
-  currentTimestamp.value = Math.floor(Date.now() / 1000)
+  currentTimestamp.value = Math.floor(
+      Date.now() / 1000
+  )
 }
 
 onMounted(() => {
-  timeUpdateInterval = window.setInterval(updateCurrentTimestamp, 1000)
+  timeUpdateInterval = window.setInterval(
+      updateCurrentTimestamp,
+      1000
+  )
 })
 
 onUnmounted(() => {

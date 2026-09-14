@@ -2,18 +2,22 @@
   <div class="min-h-[85vh] flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl shadow-slate-200/50 space-y-6">
       <!-- Header & Branding -->
-      <div class="text-center space-y-3">
-        <div class="inline-flex items-center justify-center w-16 h-16 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-200 text-white mx-auto mb-1">
-          <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-          </svg>
+      <div class="space-y-4 text-center">
+        <div class="mx-auto flex h-15 w-15 items-center justify-center">
+          <img
+              src="@/assets/icon.png"
+              alt="Student Connect Logo"
+              class="object-contain"
+          />
         </div>
+
         <div>
-          <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
             Student Connect
           </h1>
-          <p class="text-slate-500 font-medium text-sm mt-1">
-            Students helping students.
+
+          <p class="mt-1.5 text-sm text-slate-500">
+            Your campus, connected.
           </p>
         </div>
       </div>
@@ -25,7 +29,7 @@
             :class="[
         'flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center',
         mode === 'login'
-          ? 'bg-white text-indigo-700 shadow-xs'
+          ? 'bg-white text-brand-700 shadow-xs'
           : 'text-slate-600 hover:text-slate-900'
       ]"
             @click="switchMode('login')"
@@ -38,7 +42,7 @@
             :class="[
         'flex-1 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer text-center',
         mode === 'register'
-          ? 'bg-white text-indigo-700 shadow-xs'
+          ? 'bg-white text-brand-700 shadow-xs'
           : 'text-slate-600 hover:text-slate-900'
       ]"
             @click="switchMode('register')"
@@ -120,7 +124,7 @@
             id="student-login-submit-btn"
             type="submit"
             :disabled="isLoading"
-            class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            class="w-full py-3.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
         >
           <svg
               v-if="isLoading"
@@ -197,7 +201,7 @@
 
           <button
               type="button"
-              class="text-indigo-600 font-bold hover:underline underline-offset-4 cursor-pointer"
+              class="text-brand-600 font-bold hover:underline underline-offset-4 cursor-pointer"
               @click="switchMode('register')"
           >
             Create an account
@@ -339,7 +343,7 @@
             id="student-register-submit-btn"
             type="submit"
             :disabled="isLoading"
-            class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+            class="w-full py-3.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-brand-200 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
         >
           <svg
               v-if="isLoading"
@@ -374,7 +378,7 @@
 
           <button
               type="button"
-              class="text-indigo-600 font-bold hover:underline underline-offset-4 cursor-pointer"
+              class="text-brand-600 font-bold hover:underline underline-offset-4 cursor-pointer"
               @click="switchMode('login')"
           >
             Sign in

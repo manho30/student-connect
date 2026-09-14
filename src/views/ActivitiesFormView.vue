@@ -6,7 +6,7 @@
       <button
           id="activities-form-back-btn"
           :disabled="submitting"
-          class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-xs transition-colors hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+          class="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-xs transition-colors hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
           @click="handleCancel"
       >
         <svg
@@ -62,7 +62,7 @@
           class="py-12 text-center"
       >
         <div
-            class="mb-3 inline-block h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"
+            class="mb-3 inline-block h-8 w-8 animate-spin rounded-full border-4 border-brand-600 border-t-transparent"
         ></div>
 
         <p class="text-sm font-semibold text-slate-600">
@@ -80,7 +80,7 @@
         </p>
 
         <button
-            class="cursor-pointer rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white"
+            class="cursor-pointer rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white"
             @click="handleCancel"
         >
           Return to Activities List

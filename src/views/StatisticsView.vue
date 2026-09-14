@@ -1,26 +1,44 @@
 <template>
-  <div class="min-h-full bg-slate-50/60">
+  <div class="min-h-full bg-slate-50">
     <div class="mx-auto max-w-[1600px] space-y-6 p-4 sm:p-6 lg:p-8">
-      <!-- Header -->
-      <header class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">
-            Analytics
-          </p>
 
-          <h1 class="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+      <!-- ========================================================= -->
+      <!-- Header -->
+      <!-- ========================================================= -->
+      <header
+          class="flex flex-col gap-5 rounded-2xl bg-white p-5 shadow-sm sm:p-6 lg:flex-row lg:items-center lg:justify-between"
+      >
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span
+                class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50"
+            >
+              <i class="fi fi-rr-chart-histogram text-sm text-brand-600"></i>
+            </span>
+
+            <p
+                class="text-xs font-bold uppercase tracking-[0.16em] text-brand-600"
+            >
+              Analytics
+            </p>
+          </div>
+
+          <h1
+              class="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl"
+          >
             Statistics
           </h1>
 
-          <p class="mt-1.5 text-sm text-slate-500">
-            Monitor platform activity, service performance and student engagement.
+          <p class="mt-1.5 max-w-2xl text-sm leading-6 text-slate-500">
+            Monitor platform activity, service performance and student
+            engagement.
           </p>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
           <el-select
               v-model="selectedPeriod"
-              class="statistics-period"
+              class="statistics-period w-full sm:w-[125px]"
               :disabled="loading"
           >
             <el-option
@@ -32,6 +50,7 @@
           </el-select>
 
           <el-button
+              class="statistics-refresh"
               :loading="loading"
               :disabled="loading"
               @click="loadStatistics"
@@ -40,18 +59,22 @@
                 v-if="!loading"
                 class="fi fi-rr-refresh mr-1.5"
             ></i>
+
             Refresh
           </el-button>
         </div>
       </header>
 
-
+      <!-- ========================================================= -->
       <!-- Error -->
+      <!-- ========================================================= -->
       <div
           v-if="errorMessage"
-          class="rounded-2xl border border-rose-200 bg-white p-8 text-center shadow-sm"
+          class="rounded-2xl bg-white p-8 text-center shadow-sm"
       >
-        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-50">
+        <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-50"
+        >
           <i class="fi fi-rr-exclamation text-lg text-rose-500"></i>
         </div>
 
@@ -59,56 +82,69 @@
           Unable to load statistics
         </h2>
 
-        <p class="mt-1 text-sm text-slate-500">
+        <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-slate-500">
           There was a problem retrieving the latest analytics data.
+          Please try again.
         </p>
 
         <el-button
-            class="mt-4"
+            class="mt-5"
             @click="loadStatistics"
         >
+          <i class="fi fi-rr-refresh mr-1.5"></i>
           Try again
         </el-button>
       </div>
 
-
       <template v-else>
 
+        <!-- ========================================================= -->
         <!-- Platform Overview -->
+        <!-- ========================================================= -->
         <section>
-          <div class="mb-3">
-            <h2 class="text-sm font-semibold text-slate-900">
-              Platform overview
-            </h2>
+          <div class="mb-3 flex items-end justify-between gap-4">
+            <div>
+              <h2 class="text-sm font-bold text-slate-900">
+                Platform overview
+              </h2>
 
-            <p class="mt-0.5 text-xs text-slate-500">
-              {{ periodLabel }} activity
-            </p>
+              <p class="mt-0.5 text-xs text-slate-500">
+                {{ periodLabel }} activity
+              </p>
+            </div>
+
+            <span
+                v-if="!loading"
+                class="hidden text-[11px] font-medium text-slate-400 sm:block"
+            >
+              Updated for selected period
+            </span>
           </div>
 
           <div class="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
-
             <template v-if="loading">
               <div
                   v-for="item in 6"
                   :key="item"
-                  class="h-[122px] animate-pulse rounded-2xl bg-slate-200/70"
+                  class="h-[126px] animate-pulse rounded-2xl bg-white shadow-sm"
               ></div>
             </template>
 
             <template v-else>
-              <div
+              <article
                   v-for="item in overviewMetrics"
                   :key="item.label"
-                  class="group rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                  class="rounded-2xl bg-white p-4 shadow-sm"
               >
-                <div class="flex items-center justify-between">
-              <span class="text-xs font-medium text-slate-500">
-                {{ item.label }}
-              </span>
+                <div class="flex items-start justify-between gap-3">
+                  <span
+                      class="text-[11px] font-semibold leading-4 text-slate-500"
+                  >
+                    {{ item.label }}
+                  </span>
 
                   <div
-                      class="flex h-8 w-8 items-center justify-center rounded-lg"
+                      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
                       :class="item.iconBackground"
                   >
                     <i
@@ -119,105 +155,124 @@
                 </div>
 
                 <div class="mt-4">
-                  <p class="text-2xl font-bold tracking-tight text-slate-900">
+                  <p
+                      class="text-2xl font-bold tracking-tight text-slate-900"
+                  >
                     {{ item.value }}
                   </p>
 
                   <p
                       v-if="item.description"
-                      class="mt-1 text-[11px] text-slate-400"
+                      class="mt-1 text-[10px] leading-4 text-slate-400"
                   >
                     {{ item.description }}
                   </p>
                 </div>
-              </div>
+              </article>
             </template>
-
           </div>
         </section>
 
-
-        <!-- Activity Overview -->
-        <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-
+        <!-- ========================================================= -->
+        <!-- Activity Trend -->
+        <!-- ========================================================= -->
+        <section
+            class="overflow-hidden rounded-2xl bg-white shadow-sm"
+        >
           <div
-              class="flex flex-col gap-3 border-b border-slate-100 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between"
+              class="px-5 py-4 sm:px-6"
           >
-            <div>
-              <h2 class="text-base font-semibold text-slate-900">
-                Activity overview
-              </h2>
+            <div
+                class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
+            >
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-slate-900">
+                    Activity trend
+                  </h2>
 
-              <p class="mt-0.5 text-xs text-slate-500">
-                Daily activity across the platform.
-              </p>
-            </div>
+                  <span
+                      class="rounded-md bg-slate-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-500"
+                  >
+                    Daily
+                  </span>
+                </div>
 
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-1.5">
-              <div
-                  v-for="series in trendSeries"
-                  :key="series.key"
-                  class="flex items-center gap-1.5"
-              >
-            <span
-                class="h-1.5 w-1.5 rounded-full"
-                :style="{ backgroundColor: series.color }"
-            ></span>
+                <p class="mt-1 text-xs text-slate-500">
+                  New platform activity over the selected period.
+                </p>
+              </div>
 
-                <span class="text-[11px] font-medium text-slate-500">
-              {{ series.label }}
-            </span>
+              <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <div
+                    v-for="series in trendSeries"
+                    :key="series.key"
+                    class="flex items-center gap-1.5"
+                >
+                  <span
+                      class="h-1.5 w-1.5 rounded-full"
+                      :style="{ backgroundColor: series.color }"
+                  ></span>
+
+                  <span class="text-[10px] font-medium text-slate-500">
+                    {{ series.label }}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-
-          <!-- Trend Summary -->
-          <div class="px-5 pt-4 sm:px-6">
-            <div class="grid grid-cols-2 gap-2 sm:grid-cols-5">
-
+          <!-- Trend summary -->
+          <div class="px-5 pb-4 sm:px-6">
+            <div
+                class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6"
+            >
               <div
                   v-for="summary in trendSummary"
                   :key="summary.key"
-                  class="rounded-lg bg-slate-50 px-3 py-2"
+                  class="rounded-xl bg-slate-50 px-3 py-2.5"
               >
-                <p class="text-[10px] font-medium text-slate-500">
-                  {{ summary.label }}
-                </p>
+                <div class="flex items-center gap-1.5">
+                  <span
+                      class="h-1.5 w-1.5 rounded-full"
+                      :style="{ backgroundColor: summary.color }"
+                  ></span>
 
-                <div class="mt-0.5 flex items-baseline gap-1">
-              <span class="text-base font-bold text-slate-900">
-                {{ formatCount(summary.value) }}
-              </span>
-
-                  <span class="text-[9px] text-slate-400">
-                total
-              </span>
+                  <p class="text-[10px] font-medium text-slate-500">
+                    {{ summary.label }}
+                  </p>
                 </div>
-              </div>
 
+                <p
+                    class="mt-1 text-base font-bold tracking-tight text-slate-900"
+                >
+                  {{ formatCount(summary.value) }}
+                </p>
+              </div>
             </div>
           </div>
 
-
           <!-- Chart -->
-          <div class="px-4 pb-4 pt-3">
-
+          <div class="px-3 pb-5 pt-1 sm:px-5">
             <div
                 v-if="loading"
-                class="h-[160px] w-full animate-pulse rounded-xl bg-slate-50"
+                class="h-[230px] w-full animate-pulse rounded-xl bg-slate-50"
             ></div>
 
             <div
                 v-else-if="trendData.length === 0"
-                class="flex h-[160px] w-full items-center justify-center"
+                class="flex h-[230px] items-center justify-center rounded-xl bg-slate-50"
             >
               <div class="text-center">
-                <div class="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-slate-100">
-                  <i class="fi fi-rr-chart-line-up text-sm text-slate-400"></i>
+                <div
+                    class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm"
+                >
+                  <i
+                      class="fi fi-rr-chart-line-up text-sm text-slate-400"
+                  ></i>
                 </div>
 
-                <p class="mt-2 text-xs font-medium text-slate-700">
+                <p class="mt-3 text-xs font-semibold text-slate-700">
                   No trend data
                 </p>
 
@@ -230,7 +285,7 @@
             <div
                 v-else
                 ref="chartWrapper"
-                class="relative h-[160px] w-full overflow-hidden"
+                class="relative h-[230px] w-full overflow-hidden"
             >
               <canvas
                   ref="chartCanvas"
@@ -244,82 +299,98 @@
               <!-- Tooltip -->
               <div
                   v-if="hoveredPoint"
-                  class="pointer-events-none absolute z-20 w-[155px] rounded-lg border border-slate-200 bg-white p-2.5 shadow-lg"
+                  class="pointer-events-none absolute z-20 w-[170px] rounded-xl bg-white p-3 shadow-xl"
                   :style="tooltipStyle"
               >
-                <p class="mb-1.5 text-[11px] font-semibold text-slate-900">
+                <p
+                    class="mb-2 text-[11px] font-bold text-slate-900"
+                >
                   {{ formatDateLong(hoveredPoint.date) }}
                 </p>
 
-                <div class="space-y-1">
+                <div class="space-y-1.5">
                   <div
                       v-for="item in hoveredPoint.values"
                       :key="item.key"
                       class="flex items-center justify-between gap-3"
                   >
-                <span class="flex items-center gap-1.5 text-[10px] text-slate-500">
-                  <span
-                      class="h-1.5 w-1.5 rounded-full"
-                      :style="{ backgroundColor: item.color }"
-                  ></span>
+                    <span
+                        class="flex items-center gap-1.5 text-[10px] text-slate-500"
+                    >
+                      <span
+                          class="h-1.5 w-1.5 rounded-full"
+                          :style="{ backgroundColor: item.color }"
+                      ></span>
 
-                  {{ item.label }}
-                </span>
+                      {{ item.label }}
+                    </span>
 
-                    <span class="text-[10px] font-semibold text-slate-800">
-                  {{ formatCount(item.value) }}
-                </span>
+                    <span
+                        class="text-[10px] font-bold text-slate-800"
+                    >
+                      {{ formatCount(item.value) }}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-
           </div>
         </section>
 
-
+        <!-- ========================================================= -->
         <!-- Service Performance -->
+        <!-- ========================================================= -->
         <section>
-
           <div class="mb-4">
-            <h2 class="text-sm font-semibold tracking-tight text-slate-900">
+            <h2 class="text-sm font-bold tracking-tight text-slate-900">
               Service performance
             </h2>
 
             <p class="mt-1 text-xs leading-5 text-slate-500">
-              Breakdown of activity, participation, capacity and service outcomes.
+              Compare activity, outcomes and capacity across Student Connect services.
             </p>
           </div>
 
+          <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 
-          <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-
+            <!-- ===================================================== -->
             <!-- Carpool -->
+            <!-- ===================================================== -->
             <article
-                class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                class="overflow-hidden rounded-2xl bg-white shadow-sm"
             >
+              <div
+                  class="flex items-center justify-between gap-3 px-5 py-4"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <div
+                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50"
+                  >
+                    <i class="fi fi-rr-car text-sm text-brand-600"></i>
+                  </div>
 
-              <div class="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50">
-                  <i class="fi fi-rr-car text-sm text-indigo-600"></i>
+                  <div class="min-w-0">
+                    <h3 class="text-sm font-bold text-slate-900">
+                      Carpool
+                    </h3>
+
+                    <p class="mt-0.5 text-[11px] text-slate-500">
+                      Ride sharing activity
+                    </p>
+                  </div>
                 </div>
 
-                <div class="min-w-0">
-                  <h3 class="text-sm font-semibold text-slate-900">
-                    Carpool
-                  </h3>
-
-                  <p class="mt-0.5 text-[11px] text-slate-500">
-                    Ride sharing activity
-                  </p>
-                </div>
+                <span
+                    class="rounded-full bg-brand-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-brand-700"
+                >
+                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'active')) }}
+                  active
+                </span>
               </div>
 
-
-              <div class="grid grid-cols-3 divide-x divide-slate-100">
-
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
+              <div class="grid grid-cols-3 px-3 pb-4">
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
                     {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'created')) }}
                   </p>
 
@@ -328,18 +399,18 @@
                   </p>
                 </div>
 
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
-                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'active')) }}
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
+                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'participants')) }}
                   </p>
 
                   <p class="mt-1 text-[10px] font-medium text-slate-400">
-                    Active
+                    Participants
                   </p>
                 </div>
 
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
                     {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'served')) }}
                   </p>
 
@@ -347,171 +418,133 @@
                     Served
                   </p>
                 </div>
-
               </div>
 
-
-              <div class="border-t border-slate-100 px-5 py-4">
-
-                <!-- Capacity -->
-                <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+              <div class="px-5 pb-5 pt-2">
+                <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   Capacity
                 </p>
 
-                <div>
-
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Seats Offered
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'seatsOffered')) }}
-                </span>
+                <div class="space-y-0.5">
+                  <div class="metric-row">
+                    <span>Seats offered</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'seatsOffered')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Seats Filled
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'seatsFilled')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Seats filled</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'seatsFilled')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Utilisation
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatPercent(getOptionalNumber(safeStatistics.carpool, 'utilisationRate')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Utilisation</span>
+                    <strong>
+                      {{ loading ? '—' : formatPercent(getOptionalNumber(safeStatistics.carpool, 'utilisationRate')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-slate-500">
-                  Avg. Passengers
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getOptionalNumber(safeStatistics.carpool, 'averagePassengers')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Average passengers</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getOptionalNumber(safeStatistics.carpool, 'averagePassengers')) }}
+                    </strong>
                   </div>
-
                 </div>
 
-
-                <!-- Status -->
-                <p class="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
-                  Status
-                </p>
-
-                <div>
-
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Cancelled
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'cancelled')) }}
-                </span>
-                  </div>
-
-                  <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-slate-500">
-                  Served
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'served')) }}
-                </span>
-                  </div>
-
-                </div>
-
-
-                <!-- Timing -->
-                <p class="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                <p class="mb-2 mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   Timing
                 </p>
 
-                <div>
-
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  First Participant
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.carpool, 'averageTimeToFirstParticipantMinutes')) }}
-                </span>
+                <div class="space-y-0.5">
+                  <div class="metric-row">
+                    <span>First participant</span>
+                    <strong>
+                      {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.carpool, 'averageTimeToFirstParticipantMinutes')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Full Capacity
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.carpool, 'averageTimeToFullCapacityMinutes')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Full capacity</span>
+                    <strong>
+                      {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.carpool, 'averageTimeToFullCapacityMinutes')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Creation → Departure
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.carpool, 'averageCreationToDepartureMinutes')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Creation → departure</span>
+                    <strong>
+                      {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.carpool, 'averageCreationToDepartureMinutes')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-slate-500">
-                  Avg. Waiting Time
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.carpool, 'averageWaitingTimeMinutes')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Average waiting</span>
+                    <strong>
+                      {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.carpool, 'averageWaitingTimeMinutes')) }}
+                    </strong>
                   </div>
-
                 </div>
 
+                <div class="mt-4 flex gap-2">
+                  <div class="status-chip status-chip-rose">
+                    <span>Cancelled</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'cancelled')) }}
+                    </strong>
+                  </div>
+
+                  <div class="status-chip status-chip-amber">
+                    <span>Expired</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.carpool, 'expired')) }}
+                    </strong>
+                  </div>
+                </div>
               </div>
             </article>
 
-
+            <!-- ===================================================== -->
             <!-- Errands -->
+            <!-- ===================================================== -->
             <article
-                class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                class="overflow-hidden rounded-2xl bg-white shadow-sm"
             >
+              <div
+                  class="flex items-center justify-between gap-3 px-5 py-4"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <div
+                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50"
+                  >
+                    <i class="fi fi-rr-checklist text-sm text-amber-600"></i>
+                  </div>
 
-              <div class="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50">
-                  <i class="fi fi-rr-checklist text-sm text-amber-600"></i>
+                  <div class="min-w-0">
+                    <h3 class="text-sm font-bold text-slate-900">
+                      Errands
+                    </h3>
+
+                    <p class="mt-0.5 text-[11px] text-slate-500">
+                      Student-to-student requests
+                    </p>
+                  </div>
                 </div>
 
-                <div class="min-w-0">
-                  <h3 class="text-sm font-semibold text-slate-900">
-                    Errands
-                  </h3>
-
-                  <p class="mt-0.5 text-[11px] text-slate-500">
-                    Student-to-student requests
-                  </p>
-                </div>
+                <span
+                    class="rounded-full bg-amber-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-amber-700"
+                >
+                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'pending')) }}
+                  pending
+                </span>
               </div>
 
-
-              <div class="grid grid-cols-3 divide-x divide-slate-100">
-
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
+              <div class="grid grid-cols-3 px-3 pb-4">
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
                     {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'created')) }}
                   </p>
 
@@ -520,18 +553,18 @@
                   </p>
                 </div>
 
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
-                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'pending')) }}
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
+                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'accepted')) }}
                   </p>
 
                   <p class="mt-1 text-[10px] font-medium text-slate-400">
-                    Pending
+                    Accepted
                   </p>
                 </div>
 
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
                     {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'served')) }}
                   </p>
 
@@ -539,140 +572,119 @@
                     Served
                   </p>
                 </div>
-
               </div>
 
-
-              <div class="border-t border-slate-100 px-5 py-4">
-
-                <!-- Outcome -->
-                <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+              <div class="px-5 pb-5 pt-2">
+                <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   Outcome
                 </p>
 
-                <div>
-
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Accepted
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'accepted')) }}
-                </span>
+                <div class="space-y-0.5">
+                  <div class="metric-row">
+                    <span>Completion rate</span>
+                    <strong>
+                      {{ loading ? '—' : formatPercent(getOptionalNumber(safeStatistics.errands, 'completionRate')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Cancelled
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'cancelled')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Cancellation rate</span>
+                    <strong>
+                      {{ loading ? '—' : formatPercent(getOptionalNumber(safeStatistics.errands, 'cancellationRate')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Completion Rate
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatPercent(getOptionalNumber(safeStatistics.errands, 'completionRate')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Participations</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'participations')) }}
+                    </strong>
                   </div>
-
-                  <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-slate-500">
-                  Cancellation Rate
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatPercent(getOptionalNumber(safeStatistics.errands, 'cancellationRate')) }}
-                </span>
-                  </div>
-
                 </div>
 
-
-                <!-- Service Timing -->
-                <p class="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                <p class="mb-2 mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   Service timing
                 </p>
 
-                <div>
-
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Acceptance
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.errands, 'averageAcceptanceTimeMinutes')) }}
-                </span>
+                <div class="space-y-0.5">
+                  <div class="metric-row">
+                    <span>Acceptance</span>
+                    <strong>
+                      {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.errands, 'averageAcceptanceTimeMinutes')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Completion
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.errands, 'averageCompletionTimeMinutes')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Completion</span>
+                    <strong>
+                      {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.errands, 'averageCompletionTimeMinutes')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-slate-500">
-                  Total Service
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.errands, 'averageTotalServiceTimeMinutes')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Total service</span>
+                    <strong>
+                      {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.errands, 'averageTotalServiceTimeMinutes')) }}
+                    </strong>
                   </div>
-
                 </div>
 
+                <div class="mt-4 flex gap-2">
+                  <div class="status-chip status-chip-rose">
+                    <span>Cancelled</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'cancelled')) }}
+                    </strong>
+                  </div>
+
+                  <div class="status-chip status-chip-amber">
+                    <span>Expired</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.errands, 'expired')) }}
+                    </strong>
+                  </div>
+                </div>
               </div>
-
-
-              <div
-                  v-if="!loading && getNumber(safeStatistics.errands, 'created') === 0"
-                  class="border-t border-slate-100 px-5 py-3 text-[11px] text-slate-400"
-              >
-                No errands were recorded during this period.
-              </div>
-
             </article>
 
-
+            <!-- ===================================================== -->
             <!-- Study -->
+            <!-- ===================================================== -->
             <article
-                class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                class="overflow-hidden rounded-2xl bg-white shadow-sm"
             >
+              <div
+                  class="flex items-center justify-between gap-3 px-5 py-4"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <div
+                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50"
+                  >
+                    <i class="fi fi-rr-book-alt text-sm text-emerald-600"></i>
+                  </div>
 
-              <div class="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50">
-                  <i class="fi fi-rr-book-alt text-sm text-emerald-600"></i>
+                  <div class="min-w-0">
+                    <h3 class="text-sm font-bold text-slate-900">
+                      Study
+                    </h3>
+
+                    <p class="mt-0.5 text-[11px] text-slate-500">
+                      Collaborative study activity
+                    </p>
+                  </div>
                 </div>
 
-                <div class="min-w-0">
-                  <h3 class="text-sm font-semibold text-slate-900">
-                    Study
-                  </h3>
-
-                  <p class="mt-0.5 text-[11px] text-slate-500">
-                    Collaborative study activity
-                  </p>
-                </div>
+                <span
+                    class="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-emerald-700"
+                >
+                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'active')) }}
+                  active
+                </span>
               </div>
 
-
-              <div class="grid grid-cols-3 divide-x divide-slate-100">
-
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
+              <div class="grid grid-cols-3 px-3 pb-4">
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
                     {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'created')) }}
                   </p>
 
@@ -681,18 +693,18 @@
                   </p>
                 </div>
 
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
-                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'active')) }}
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
+                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'participants')) }}
                   </p>
 
                   <p class="mt-1 text-[10px] font-medium text-slate-400">
-                    Active
+                    Participants
                   </p>
                 </div>
 
-                <div class="px-3 py-4 text-center">
-                  <p class="text-xl font-bold tracking-tight text-slate-900">
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
                     {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'served')) }}
                   </p>
 
@@ -700,106 +712,65 @@
                     Served
                   </p>
                 </div>
-
               </div>
 
-
-              <div class="border-t border-slate-100 px-5 py-4">
-
-                <!-- Participation -->
-                <p class="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+              <div class="px-5 pb-5 pt-2">
+                <p class="mb-2 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   Participation
                 </p>
 
-                <div>
-
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Participants
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'participants')) }}
-                </span>
+                <div class="space-y-0.5">
+                  <div class="metric-row">
+                    <span>Average participants</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getOptionalNumber(safeStatistics.study, 'averageParticipants')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Average Participants
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getOptionalNumber(safeStatistics.study, 'averageParticipants')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Capacity utilisation</span>
+                    <strong>
+                      {{ loading ? '—' : formatPercent(getOptionalNumber(safeStatistics.study, 'utilisationRate')) }}
+                    </strong>
                   </div>
-
-                  <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-slate-500">
-                  Utilisation
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatPercent(getOptionalNumber(safeStatistics.study, 'utilisationRate')) }}
-                </span>
-                  </div>
-
                 </div>
 
-
-                <!-- Status -->
-                <p class="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                <p class="mb-2 mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   Status
                 </p>
 
-                <div>
-
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Upcoming
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'upcoming')) }}
-                </span>
+                <div class="space-y-0.5">
+                  <div class="metric-row">
+                    <span>Upcoming</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'upcoming')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  Served
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'served')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Cancelled</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'cancelled')) }}
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-slate-500">
-                  Cancelled
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'cancelled')) }}
-                </span>
+                  <div class="metric-row">
+                    <span>Expired</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.study, 'expired')) }}
+                    </strong>
                   </div>
-
                 </div>
 
-
-                <!-- Member Timing -->
-                <p class="mb-2 mt-4 text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+                <p class="mb-2 mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   Member timing
                 </p>
 
-                <div>
-
-                  <div class="flex items-center justify-between border-b border-slate-50 py-2">
-                <span class="text-xs text-slate-500">
-                  First Member
-                </span>
-
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{
+                <div class="space-y-0.5">
+                  <div class="metric-row">
+                    <span>First member</span>
+                    <strong>
+                      {{
                         loading
                             ? '—'
                             : formatDuration(
@@ -813,41 +784,175 @@
                                 )
                             )
                       }}
-                </span>
+                    </strong>
                   </div>
 
-                  <div class="flex items-center justify-between py-2">
-                <span class="text-xs text-slate-500">
-                  Full Capacity
-                </span>
+                  <div class="metric-row">
+                    <span>Full capacity</span>
+                    <strong>
+                      {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.study, 'averageTimeToFullCapacityMinutes')) }}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            </article>
 
-                    <span class="text-xs font-semibold text-slate-800">
-                  {{ loading ? '—' : formatDuration(getOptionalNumber(safeStatistics.study, 'averageTimeToFullCapacityMinutes')) }}
-                </span>
+            <!-- ===================================================== -->
+            <!-- Activities -->
+            <!-- ===================================================== -->
+            <article
+                class="overflow-hidden rounded-2xl bg-white shadow-sm"
+            >
+              <div
+                  class="flex items-center justify-between gap-3 px-5 py-4"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <div
+                      class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50"
+                  >
+                    <i class="fi fi-rr-bullhorn text-sm text-violet-600"></i>
                   </div>
 
+                  <div class="min-w-0">
+                    <h3 class="text-sm font-bold text-slate-900">
+                      Activities
+                    </h3>
+
+                    <p class="mt-0.5 text-[11px] text-slate-500">
+                      Events, competitions and programmes
+                    </p>
+                  </div>
                 </div>
 
+                <span
+                    class="rounded-full bg-violet-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-violet-700"
+                >
+                  Promotion
+                </span>
               </div>
 
+              <div class="grid grid-cols-3 px-3 pb-4">
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
+                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.activities, 'created')) }}
+                  </p>
+
+                  <p class="mt-1 text-[10px] font-medium text-slate-400">
+                    Created
+                  </p>
+                </div>
+
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
+                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.activities, 'active')) }}
+                  </p>
+
+                  <p class="mt-1 text-[10px] font-medium text-slate-400">
+                    Active
+                  </p>
+                </div>
+
+                <div class="px-2 py-2 text-center">
+                  <p class="text-xl font-bold text-slate-900">
+                    {{ loading ? '—' : formatCount(getNumber(safeStatistics.activities, 'publishers')) }}
+                  </p>
+
+                  <p class="mt-1 text-[10px] font-medium text-slate-400">
+                    Publishers
+                  </p>
+                </div>
+              </div>
+
+              <div class="px-5 pb-5 pt-2">
+                <div class="rounded-xl bg-violet-50/60 p-3">
+                  <div class="flex items-start gap-2.5">
+                    <i
+                        class="fi fi-rr-info mt-0.5 text-xs text-violet-500"
+                    ></i>
+
+                    <p class="text-[10px] leading-4 text-violet-700">
+                      Activities are promotional listings and do not track
+                      participants, capacity or attendance.
+                    </p>
+                  </div>
+                </div>
+
+                <p class="mb-2 mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                  Status
+                </p>
+
+                <div class="space-y-0.5">
+                  <div class="metric-row">
+                    <span>Completed</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.activities, 'completed')) }}
+                    </strong>
+                  </div>
+
+                  <div class="metric-row">
+                    <span>Cancelled</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.activities, 'cancelled')) }}
+                    </strong>
+                  </div>
+
+                  <div class="metric-row">
+                    <span>Expired</span>
+                    <strong>
+                      {{ loading ? '—' : formatCount(getNumber(safeStatistics.activities, 'expired')) }}
+                    </strong>
+                  </div>
+                </div>
+
+                <p class="mb-2 mt-5 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                  Categories
+                </p>
+
+                <div
+                    v-if="activityCategories.length"
+                    class="flex flex-wrap gap-1.5"
+                >
+                  <span
+                      v-for="category in activityCategories"
+                      :key="category.name"
+                      class="rounded-full bg-slate-50 px-2 py-1 text-[9px] font-semibold text-slate-600"
+                  >
+                    {{ category.name }}
+
+                    <span class="ml-1 text-slate-400">
+                      {{ category.value }}
+                    </span>
+                  </span>
+                </div>
+
+                <p
+                    v-else
+                    class="text-[11px] text-slate-400"
+                >
+                  No activity categories recorded.
+                </p>
+              </div>
             </article>
 
           </div>
         </section>
 
-
+        <!-- ========================================================= -->
         <!-- User Activity -->
-        <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-
-          <div class="border-b border-slate-100 px-5 py-5 sm:px-6">
+        <!-- ========================================================= -->
+        <section
+            class="overflow-hidden rounded-2xl bg-white shadow-sm"
+        >
+          <div class="px-5 py-5 sm:px-6">
             <div class="flex items-center gap-3">
-
-              <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100">
+              <div
+                  class="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100"
+              >
                 <i class="fi fi-rr-users-alt text-sm text-slate-600"></i>
               </div>
 
               <div>
-                <h2 class="text-sm font-semibold text-slate-900">
+                <h2 class="text-sm font-bold text-slate-900">
                   User activity
                 </h2>
 
@@ -855,50 +960,144 @@
                   Community growth and engagement.
                 </p>
               </div>
-
             </div>
           </div>
 
-
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-
+          <div class="grid grid-cols-2 gap-2 px-5 pb-5 sm:grid-cols-3 lg:grid-cols-6">
             <template v-if="loading">
-
               <div
                   v-for="item in 6"
                   :key="item"
-                  class="h-24 animate-pulse border-b border-slate-100 bg-slate-50"
+                  class="h-24 animate-pulse rounded-xl bg-slate-50"
               ></div>
-
             </template>
 
             <template v-else>
-
               <div
                   v-for="item in userMetrics"
                   :key="item.label"
-                  class="border-b border-r border-slate-100 p-4 last:border-r-0"
+                  class="rounded-xl bg-slate-50 p-4"
               >
-                <p class="text-xs text-slate-500">
+                <p class="text-xs font-medium text-slate-500">
                   {{ item.label }}
                 </p>
 
-                <p class="mt-2 text-xl font-bold tracking-tight text-slate-900">
+                <p
+                    class="mt-2 text-xl font-bold tracking-tight text-slate-900"
+                >
                   {{ item.value }}
                 </p>
               </div>
-
             </template>
-
           </div>
         </section>
 
       </template>
-
     </div>
-
   </div>
 </template>
+
+<style scoped>
+.statistics-period {
+  width: 125px;
+}
+
+:deep(.statistics-period .el-input__wrapper) {
+  height: 38px;
+  min-height: 38px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  transition: box-shadow 0.15s ease;
+}
+
+:deep(.statistics-period .el-input__wrapper:hover) {
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.09);
+}
+
+:deep(.statistics-period .el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.12);
+}
+
+:deep(.statistics-period .el-input__inner) {
+  line-height: 36px;
+}
+
+:deep(.statistics-refresh) {
+  height: 38px;
+  min-height: 38px;
+  margin: 0;
+  padding: 0 14px;
+  box-sizing: border-box;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+:deep(.statistics-refresh .fi) {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+:deep(.el-button) {
+  border-radius: 10px;
+}
+
+/* Secondary metric rows */
+.metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.metric-row > span {
+  min-width: 0;
+  color: #64748b;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.metric-row > strong {
+  flex-shrink: 0;
+  color: #1e293b;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1rem;
+}
+
+/* Small status summaries */
+.status-chip {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+
+.status-chip strong {
+  font-weight: 700;
+}
+
+.status-chip-rose {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.status-chip-amber {
+  background: #fffbeb;
+  color: #b45309;
+}
+</style>
 
 <script setup>
 import {
@@ -911,7 +1110,6 @@ import {
 } from 'vue'
 
 import studentConnect from '@/api'
-
 
 const selectedPeriod = ref('30d')
 const statistics = ref(null)
@@ -929,7 +1127,6 @@ const tooltipPosition = ref({
 
 let resizeObserver = null
 let resizeFrame = null
-
 
 const periodOptions = [
   {
@@ -949,7 +1146,6 @@ const periodOptions = [
     value: 'all'
   }
 ]
-
 
 const trendSeries = [
   {
@@ -973,12 +1169,16 @@ const trendSeries = [
     color: '#059669'
   },
   {
+    key: 'activities',
+    label: 'Activities',
+    color: '#7c3aed'
+  },
+  {
     key: 'served',
     label: 'Served',
     color: '#e11d48'
   }
 ]
-
 
 const periodLabel = computed(() => {
   return periodOptions.find(
@@ -986,20 +1186,30 @@ const periodLabel = computed(() => {
   )?.label || '30 Days'
 })
 
-
 const safeStatistics = computed(() => {
   return statistics.value || {}
 })
 
-
 const trendData = computed(() => {
   const data = safeStatistics.value.trends?.daily
 
-  return Array.isArray(data)
-      ? data
-      : []
-})
+  if (!Array.isArray(data)) {
+    return []
+  }
 
+  return data.map((item) => ({
+    ...item,
+
+    // Support both API spellings without changing
+    // the backend response schema.
+    carpool:
+        typeof item.carpool === 'number'
+            ? item.carpool
+            : typeof item.carpools === 'number'
+                ? item.carpools
+                : 0
+  }))
+})
 
 /**
  * Returns a numeric metric.
@@ -1017,7 +1227,6 @@ function getNumber(source, key) {
       : 0
 }
 
-
 /**
  * Returns an optional metric.
  *
@@ -1033,7 +1242,6 @@ function getOptionalNumber(source, key) {
       ? value
       : null
 }
-
 
 /**
  * Formats a number.
@@ -1061,7 +1269,6 @@ function formatCount(value) {
   }).format(number)
 }
 
-
 /**
  * Formats a percentage.
  *
@@ -1078,7 +1285,6 @@ function formatPercent(value) {
 
   return `${formatCount(value)}%`
 }
-
 
 /**
  * Formats a duration in minutes.
@@ -1112,7 +1318,6 @@ function formatDuration(value) {
       : `${days}d`
 }
 
-
 /**
  * Formats a short date.
  *
@@ -1134,7 +1339,6 @@ function formatDate(value) {
       }
   ).format(date)
 }
-
 
 /**
  * Formats a full date.
@@ -1160,7 +1364,6 @@ function formatDateLong(value) {
   ).format(date)
 }
 
-
 /**
  * Builds overview metrics.
  *
@@ -1171,21 +1374,21 @@ const overviewMetrics = computed(() => {
 
   return [
     {
-      label: 'Total Activities',
+      label: 'Total Services',
       value: formatCount(
           getNumber(data, 'totalActivities')
       ),
-      description: 'All services',
+      description: 'All service records',
       icon: 'fi-rr-apps',
-      iconColor: 'text-indigo-600',
-      iconBackground: 'bg-indigo-50'
+      iconColor: 'text-brand-600',
+      iconBackground: 'bg-brand-50'
     },
     {
       label: 'Active',
       value: formatCount(
           getNumber(data, 'activeActivities')
       ),
-      description: 'Current workload',
+      description: 'Currently active',
       icon: 'fi-rr-pulse',
       iconColor: 'text-emerald-600',
       iconBackground: 'bg-emerald-50'
@@ -1211,28 +1414,27 @@ const overviewMetrics = computed(() => {
       iconBackground: 'bg-violet-50'
     },
     {
-      label: 'Completion Rate',
-      value: formatPercent(
-          getOptionalNumber(data, 'completionRate')
+      label: 'Cancelled',
+      value: formatCount(
+          getNumber(data, 'cancelledActivities')
       ),
-      description: 'Activities completed',
-      icon: 'fi-rr-check',
-      iconColor: 'text-emerald-600',
-      iconBackground: 'bg-emerald-50'
-    },
-    {
-      label: 'Cancellation Rate',
-      value: formatPercent(
-          getOptionalNumber(data, 'cancellationRate')
-      ),
-      description: 'Activities cancelled',
+      description: 'Cancelled services',
       icon: 'fi-rr-cross-circle',
       iconColor: 'text-rose-600',
       iconBackground: 'bg-rose-50'
+    },
+    {
+      label: 'Expired',
+      value: formatCount(
+          getNumber(data, 'expiredActivities')
+      ),
+      description: 'Expired services',
+      icon: 'fi-rr-time-forward',
+      iconColor: 'text-amber-600',
+      iconBackground: 'bg-amber-50'
     }
   ]
 })
-
 
 /**
  * Builds user metrics.
@@ -1282,6 +1484,27 @@ const userMetrics = computed(() => {
   ]
 })
 
+/**
+ * Returns activity category metrics.
+ *
+ * @returns {Object[]} Category metrics.
+ */
+const activityCategories = computed(() => {
+  const categories =
+      safeStatistics.value.activities?.categories || {}
+
+  return Object.entries(categories)
+      .map(([name, value]) => ({
+        name,
+        value: getNumber(
+            { value },
+            'value'
+        )
+      }))
+      .sort(
+          (a, b) => b.value - a.value
+      )
+})
 
 /**
  * Calculates total trend value.
@@ -1296,7 +1519,6 @@ function trendTotal(key) {
       0
   )
 }
-
 
 /**
  * Builds trend summary values.
@@ -1314,17 +1536,8 @@ const trendSummary = computed(() => {
   )
 })
 
-
 /**
  * Returns chart geometry.
- *
- * CSS size:
- *   width: 100%
- *   height: 160px
- *
- * Internal bitmap:
- *   width: CSS width × DPR
- *   height: CSS height × DPR
  *
  * @param {HTMLCanvasElement} canvas - Canvas.
  * @returns {Object} Geometry.
@@ -1335,8 +1548,8 @@ function getChartGeometry(canvas) {
 
   const left = 48
   const right = 18
-  const top = 20
-  const bottom = 38
+  const top = 18
+  const bottom = 40
 
   return {
     width,
@@ -1356,7 +1569,6 @@ function getChartGeometry(canvas) {
   }
 }
 
-
 /**
  * Returns chart maximum.
  *
@@ -1367,7 +1579,10 @@ function getChartMax() {
       (series) =>
           trendData.value.map(
               (item) =>
-                  getNumber(item, series.key)
+                  getNumber(
+                      item,
+                      series.key
+                  )
           )
   )
 
@@ -1403,7 +1618,6 @@ function getChartMax() {
   return rounded * magnitude
 }
 
-
 /**
  * Converts index to X coordinate.
  *
@@ -1428,7 +1642,6 @@ function getChartX(index, geometry) {
   )
 }
 
-
 /**
  * Converts value to Y coordinate.
  *
@@ -1449,7 +1662,6 @@ function getChartY(
       geometry.plotHeight
   )
 }
-
 
 /**
  * Returns chart label indexes.
@@ -1496,7 +1708,6 @@ function getChartTickIndexes() {
     ...new Set(indexes)
   ]
 }
-
 
 /**
  * Draws a smooth chart line.
@@ -1548,7 +1759,6 @@ function drawSmoothLine(
 
   context.stroke()
 }
-
 
 /**
  * Configures the responsive canvas backing resolution.
@@ -1603,7 +1813,6 @@ function setupCanvas(canvas) {
   }
 }
 
-
 /**
  * Draws the activity chart.
  *
@@ -1643,7 +1852,6 @@ function drawChart() {
       height
   )
 
-
   /*
    * Background.
    */
@@ -1655,7 +1863,6 @@ function drawChart() {
       width,
       height
   )
-
 
   /*
    * Horizontal grid.
@@ -1679,10 +1886,8 @@ function drawChart() {
   ) {
     const y =
         geometry.top +
-        (
-            geometry.plotHeight /
-            gridLines
-        ) * index
+        (geometry.plotHeight / gridLines) *
+        index
 
     context.beginPath()
 
@@ -1701,10 +1906,8 @@ function drawChart() {
 
     const value =
         maximum -
-        (
-            maximum /
-            gridLines
-        ) * index
+        (maximum / gridLines) *
+        index
 
     context.fillText(
         formatCount(value),
@@ -1712,7 +1915,6 @@ function drawChart() {
         y
     )
   }
-
 
   /*
    * X-axis labels.
@@ -1735,11 +1937,10 @@ function drawChart() {
             x,
             geometry.top +
             geometry.plotHeight +
-            13
+            14
         )
       }
   )
-
 
   /*
    * Series.
@@ -1777,7 +1978,6 @@ function drawChart() {
         )
       }
   )
-
 
   /*
    * Hover crosshair and points.
@@ -1821,7 +2021,6 @@ function drawChart() {
 
     context.restore()
 
-
     hoveredPoint.value.values.forEach(
         (item) => {
           const y =
@@ -1833,7 +2032,9 @@ function drawChart() {
 
           context.beginPath()
 
-          context.fillStyle = '#ffffff'
+          context.fillStyle =
+              '#ffffff'
+
           context.strokeStyle =
               item.color
 
@@ -1853,7 +2054,6 @@ function drawChart() {
     )
   }
 }
-
 
 /**
  * Handles chart mouse movement.
@@ -1891,18 +2091,14 @@ function handleChartMouseMove(event) {
       )
 
   const ratio =
-      (
-          clampedX -
-          geometry.left
-      ) /
+      (clampedX - geometry.left) /
       geometry.plotWidth
 
   const index =
       Math.round(
           ratio *
           (
-              trendData.value.length -
-              1
+              trendData.value.length - 1
           )
       )
 
@@ -1921,7 +2117,6 @@ function handleChartMouseMove(event) {
   hoveredPoint.value = {
     index: safeIndex,
     date: item.date,
-
     values:
         trendSeries.map(
             (series) => ({
@@ -1935,7 +2130,6 @@ function handleChartMouseMove(event) {
             })
         )
   }
-
 
   const tooltipWidth = 170
 
@@ -1963,7 +2157,6 @@ function handleChartMouseMove(event) {
   drawChart()
 }
 
-
 /**
  * Clears chart hover state.
  *
@@ -1975,7 +2168,6 @@ function handleChartMouseLeave() {
   drawChart()
 }
 
-
 /**
  * Returns tooltip style.
  *
@@ -1985,7 +2177,6 @@ const tooltipStyle = computed(() => ({
   left: `${tooltipPosition.value.x}px`,
   top: `${tooltipPosition.value.y}px`
 }))
-
 
 /**
  * Schedules a chart redraw.
@@ -2003,12 +2194,10 @@ function scheduleChartDraw() {
       requestAnimationFrame(
           () => {
             resizeFrame = null
-
             drawChart()
           }
       )
 }
-
 
 /**
  * Loads statistics.
@@ -2048,14 +2237,12 @@ async function loadStatistics() {
   }
 }
 
-
 watch(
     selectedPeriod,
     () => {
       loadStatistics()
     }
 )
-
 
 onMounted(async () => {
   await loadStatistics()
@@ -2078,11 +2265,9 @@ onMounted(async () => {
   scheduleChartDraw()
 })
 
-
 onBeforeUnmount(() => {
   if (resizeObserver) {
     resizeObserver.disconnect()
-
     resizeObserver = null
   }
 
@@ -2095,27 +2280,3 @@ onBeforeUnmount(() => {
   }
 })
 </script>
-
-<style scoped>
-.statistics-period {
-  width: 120px;
-}
-
-:deep(.statistics-period .el-input__wrapper) {
-  min-height: 38px;
-  border-radius: 10px;
-  box-shadow: 0 0 0 1px #e2e8f0 inset;
-}
-
-:deep(.statistics-period .el-input__wrapper:hover) {
-  box-shadow: 0 0 0 1px #cbd5e1 inset;
-}
-
-:deep(.el-button) {
-  border-radius: 10px;
-}
-
-:deep(.el-button--primary) {
-  border-radius: 10px;
-}
-</style>

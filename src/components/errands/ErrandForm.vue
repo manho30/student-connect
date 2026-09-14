@@ -8,7 +8,7 @@
     <!-- Title -->
     <div>
       <label class="mb-1 block text-xs font-semibold text-slate-700">
-        <i class="fi fi-rr-edit mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-edit mr-1 text-brand-500"></i>
         Errand Title
       </label>
 
@@ -30,7 +30,7 @@
     <!-- Description -->
     <div>
       <label class="mb-1 block text-xs font-semibold text-slate-700">
-        <i class="fi fi-rr-document mr-1 text-indigo-500"></i>
+        <i class="fi fi-rr-document mr-1 text-brand-500"></i>
         Description / Instructions
       </label>
 
@@ -76,7 +76,7 @@
     <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
       <div class="mb-3">
         <label class="block text-xs font-semibold text-slate-700">
-          <i class="fi fi-rr-clock-three mr-1 text-indigo-500"></i>
+          <i class="fi fi-rr-clock-three mr-1 text-brand-500"></i>
           Needed By
         </label>
 
@@ -138,11 +138,11 @@
     <!-- Important Information -->
     <div
         v-if="!props.isEdit"
-        class="flex gap-2 rounded-xl border border-indigo-100 bg-indigo-50/50 p-3"
+        class="flex gap-2 rounded-xl border border-brand-100 bg-brand-50/50 p-3"
     >
-      <i class="fi fi-rr-info text-sm text-indigo-600"></i>
+      <i class="fi fi-rr-info text-sm text-brand-600"></i>
 
-      <p class="text-[11px] leading-relaxed text-indigo-700">
+      <p class="text-[11px] leading-relaxed text-brand-700">
         Once posted, other students can accept this errand.
         The student who posts the errand cannot accept or complete
         their own request.
