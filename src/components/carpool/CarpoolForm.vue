@@ -112,64 +112,37 @@
     <div>
       <label class="mb-1.5 block text-xs font-semibold text-slate-700">
         <i class="fi fi-rr-users mr-1 text-brand-500"></i>
-        Vehicle Capacity
+        Carpool Size
       </label>
 
-      <div class="flex flex-col gap-3 sm:flex-row sm:gap-4">
-        <!-- 4 Pax -->
+      <div class="grid grid-cols-5 gap-2">
         <label
+            v-for="size in [2, 3, 4, 5, 6]"
+            :key="size"
             :class="[
-        'flex flex-1 cursor-pointer items-center gap-2 rounded-xl border p-3 transition-all',
-        form.capacity === 4
-          ? 'border-brand-600 bg-brand-50/50 font-semibold text-brand-900'
-          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+        'flex cursor-pointer flex-col items-center justify-center rounded-xl px-2 py-2.5 transition-colors',
+        form.capacity === size
+          ? 'bg-brand-50 text-brand-700 ring-1 ring-brand-200'
+          : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
       ]"
         >
           <input
               v-model="form.capacity"
               type="radio"
               name="capacity"
-              :value="4"
-              class="text-brand-600 focus:ring-brand-500"
+              :value="size"
+              class="sr-only"
           />
 
-          <i class="fi fi-rr-car-alt text-lg text-brand-600"></i>
+          <i class="fi fi-rr-user text-sm"></i>
 
-          <div class="ml-2 flex flex-col">
-            <span>4 Pax</span>
+          <span class="mt-1 text-xs font-semibold">
+        {{ size }} Pax
+      </span>
 
-            <span class="text-[11px] text-slate-400">
-          Sedan / SUV car
-        </span>
-          </div>
-        </label>
-
-        <!-- 6 Pax -->
-        <label
-            :class="[
-        'flex flex-1 cursor-pointer items-center gap-2 rounded-xl border p-3 transition-all',
-        form.capacity === 6
-          ? 'border-brand-600 bg-brand-50/50 font-semibold text-brand-900'
-          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-      ]"
-        >
-          <input
-              v-model="form.capacity"
-              type="radio"
-              name="capacity"
-              :value="6"
-              class="text-brand-600 focus:ring-brand-500"
-          />
-
-          <i class="fi fi-rr-car-alt text-lg text-brand-600"></i>
-
-          <div class="ml-2 flex flex-col">
-            <span>6 Pax</span>
-
-            <span class="text-[11px] text-slate-400">
-          MPV car
-        </span>
-          </div>
+          <span class="mt-0.5 text-[9px] text-slate-400">
+        {{ size === 2 ? 'You + 1' : `You + ${size - 1}` }}
+      </span>
         </label>
       </div>
 
@@ -178,6 +151,13 @@
           class="mt-1 text-xs text-rose-500"
       >
         {{ errors.capacity }}
+      </p>
+
+      <p
+          v-else
+          class="mt-1 text-[11px] text-slate-400"
+      >
+        Choose how many students can share the ride, including you.
       </p>
     </div>
 
@@ -460,7 +440,7 @@ function populateForm(data) {
       '20:00'
 
   form.capacity =
-      [4, 6].includes(
+      [2, 3, 4, 5, 6].includes(
           Number(data.capacity)
       )
           ? Number(data.capacity)
@@ -529,11 +509,11 @@ function validateForm() {
     }
   }
 
-  if (![4, 6].includes(
+  if (![2, 3, 4, 5, 6].includes(
       Number(form.capacity)
   )) {
     errors.capacity =
-        'Capacity must be 4 or 6 passengers'
+        'Capacity must be between 2 and 6 passengers'
   }
 
   if (

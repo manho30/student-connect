@@ -175,6 +175,56 @@
       </p>
     </div>
 
+    <!-- Participant Limit -->
+    <div>
+      <div class="mb-1 flex items-center justify-between">
+        <label
+            for="activity-participants-limit"
+            class="block text-xs font-semibold text-slate-700"
+        >
+          Participant Limit
+        </label>
+
+        <span class="text-[11px] font-medium text-slate-400">
+          Optional
+        </span>
+      </div>
+
+      <el-input
+          id="activity-participants-limit"
+          v-model="form.participantsLimit"
+          type="number"
+          min="1"
+          step="1"
+          clearable
+          placeholder="e.g. 50"
+      >
+        <template #prefix>
+          <i class="fi fi-rr-users text-slate-400"></i>
+        </template>
+
+        <template #suffix>
+          <span class="text-[11px] text-slate-400">
+            participants
+          </span>
+        </template>
+      </el-input>
+
+      <p
+          v-if="errors.participantsLimit"
+          class="mt-1 text-xs text-rose-500"
+      >
+        {{ errors.participantsLimit }}
+      </p>
+
+      <p
+          v-else
+          class="mt-1 text-[11px] text-slate-400"
+      >
+        Informational only. Student Connect does not track registrations.
+      </p>
+    </div>
+
     <!-- Location -->
     <div>
       <label
@@ -543,6 +593,7 @@ const form = reactive({
   eventTime: '',
   registrationDeadlineDate: '',
   registrationDeadlineTime: '',
+  participantsLimit: '',
   location: '',
   contact: ''
 })
@@ -553,6 +604,7 @@ const errors = reactive({
   description: '',
   eventDate: '',
   registrationDeadline: '',
+  participantsLimit: '',
   location: '',
   contact: '',
   poster: ''
@@ -613,6 +665,7 @@ function clearErrors() {
   errors.description = ''
   errors.eventDate = ''
   errors.registrationDeadline = ''
+  errors.participantsLimit = ''
   errors.location = ''
   errors.contact = ''
   errors.poster = ''
@@ -766,6 +819,20 @@ async function populateForm() {
       activity.contact || ''
 
   /*
+   * Participant limit.
+   */
+  const participantsLimit =
+      Number(
+          activity.participantsLimit
+      )
+
+  form.participantsLimit =
+      Number.isInteger(participantsLimit) &&
+      participantsLimit > 0
+          ? String(participantsLimit)
+          : ''
+
+  /*
    * Event date/time.
    */
   if (activity.eventDate) {
@@ -830,9 +897,6 @@ async function populateForm() {
 
   /*
    * Existing poster.
-   *
-   * IMPORTANT:
-   * previewUrl is a ref, so `.value` is required.
    */
   previewUrl.value =
       activity.posterUrl || ''
@@ -982,6 +1046,33 @@ function validateForm() {
     }
   }
 
+  /*
+   * Participant limit.
+   *
+   * Optional, but when provided it must
+   * be a positive integer.
+   */
+  if (
+      form.participantsLimit !== '' &&
+      form.participantsLimit !== null &&
+      form.participantsLimit !== undefined
+  ) {
+    const value =
+        Number(
+            form.participantsLimit
+        )
+
+    if (
+        !Number.isInteger(value) ||
+        value <= 0
+    ) {
+      errors.participantsLimit =
+          'Participant limit must be a positive whole number.'
+
+      valid = false
+    }
+  }
+
   if (!form.location.trim()) {
     errors.location =
         'Location is required.'
@@ -1087,10 +1178,6 @@ function openCropper(file) {
   cropDialogVisible.value =
       true
 
-  /*
-   * Give Cropper.js 2.x time to
-   * create its custom elements.
-   */
   nextTick(() => {
     setTimeout(() => {
       if (
@@ -1190,9 +1277,6 @@ async function confirmCrop() {
       )
     }
 
-    /*
-     * Revoke previous local preview.
-     */
     if (
         previewUrl.value &&
         previewUrl.value.startsWith(
@@ -1316,6 +1400,15 @@ async function handleSubmit() {
             )
             : null
 
+    const participantsLimit =
+        form.participantsLimit !== '' &&
+        form.participantsLimit !== null &&
+        form.participantsLimit !== undefined
+            ? Number(
+                form.participantsLimit
+            )
+            : null
+
     let posterUrl =
         props.activity?.posterUrl ||
         null
@@ -1358,8 +1451,10 @@ async function handleSubmit() {
     }
 
     /*
-     * Keep the API output schema
-     * unchanged.
+     * Activity API payload.
+     *
+     * participantsLimit is informational only.
+     * The Activities API does not track registrations.
      */
     const payload = {
       title:
@@ -1374,6 +1469,8 @@ async function handleSubmit() {
       eventDate,
 
       registrationDeadline,
+
+      participantsLimit,
 
       location:
           form.location.trim(),
@@ -1445,9 +1542,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  /*
-   * Crop source.
-   */
   if (cropSourceObjectUrl) {
     URL.revokeObjectURL(
         cropSourceObjectUrl
@@ -1456,9 +1550,6 @@ onBeforeUnmount(() => {
     cropSourceObjectUrl = ''
   }
 
-  /*
-   * Local poster preview.
-   */
   if (
       previewUrl.value &&
       previewUrl.value.startsWith(

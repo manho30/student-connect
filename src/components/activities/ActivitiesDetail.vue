@@ -53,6 +53,7 @@
               @click="shareActivity"
           >
             <i class="fi fi-rr-share"></i>
+
             <span class="hidden sm:inline">
               Share
             </span>
@@ -226,8 +227,16 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch
+} from 'vue'
+
 import { ElMessage } from 'element-plus'
+
 import studentConnect from '@/api'
 
 const props = defineProps({
@@ -280,6 +289,34 @@ const organizerName = computed(() => {
 })
 
 /**
+ * Returns the participant limit.
+ *
+ * The Activities API does not track registrations,
+ * so this is only an informational maximum.
+ *
+ * @returns {number} Positive participant limit or zero.
+ */
+const participantsLimit = computed(() => {
+  const value =
+      Number(
+          activity.value?.participantsLimit
+      )
+
+  return Number.isInteger(value) && value > 0
+      ? value
+      : 0
+})
+
+/**
+ * Determines whether the activity has a participant limit.
+ *
+ * @returns {boolean} True when a valid limit exists.
+ */
+const hasParticipantsLimit = computed(() => {
+  return participantsLimit.value > 0
+})
+
+/**
  * Returns a safe poster alt text.
  *
  * @returns {string} Poster alternative text.
@@ -319,6 +356,7 @@ async function loadActivity() {
     if (!activity.value) {
       error.value =
           'This activity could not be found.'
+
       return
     }
 
@@ -449,35 +487,55 @@ const isOwner = computed(() => {
  *
  * @returns {Array<Object>} Activity detail items.
  */
-const detailItems = computed(() => [
-  {
-    icon: 'fi-rr-calendar',
-    label: 'Event Date',
-    value: formatDate(
-        activity.value?.eventDate
-    )
-  },
-  {
-    icon: 'fi-rr-clock',
-    label: 'Registration Deadline',
-    value:
-        activity.value?.registrationDeadline
-            ? formatDate(
-                activity.value.registrationDeadline
-            )
-            : 'Not specified'
-  },
-  {
-    icon: 'fi-rr-marker',
-    label: 'Location',
-    value: activity.value?.location
-  },
-  {
-    icon: 'fi-rr-phone-call',
-    label: 'Contact',
-    value: activity.value?.contact
+const detailItems = computed(() => {
+  const items = [
+    {
+      icon: 'fi-rr-calendar',
+      label: 'Event Date',
+      value: formatDate(
+          activity.value?.eventDate
+      )
+    },
+    {
+      icon: 'fi-rr-clock',
+      label: 'Registration Deadline',
+      value:
+          activity.value?.registrationDeadline
+              ? formatDate(
+                  activity.value.registrationDeadline
+              )
+              : 'Not specified'
+    }
+  ]
+
+  /*
+   * Participant limit is informational only.
+   * Do not show it when the API does not provide
+   * a valid positive integer.
+   */
+  if (hasParticipantsLimit.value) {
+    items.push({
+      icon: 'fi-rr-users',
+      label: 'Participant Limit',
+      value: `Up to ${participantsLimit.value} participants`
+    })
   }
-])
+
+  items.push(
+      {
+        icon: 'fi-rr-marker',
+        label: 'Location',
+        value: activity.value?.location
+      },
+      {
+        icon: 'fi-rr-phone-call',
+        label: 'Contact',
+        value: activity.value?.contact
+      }
+  )
+
+  return items
+})
 
 /**
  * Formats a Unix timestamp for detail display.
@@ -516,11 +574,6 @@ function formatDate(value) {
 
 /**
  * Sets browser and social metadata for the current activity.
- *
- * This improves browser tabs, search engines that execute
- * the application, and client-side previews.
- *
- * Social crawlers may still require server-side OG metadata.
  *
  * @returns {void}
  */
@@ -617,6 +670,10 @@ function updatePageMetadata() {
     startDate: toIsoDate(
         activity.value.eventDate
     ),
+    maximumAttendeeCapacity:
+        hasParticipantsLimit.value
+            ? participantsLimit.value
+            : undefined,
     location: activity.value.location
         ? {
           '@type': 'Place',

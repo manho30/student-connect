@@ -84,12 +84,7 @@
       <i class="fi fi-rr-calendar mr-1 text-brand-500"></i>
       Session Schedule
     </span>
-
-        <span class="text-[10px] text-slate-400">
-      Start and end time
-    </span>
       </div>
-
       <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
         <!-- Start -->
         <div class="min-w-0">
