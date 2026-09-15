@@ -115,35 +115,31 @@
         Carpool Size
       </label>
 
-      <div class="grid grid-cols-5 gap-2">
+      <div>
         <label
-            v-for="size in [2, 3, 4, 5, 6]"
-            :key="size"
-            :class="[
-        'flex cursor-pointer flex-col items-center justify-center rounded-xl px-2 py-2.5 transition-colors',
-        form.capacity === size
-          ? 'bg-brand-50 text-brand-700 ring-1 ring-brand-200'
-          : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-      ]"
+            for="carpool-capacity"
+            class="mb-1.5 block text-xs font-semibold text-slate-700"
         >
-          <input
-              v-model="form.capacity"
-              type="radio"
-              name="capacity"
-              :value="size"
-              class="sr-only"
-          />
-
-          <i class="fi fi-rr-user text-sm"></i>
-
-          <span class="mt-1 text-xs font-semibold">
-        {{ size }} Pax
-      </span>
-
-          <span class="mt-0.5 text-[9px] text-slate-400">
-        {{ size === 2 ? 'You + 1' : `You + ${size - 1}` }}
-      </span>
+          Carpool Capacity
         </label>
+
+        <el-select
+            id="carpool-capacity"
+            v-model="form.capacity"
+            placeholder="Select capacity"
+            class="!w-full"
+        >
+          <el-option
+              v-for="size in [2, 3, 4, 5, 6]"
+              :key="size"
+              :label="`${size} Pax (You + ${size - 1})`"
+              :value="size"
+          />
+        </el-select>
+
+        <p class="mt-1 text-[11px] text-slate-400">
+          Maximum number of students, including yourself.
+        </p>
       </div>
 
       <p
