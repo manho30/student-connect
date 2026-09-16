@@ -10,7 +10,9 @@
 
   <div v-else id="activities-view-root" class="space-y-6">
     <!-- Header Section -->
-    <header class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+    <header
+        class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end"
+    >
       <div class="space-y-1">
         <h1 class="text-3xl font-bold tracking-tight text-slate-900">
           Activities
@@ -34,7 +36,9 @@
 
     <!-- Loading State -->
     <div v-if="loading" class="space-y-6">
-      <div class="flex items-center justify-center gap-2 py-2 text-sm font-semibold text-slate-500">
+      <div
+          class="flex items-center justify-center gap-2 py-2 text-sm font-semibold text-slate-500"
+      >
         <i class="fi fi-rr-spinner animate-spin"></i>
         Loading activities...
       </div>
@@ -76,7 +80,9 @@
         class="rounded-2xl border border-rose-200 bg-rose-50 p-6"
     >
       <div class="flex flex-col items-center justify-center text-center">
-        <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+        <div
+            class="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-600"
+        >
           <i class="fi fi-rr-exclamation text-lg"></i>
         </div>
 
@@ -101,13 +107,11 @@
 
     <!-- Content -->
     <div v-else class="space-y-8">
-
       <!-- Search -->
       <section
           class="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:p-5"
       >
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-
           <!-- Search Input -->
           <div class="relative flex-1">
             <i
@@ -143,7 +147,9 @@
               Results
             </span>
 
-            <span class="rounded-full bg-white px-2 py-0.5 font-bold text-slate-700 shadow-xs">
+            <span
+                class="rounded-full bg-white px-2 py-0.5 font-bold text-slate-700 shadow-xs"
+            >
               {{ filteredActivityCount }}
             </span>
           </div>
@@ -200,10 +206,7 @@
       </div>
 
       <!-- Activity Sections -->
-      <div
-          v-else
-          class="space-y-10"
-      >
+      <div v-else class="space-y-10">
         <!-- Currently Active -->
         <section>
           <div class="mb-3 flex items-center justify-between">
@@ -297,11 +300,26 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  ref
+} from 'vue'
+
+import {
+  useRoute,
+  useRouter
+} from 'vue-router'
+
+import {
+  ElMessage,
+  ElMessageBox
+} from 'element-plus'
+
 import studentConnect from '@/api'
 import { user } from '@/services/auth'
+
 import ActivitiesList from '@/components/activities/ActivitiesList.vue'
 import ActivitiesDetail from '@/components/activities/ActivitiesDetail.vue'
 
@@ -312,13 +330,18 @@ const activities = ref([])
 const loading = ref(false)
 const loadError = ref('')
 const searchQuery = ref('')
-const now = ref(Math.floor(Date.now() / 1000))
+const now = ref(
+    Math.floor(Date.now() / 1000)
+)
 
 let timeInterval = null
 
 const currentUser = computed(() => ({
   id: String(user.value?.uid || ''),
-  name: user.value?.displayName || user.value?.email || 'Student'
+  name:
+      user.value?.displayName ||
+      user.value?.email ||
+      'Student'
 }))
 
 const activityId = computed(() => {
@@ -328,7 +351,9 @@ const activityId = computed(() => {
     return String(id[0] || '')
   }
 
-  return id ? String(id) : ''
+  return id
+      ? String(id)
+      : ''
 })
 
 /**
@@ -345,14 +370,12 @@ const normalizedSearchQuery = computed(() => {
 /**
  * Determines whether an activity matches the current search.
  *
- * Searches the activity title, category, description,
- * location, contact, and owner information.
- *
  * @param {Object} activity - Activity record.
  * @returns {boolean} True when the activity matches.
  */
 function matchesSearch(activity) {
-  const query = normalizedSearchQuery.value
+  const query =
+      normalizedSearchQuery.value
 
   if (!query) {
     return true
@@ -385,20 +408,20 @@ function matchesSearch(activity) {
  *
  * @returns {Array<Object>} Filtered and sorted active activities.
  */
-const activeActivities = computed(() => (
-    activities.value
-        .filter((activity) => {
-          return (
-              getStatus(activity) === 'open' &&
-              matchesSearch(activity)
-          )
-        })
-        .sort(
-            (left, right) =>
-                getTimestamp(left.eventDate) -
-                getTimestamp(right.eventDate)
+const activeActivities = computed(() => {
+  return activities.value
+      .filter((activity) => {
+        return (
+            getStatus(activity) === 'open' &&
+            matchesSearch(activity)
         )
-))
+      })
+      .sort(
+          (left, right) =>
+              getTimestamp(left.eventDate) -
+              getTimestamp(right.eventDate)
+      )
+})
 
 /**
  * Returns archived activities after applying search.
@@ -408,38 +431,40 @@ const activeActivities = computed(() => (
  *
  * @returns {Array<Object>} Filtered and sorted archived activities.
  */
-const archivedActivities = computed(() => (
-    activities.value
-        .filter((activity) => {
-          const status = getStatus(activity)
+const archivedActivities = computed(() => {
+  return activities.value
+      .filter((activity) => {
+        const status =
+            getStatus(activity)
 
-          if (status === 'open') {
-            return false
-          }
+        if (status === 'open') {
+          return false
+        }
 
-          const timestamp = getTimestamp(
-              activity.updatedAt ||
-              activity.createdAt
-          )
+        const timestamp =
+            getTimestamp(
+                activity.updatedAt ||
+                activity.createdAt
+            )
 
-          return (
-              timestamp > 0 &&
-              now.value - timestamp <= 72 * 60 * 60 &&
-              matchesSearch(activity)
-          )
-        })
-        .sort(
-            (left, right) =>
-                getTimestamp(
-                    right.updatedAt ||
-                    right.createdAt
-                ) -
-                getTimestamp(
-                    left.updatedAt ||
-                    left.createdAt
-                )
+        return (
+            timestamp > 0 &&
+            now.value - timestamp <= 72 * 60 * 60 &&
+            matchesSearch(activity)
         )
-))
+      })
+      .sort(
+          (left, right) =>
+              getTimestamp(
+                  right.updatedAt ||
+                  right.createdAt
+              ) -
+              getTimestamp(
+                  left.updatedAt ||
+                  left.createdAt
+              )
+      )
+})
 
 /**
  * Returns the number of activities visible after search.
@@ -479,14 +504,16 @@ function getTimestamp(value) {
       typeof value === 'string' &&
       /^\d+$/.test(value)
   ) {
-    const numericValue = Number(value)
+    const numericValue =
+        Number(value)
 
     return numericValue > 100000000000
         ? Math.floor(numericValue / 1000)
         : numericValue
   }
 
-  const parsed = Date.parse(value || '')
+  const parsed =
+      Date.parse(value || '')
 
   return Number.isNaN(parsed)
       ? 0
@@ -494,24 +521,30 @@ function getTimestamp(value) {
 }
 
 /**
- * Derives the activity lifecycle status without overriding
- * terminal statuses.
+ * Derives the effective activity lifecycle status.
+ *
+ * Explicit terminal statuses returned by the backend always
+ * take precedence. Otherwise, an activity becomes expired when
+ * its registration deadline has passed, or when its event date
+ * has passed if there is no registration deadline.
  *
  * @param {Object} activity - Activity record.
  * @returns {string} Status key.
  */
 function getStatus(activity) {
   const explicit =
-      String(activity?.status || '').toLowerCase()
+      String(
+          activity?.status || ''
+      ).toLowerCase()
 
   if (
-      ['cancelled', 'completed'].includes(explicit)
+      [
+        'cancelled',
+        'completed',
+        'expired'
+      ].includes(explicit)
   ) {
     return explicit
-  }
-
-  if (explicit === 'expired') {
-    return 'expired'
   }
 
   const registrationDeadline =
@@ -520,20 +553,26 @@ function getStatus(activity) {
       )
 
   const eventDate =
-      getTimestamp(activity?.eventDate)
-
-  return (
-      (
-          registrationDeadline > 0 &&
-          registrationDeadline <= now.value
-      ) ||
-      (
-          eventDate > 0 &&
-          eventDate <= now.value
+      getTimestamp(
+          activity?.eventDate
       )
-  )
-      ? 'expired'
-      : 'open'
+
+  if (
+      registrationDeadline > 0 &&
+      registrationDeadline <= now.value
+  ) {
+    return 'expired'
+  }
+
+  if (
+      registrationDeadline <= 0 &&
+      eventDate > 0 &&
+      eventDate <= now.value
+  ) {
+    return 'expired'
+  }
+
+  return 'open'
 }
 
 /**
@@ -556,20 +595,26 @@ async function loadActivities() {
       )
     }
 
-    const data = response?.data
+    const data =
+        response?.data
 
     if (Array.isArray(data)) {
       activities.value = data
-    } else if (Array.isArray(data?.activities)) {
-      activities.value = data.activities
-    } else if (Array.isArray(response)) {
+    } else if (
+        Array.isArray(data?.activities)
+    ) {
+      activities.value =
+          data.activities
+    } else if (
+        Array.isArray(response)
+    ) {
       activities.value = response
     } else {
       activities.value = []
     }
   } catch (error) {
     loadError.value =
-        error.message ||
+        error?.message ||
         'Unable to load activities.'
   } finally {
     loading.value = false
@@ -582,7 +627,9 @@ async function loadActivities() {
  * @returns {Promise<void>} Resolves after navigation.
  */
 function navigateToCreate() {
-  return router.push('/activities/new')
+  return router.push(
+      '/activities/new'
+  )
 }
 
 /**
@@ -594,7 +641,9 @@ function navigateToCreate() {
 function selectActivity(id) {
   return router.push({
     path: '/activities',
-    query: { id }
+    query: {
+      id: String(id)
+    }
   })
 }
 
@@ -604,11 +653,15 @@ function selectActivity(id) {
  * @returns {Promise<void>} Resolves after navigation.
  */
 function clearSelection() {
-  return router.push('/activities')
+  return router.push(
+      '/activities'
+  )
 }
 
 /**
  * Opens the edit route for an owned activity.
+ *
+ * Ownership is ultimately enforced by the backend.
  *
  * @param {string} id - Activity identifier.
  * @returns {Promise<void>} Resolves after navigation.
@@ -616,7 +669,9 @@ function clearSelection() {
 function navigateToEdit(id) {
   return router.push({
     path: '/activities/edit',
-    query: { id }
+    query: {
+      id: String(id)
+    }
   })
 }
 
@@ -640,7 +695,9 @@ async function deleteSelectedActivity(id) {
 
     await studentConnect.deleteActivity(id)
 
-    ElMessage.success('Activity deleted.')
+    ElMessage.success(
+        'Activity deleted.'
+    )
 
     await loadActivities()
     await clearSelection()
@@ -650,7 +707,7 @@ async function deleteSelectedActivity(id) {
         error !== 'close'
     ) {
       ElMessage.error(
-          error.message ||
+          error?.message ||
           'Unable to delete activity.'
       )
     }
@@ -660,14 +717,20 @@ async function deleteSelectedActivity(id) {
 onMounted(() => {
   loadActivities()
 
-  timeInterval = window.setInterval(() => {
-    now.value = Math.floor(Date.now() / 1000)
-  }, 60000)
+  timeInterval =
+      window.setInterval(() => {
+        now.value =
+            Math.floor(
+                Date.now() / 1000
+            )
+      }, 60000)
 })
 
 onUnmounted(() => {
   if (timeInterval) {
-    window.clearInterval(timeInterval)
+    window.clearInterval(
+        timeInterval
+    )
   }
 })
 </script>

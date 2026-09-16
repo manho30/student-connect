@@ -40,11 +40,7 @@
       <!-- Header -->
       <div class="border-b border-slate-100 pb-4">
         <h1 class="text-2xl font-bold text-slate-900">
-          {{
-            isEdit
-                ? 'Edit Activity'
-                : 'Promote a New Activity'
-          }}
+          {{ isEdit ? 'Edit Activity' : 'Promote a New Activity' }}
         </h1>
 
         <p class="mt-1 text-sm text-slate-500">
@@ -80,10 +76,11 @@
         </p>
 
         <button
-            class="cursor-pointer rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white"
+            type="button"
+            class="cursor-pointer rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700"
             @click="handleCancel"
         >
-          Return to Activities List
+          Return to Activity
         </button>
       </div>
 
@@ -140,6 +137,59 @@ const activityId = computed(() => {
 })
 
 /**
+ * Determines the effective activity status.
+ *
+ * The backend may return an explicit terminal status. Otherwise,
+ * an activity becomes expired when its registration deadline has
+ * passed, or when its event date has passed if no deadline exists.
+ *
+ * @param {Object} value - Activity object.
+ * @returns {string} Effective activity status.
+ */
+function getActivityStatus(value) {
+  if (!value) {
+    return 'open'
+  }
+
+  const explicitStatus =
+      String(value.status || '').toLowerCase()
+
+  if (
+      ['cancelled', 'completed', 'expired'].includes(
+          explicitStatus
+      )
+  ) {
+    return explicitStatus
+  }
+
+  const now =
+      Math.floor(Date.now() / 1000)
+
+  const registrationDeadline =
+      Number(value.registrationDeadline)
+
+  const eventDate =
+      Number(value.eventDate)
+
+  if (
+      registrationDeadline > 0 &&
+      registrationDeadline <= now
+  ) {
+    return 'expired'
+  }
+
+  if (
+      !registrationDeadline &&
+      eventDate > 0 &&
+      eventDate <= now
+  ) {
+    return 'expired'
+  }
+
+  return 'open'
+}
+
+/**
  * Loads the existing activity data required by the edit form.
  *
  * @returns {Promise<void>} Resolves after the activity data has been loaded.
@@ -169,7 +219,7 @@ async function loadActivityForEdit() {
     if (!response?.success) {
       throw new Error(
           response?.message ||
-          'Failed to load activity'
+          'Failed to load activity.'
       )
     }
 
@@ -179,14 +229,39 @@ async function loadActivityForEdit() {
       )
     }
 
-    activity.value =
+    const loadedActivity =
         response.data
+
+    const status =
+        getActivityStatus(
+            loadedActivity
+        )
+
+    if (
+        ['completed', 'cancelled', 'expired'].includes(
+            status
+        )
+    ) {
+      activity.value = null
+
+      error.value =
+          status === 'cancelled'
+              ? 'This activity has been cancelled and can no longer be edited.'
+              : status === 'completed'
+                  ? 'This activity has already been completed and can no longer be edited.'
+                  : 'This activity has expired and can no longer be edited.'
+
+      return
+    }
+
+    activity.value =
+        loadedActivity
   } catch (err) {
     activity.value = null
 
     error.value =
         err?.message ||
-        'Failed to load activity for editing'
+        'Failed to load activity for editing.'
 
     ElMessage.error(
         error.value

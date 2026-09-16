@@ -455,6 +455,30 @@ function deleteActivity(id) {
 }
 
 /**
+ * Joins an activity using the authenticated Firebase user.
+ *
+ * @param {string} id - Activity identifier.
+ * @returns {Promise<Object>} API response containing the updated activity.
+ */
+function joinActivity(id) {
+  return request(`/api/activities/${encodeURIComponent(id)}/join`, {
+    method: 'POST'
+  })
+}
+
+/**
+ * Leaves an activity using the authenticated Firebase user.
+ *
+ * @param {string} id - Activity identifier.
+ * @returns {Promise<Object>} API response containing the updated activity.
+ */
+function leaveActivity(id) {
+  return request(`/api/activities/${encodeURIComponent(id)}/leave`, {
+    method: 'POST'
+  })
+}
+
+/**
  * Retrieves one user visible to the authenticated administrator.
  *
  * @param {string} id - Firebase user identifier.
@@ -541,6 +565,8 @@ const studentConnect = {
   createActivity,
   updateActivity,
   deleteActivity,
+  joinActivity,
+  leaveActivity,
   getUser,
   createUser,
   updateUser,
@@ -584,6 +610,8 @@ export {
   createActivity,
   updateActivity,
   deleteActivity,
+  joinActivity,
+  leaveActivity,
   getUser,
   createUser,
   updateUser,

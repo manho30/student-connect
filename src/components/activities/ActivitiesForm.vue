@@ -205,7 +205,7 @@
 
         <template #suffix>
           <span class="text-[11px] text-slate-400">
-            participants
+            students
           </span>
         </template>
       </el-input>
@@ -219,10 +219,24 @@
 
       <p
           v-else
-          class="mt-1 text-[11px] text-slate-400"
+          class="mt-1 text-[11px] leading-relaxed text-slate-400"
       >
-        Informational only. Student Connect does not track registrations.
+        Maximum number of students who can join, excluding the organiser.
       </p>
+
+      <!-- Current Participants in Edit Mode -->
+      <div
+          v-if="editing && currentParticipantCount !== null"
+          class="mt-2 flex items-center gap-2 text-[11px] text-slate-500"
+      >
+        <i class="fi fi-rr-users"></i>
+
+        <span>
+          {{ currentParticipantCount }}
+          {{ currentParticipantCount === 1 ? 'student' : 'students' }}
+          currently joined
+        </span>
+      </div>
     </div>
 
     <!-- Location -->
@@ -523,6 +537,7 @@
 
 <script setup>
 import {
+  computed,
   nextTick,
   onBeforeUnmount,
   onMounted,
@@ -655,6 +670,47 @@ let cropSourceObjectUrl = ''
 
 /*
 |--------------------------------------------------------------------------
+| Computed
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Returns the number of currently joined students.
+ *
+ * The activity owner is excluded because the API does not include
+ * the owner in the participants array.
+ *
+ * @returns {number|null} Current participant count or null when unavailable.
+ */
+const currentParticipantCount = computed(() => {
+  if (!props.activity) {
+    return null
+  }
+
+  if (Array.isArray(props.activity.participants)) {
+    return props.activity.participants.length
+  }
+
+  if (
+      Number.isInteger(
+          Number(
+              props.activity.participantCount
+          )
+      ) &&
+      Number(
+          props.activity.participantCount
+      ) >= 0
+  ) {
+    return Number(
+        props.activity.participantCount
+    )
+  }
+
+  return null
+})
+
+/*
+|--------------------------------------------------------------------------
 | Helpers
 |--------------------------------------------------------------------------
 */
@@ -732,10 +788,6 @@ function combineDateTime(
 /*
 |--------------------------------------------------------------------------
 | Populate Form
-|--------------------------------------------------------------------------
-|
-| IMPORTANT:
-| activity must be `let`, because edit mode may load it from the API.
 |--------------------------------------------------------------------------
 */
 
@@ -1070,6 +1122,15 @@ function validateForm() {
           'Participant limit must be a positive whole number.'
 
       valid = false
+    } else if (
+        props.editing &&
+        currentParticipantCount.value !== null &&
+        value < currentParticipantCount.value
+    ) {
+      errors.participantsLimit =
+          `Participant limit cannot be lower than the ${currentParticipantCount.value} currently joined students.`
+
+      valid = false
     }
   }
 
@@ -1373,7 +1434,10 @@ function removePoster() {
 */
 
 async function handleSubmit() {
-  if (saving.value || uploading.value) {
+  if (
+      saving.value ||
+      uploading.value
+  ) {
     return
   }
 
@@ -1453,8 +1517,9 @@ async function handleSubmit() {
     /*
      * Activity API payload.
      *
-     * participantsLimit is informational only.
-     * The Activities API does not track registrations.
+     * participantsLimit is the maximum number
+     * of students who may join. The organiser
+     * is not included in this limit.
      */
     const payload = {
       title:

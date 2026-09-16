@@ -13,7 +13,7 @@
     <!-- Error -->
     <div
         v-else-if="error"
-        class="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-center text-rose-700"
+        class="rounded-2xl bg-rose-50 p-8 text-center text-rose-700"
     >
       <p class="font-semibold">
         {{ error }}
@@ -21,7 +21,7 @@
 
       <button
           type="button"
-          class="mt-4 font-bold underline"
+          class="mt-4 font-bold underline underline-offset-2"
           @click="loadActivity"
       >
         Try again
@@ -49,7 +49,7 @@
           <button
               id="share-activity-btn"
               type="button"
-              class="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-xs transition-all hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+              class="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:bg-brand-50 hover:text-brand-700"
               @click="shareActivity"
           >
             <i class="fi fi-rr-share"></i>
@@ -64,7 +64,7 @@
             <button
                 v-if="!isTerminal"
                 type="button"
-                class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-700 transition-colors hover:border-brand-300 hover:text-brand-700"
+                class="rounded-xl bg-white px-4 py-2 text-xs font-bold text-slate-700 shadow-xs transition-colors hover:text-brand-700"
                 @click="emit('edit', activity.id)"
             >
               Edit
@@ -73,7 +73,7 @@
             <button
                 v-if="!isTerminal"
                 type="button"
-                class="rounded-xl border border-rose-200 px-4 py-2 text-xs font-bold text-rose-600 transition-colors hover:bg-rose-50"
+                class="rounded-xl bg-white px-4 py-2 text-xs font-bold text-rose-600 shadow-xs transition-colors hover:bg-rose-50"
                 @click="emit('delete', activity.id)"
             >
               Delete
@@ -84,7 +84,7 @@
 
       <!-- Activity Card -->
       <article
-          class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xs"
+          class="overflow-hidden rounded-2xl bg-white shadow-xs"
       >
         <!-- Poster -->
         <div
@@ -100,34 +100,41 @@
               decoding="async"
           />
 
-          <!-- Poster Overlay -->
           <div
               class="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/20 to-transparent"
           ></div>
         </div>
 
         <!-- Content -->
-        <div class="space-y-6 p-6 md:p-8">
+        <div class="space-y-7 p-6 md:p-8">
 
           <!-- Badges -->
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="flex flex-wrap items-center gap-2">
             <span
-                class="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-700"
+                class="rounded-full bg-brand-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-brand-700"
             >
               {{ activity.category || 'Activity' }}
             </span>
 
             <span
                 :class="[
-                  'rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider',
-                  statusClass
-                ]"
+                'rounded-full px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider',
+                statusClass
+              ]"
             >
               {{ statusLabel }}
             </span>
+
+            <!-- Full Badge -->
+            <span
+                v-if="isFull && statusKey === 'open'"
+                class="rounded-full bg-amber-100 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-amber-700"
+            >
+              Full
+            </span>
           </div>
 
-          <!-- Title -->
+          <!-- Title + Description -->
           <div>
             <h1
                 class="text-2xl font-black leading-tight text-slate-900 md:text-3xl"
@@ -137,7 +144,7 @@
 
             <p
                 v-if="activity.description"
-                class="mt-3 whitespace-pre-line text-sm leading-7 text-slate-600"
+                class="mt-4 whitespace-pre-line text-[15px] leading-7 text-slate-600 md:text-base"
             >
               {{ activity.description }}
             </p>
@@ -145,80 +152,303 @@
 
           <!-- Details -->
           <div
-              class="grid gap-4 border-y border-slate-100 py-6 sm:grid-cols-2"
+              class="grid gap-5 border-y border-slate-100 py-6 sm:grid-cols-2"
           >
-            <div
-                v-for="item in detailItems"
-                :key="item.label"
-                class="flex gap-3"
-            >
+            <!-- Event Date -->
+            <div class="flex gap-3">
               <div
                   class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600"
               >
-                <i :class="['fi', item.icon, 'text-sm']"></i>
+                <i class="fi fi-rr-calendar text-sm"></i>
               </div>
 
               <div class="min-w-0">
                 <p
-                    class="text-xs font-bold uppercase tracking-wider text-slate-400"
+                    class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400"
                 >
-                  {{ item.label }}
+                  Event Date
+                </p>
+
+                <p class="mt-1 text-sm font-semibold text-slate-800">
+                  {{ formatDate(activity.eventDate) }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Registration Deadline -->
+            <div class="flex gap-3">
+              <div
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600"
+              >
+                <i class="fi fi-rr-clock text-sm"></i>
+              </div>
+
+              <div class="min-w-0">
+                <p
+                    class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400"
+                >
+                  Registration Deadline
                 </p>
 
                 <p
+                    class="mt-1 text-sm font-semibold"
+                    :class="
+                    deadlinePassed
+                      ? 'text-amber-600'
+                      : 'text-slate-800'
+                  "
+                >
+                  {{
+                    activity.registrationDeadline
+                        ? formatDate(
+                            activity.registrationDeadline
+                        )
+                        : 'Not specified'
+                  }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Location -->
+            <div class="flex gap-3">
+              <div
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600"
+              >
+                <i class="fi fi-rr-marker text-sm"></i>
+              </div>
+
+              <div class="min-w-0">
+                <p
+                    class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400"
+                >
+                  Location
+                </p>
+
+                <!-- Google Maps Location -->
+                <a
+                    v-if="locationHref"
+                    :href="locationHref"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 hover:underline"
+                >
+                  <span class="break-words">
+                    {{ activity.location }}
+                  </span>
+
+                  <i class="fi fi-rr-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+
+                <!-- Normal Location -->
+                <p
+                    v-else
                     class="mt-1 break-words text-sm font-semibold text-slate-800"
                 >
-                  {{ item.value || 'N/A' }}
+                  {{ activity.location || 'Not specified' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="flex gap-3">
+              <div
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600"
+              >
+                <i class="fi fi-rr-phone-call text-sm"></i>
+              </div>
+
+              <div class="min-w-0">
+                <p
+                    class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400"
+                >
+                  Contact
+                </p>
+
+                <a
+                    v-if="contactHref"
+                    :href="contactHref"
+                    class="mt-1 inline-flex items-center text-sm font-semibold text-brand-700 hover:underline"
+                >
+                  {{ formattedContact }}
+                </a>
+
+                <p
+                    v-else
+                    class="mt-1 text-sm font-semibold text-slate-800"
+                >
+                  {{ formattedContact }}
                 </p>
               </div>
             </div>
           </div>
 
-          <!-- Organizer -->
+          <!-- Participant Action -->
           <div
-              class="flex items-center gap-3 rounded-xl bg-slate-50 p-4"
+              v-if="showParticipantAction"
+              class="rounded-2xl border border-brand-100 bg-brand-50/60 p-5"
           >
             <div
-                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-brand-600 shadow-xs"
+                class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
             >
-              <i class="fi fi-rr-user text-sm"></i>
-            </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <div
+                      class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-brand-600 shadow-xs"
+                  >
+                    <i class="fi fi-rr-user-add text-xs"></i>
+                  </div>
 
-            <div class="min-w-0">
-              <p
-                  class="text-xs font-bold uppercase tracking-wider text-slate-400"
+                  <p class="text-sm font-bold text-slate-900">
+                    {{ participantActionTitle }}
+                  </p>
+                </div>
+
+                <p class="mt-2 text-xs leading-relaxed text-slate-500">
+                  {{ participantActionDescription }}
+                </p>
+              </div>
+
+              <!-- Join -->
+              <button
+                  v-if="canJoin"
+                  id="join-activity-btn"
+                  type="button"
+                  :disabled="joining"
+                  class="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  @click="joinActivity"
               >
-                Organizer
-              </p>
+                <i
+                    v-if="joining"
+                    class="fi fi-rr-spinner animate-spin"
+                ></i>
 
-              <p class="mt-1 truncate font-bold text-slate-800">
-                {{ organizerName }}
-              </p>
+                <i
+                    v-else
+                    class="fi fi-rr-user-add"
+                ></i>
+
+                {{ joining ? 'Joining...' : 'Join Activity' }}
+              </button>
+
+              <!-- Leave -->
+              <button
+                  v-else-if="canLeave"
+                  id="leave-activity-btn"
+                  type="button"
+                  :disabled="leaving"
+                  class="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 py-2.5 text-xs font-bold text-rose-600 shadow-xs transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  @click="leaveActivity"
+              >
+                <i
+                    v-if="leaving"
+                    class="fi fi-rr-spinner animate-spin"
+                ></i>
+
+                <i
+                    v-else
+                    class="fi fi-rr-user-remove"
+                ></i>
+
+                {{ leaving ? 'Leaving...' : 'Leave Activity' }}
+              </button>
+
+              <!-- Full -->
+              <span
+                  v-else-if="isFull"
+                  class="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-amber-100 px-5 py-2.5 text-xs font-bold text-amber-700"
+              >
+                <i class="fi fi-rr-users"></i>
+                Full
+              </span>
             </div>
           </div>
 
-          <!-- Share CTA -->
-          <div
-              class="flex flex-col gap-3 rounded-xl border border-brand-100 bg-brand-50/60 p-4 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div>
-              <p class="text-sm font-bold text-slate-900">
-                Know someone interested?
-              </p>
+          <!-- Organizer -->
+          <div class="flex items-center gap-3 rounded-xl bg-slate-50 p-4">
+            <div class="text-xs text-slate-500 leading-relaxed">
+              Organized by
+              <strong class="text-slate-800">
+                {{ organizerName }}
 
-              <p class="mt-0.5 text-xs text-slate-500">
-                Share this activity with other students.
-              </p>
+                <span
+                    v-if="isOwner"
+                    class="ml-1 rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-brand-700"
+                >
+                (You)
+              </span>
+              </strong>
+            </div>
+          </div>
+
+          <!-- Participants -->
+          <div
+              v-if="hasParticipantInformation"
+              class="space-y-4"
+          >
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p
+                    class="text-[11px] font-extrabold uppercase tracking-wider text-slate-400"
+                >
+                  Participants
+                </p>
+
+                <p class="mt-1 text-sm font-bold text-slate-800">
+                  {{ participantSummary }}
+                </p>
+              </div>
+
+              <span
+                  v-if="isFull"
+                  class="rounded-full bg-amber-100 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-amber-700"
+              >
+                Full
+              </span>
             </div>
 
-            <button
-                type="button"
-                class="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-bold text-white shadow-xs transition-all hover:bg-brand-700 hover:shadow-sm"
-                @click="shareActivity"
+            <!-- Participant List -->
+            <div
+                v-if="participants.length"
+                class="grid gap-2 sm:grid-cols-2"
             >
-              <i class="fi fi-rr-share"></i>
-              Share Activity
-            </button>
+              <div
+                  v-for="participant in participants"
+                  :key="participant.id"
+                  class="flex min-w-0 items-center gap-3 rounded-xl bg-slate-50 px-3 py-2.5"
+              >
+                <div
+                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-brand-600 shadow-xs"
+                >
+                  <i class="fi fi-rr-user text-xs"></i>
+                </div>
+
+                <p
+                    class="min-w-0 truncate text-sm font-semibold text-slate-700"
+                >
+                  {{ participant.name || 'Student' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div
+                v-else
+                class="rounded-xl bg-brand-50/60 px-4 py-5 text-center"
+            >
+              <div
+                  class="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-white text-brand-600 shadow-xs"
+              >
+                <i class="fi fi-rr-users text-xs"></i>
+              </div>
+
+              <p class="mt-3 text-sm font-bold text-slate-800">
+                Be the first to join!
+              </p>
+
+              <p class="mt-1 text-xs text-slate-500">
+                Join this activity and meet other students.
+              </p>
+            </div>
           </div>
         </div>
       </article>
@@ -261,6 +491,9 @@ const activity = ref(null)
 const loading = ref(true)
 const error = ref('')
 
+const joining = ref(false)
+const leaving = ref(false)
+
 /**
  * Returns the current activity URL.
  *
@@ -289,10 +522,40 @@ const organizerName = computed(() => {
 })
 
 /**
- * Returns the participant limit.
+ * Returns the activity participant list.
  *
- * The Activities API does not track registrations,
- * so this is only an informational maximum.
+ * The API excludes the Activity owner from this list.
+ *
+ * @returns {Array<Object>} Current joined participants.
+ */
+const participants = computed(() => {
+  return Array.isArray(activity.value?.participants)
+      ? activity.value.participants
+      : []
+})
+
+/**
+ * Determines whether participant information was returned by the API.
+ *
+ * @returns {boolean} True when participants is an array.
+ */
+const hasParticipantInformation = computed(() => {
+  return Array.isArray(activity.value?.participants)
+})
+
+/**
+ * Returns the current number of joined students.
+ *
+ * The Activity owner is not included in this count.
+ *
+ * @returns {number} Participant count.
+ */
+const participantCount = computed(() => {
+  return participants.value.length
+})
+
+/**
+ * Returns the participant limit.
  *
  * @returns {number} Positive participant limit or zero.
  */
@@ -308,12 +571,266 @@ const participantsLimit = computed(() => {
 })
 
 /**
- * Determines whether the activity has a participant limit.
+ * Determines whether the Activity has a participant limit.
  *
  * @returns {boolean} True when a valid limit exists.
  */
 const hasParticipantsLimit = computed(() => {
   return participantsLimit.value > 0
+})
+
+/**
+ * Determines whether the Activity has reached its participant limit.
+ *
+ * The owner is deliberately excluded from this calculation.
+ *
+ * @returns {boolean} True when the Activity is full.
+ */
+const isFull = computed(() => {
+  return (
+      hasParticipantsLimit.value &&
+      participantCount.value >=
+      participantsLimit.value
+  )
+})
+
+/**
+ * Returns the participant summary shown to the user.
+ *
+ * @returns {string} Participant summary.
+ */
+const participantSummary = computed(() => {
+  if (hasParticipantsLimit.value) {
+    return `${participantCount.value} / ${participantsLimit.value} students joined`
+  }
+
+  return participantCount.value === 1
+      ? '1 student joined'
+      : `${participantCount.value} students joined`
+})
+
+/**
+ * Returns whether the current user is a participant.
+ *
+ * @returns {boolean} True when the current user has joined.
+ */
+const isParticipant = computed(() => {
+  const currentUserId =
+      props.currentUser?.id ||
+      props.currentUser?.uid ||
+      props.currentUser?.userId ||
+      ''
+
+  if (!currentUserId) {
+    return false
+  }
+
+  return participants.value.some(
+      participant =>
+          String(
+              participant?.id ||
+              participant?.uid ||
+              participant?.userId ||
+              ''
+          ) === String(currentUserId)
+  )
+})
+
+/**
+ * Returns whether the current user can join the Activity.
+ *
+ * @returns {boolean} True when joining is currently allowed.
+ */
+const canJoin = computed(() => {
+  return Boolean(
+      !isOwner.value &&
+      !isParticipant.value &&
+      !isTerminal.value &&
+      statusKey.value === 'open' &&
+      !isFull.value
+  )
+})
+
+/**
+ * Returns whether the current user can leave the Activity.
+ *
+ * @returns {boolean} True when leaving is currently allowed.
+ */
+const canLeave = computed(() => {
+  return Boolean(
+      !isOwner.value &&
+      isParticipant.value &&
+      !isTerminal.value &&
+      statusKey.value === 'open'
+  )
+})
+
+/**
+ * Determines whether a participant action area should be displayed.
+ *
+ * @returns {boolean} True when a participant action is relevant.
+ */
+const showParticipantAction = computed(() => {
+  if (isOwner.value) {
+    return false
+  }
+
+  if (!props.currentUser) {
+    return false
+  }
+
+  if (isTerminal.value) {
+    return false
+  }
+
+  return (
+      canJoin.value ||
+      canLeave.value ||
+      isFull.value
+  )
+})
+
+/**
+ * Returns the participant action title.
+ *
+ * @returns {string} Action title.
+ */
+const participantActionTitle = computed(() => {
+  if (canLeave.value) {
+    return 'You have joined this activity.'
+  }
+
+  if (isFull.value) {
+    return 'This activity is full.'
+  }
+
+  return 'Interested in joining?'
+})
+
+/**
+ * Returns the participant action description.
+ *
+ * @returns {string} Action description.
+ */
+const participantActionDescription = computed(() => {
+  if (canLeave.value) {
+    return hasParticipantsLimit.value
+        ? `You are one of ${participantCount.value} joined students. You can leave at any time while the activity is open.`
+        : 'You are currently a participant. You can leave at any time while the activity is open.'
+  }
+
+  if (isFull.value) {
+    return 'The participant limit has been reached. You cannot join unless another student leaves.'
+  }
+
+  if (hasParticipantsLimit.value) {
+    return `${participantCount.value} of ${participantsLimit.value} participant slots are currently available.`
+  }
+
+  return 'Join this activity to participate with other students.'
+})
+
+/**
+ * Returns a formatted Malaysian phone number.
+ *
+ * @returns {string} Formatted contact information.
+ */
+const formattedContact = computed(() => {
+  const value =
+      String(
+          activity.value?.contact || ''
+      ).trim()
+
+  if (!value) {
+    return 'Not specified'
+  }
+
+  const digits =
+      value.replace(/\D/g, '')
+
+  if (
+      digits.length === 10 &&
+      digits.startsWith('01')
+  ) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)} ${digits.slice(6)}`
+  }
+
+  if (
+      digits.length === 11 &&
+      digits.startsWith('01')
+  ) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)} ${digits.slice(7)}`
+  }
+
+  return value
+})
+
+/**
+ * Returns a tel URL for the contact number.
+ *
+ * @returns {string} Telephone URL or empty string.
+ */
+const contactHref = computed(() => {
+  const value =
+      String(
+          activity.value?.contact || ''
+      ).trim()
+
+  const digits =
+      value.replace(/\D/g, '')
+
+  if (
+      digits.length === 10 &&
+      digits.startsWith('01')
+  ) {
+    return `tel:+60${digits.slice(1)}`
+  }
+
+  if (
+      digits.length === 11 &&
+      digits.startsWith('01')
+  ) {
+    return `tel:+60${digits.slice(1)}`
+  }
+
+  return ''
+})
+
+/**
+ * Returns a Google Maps search URL for the activity location.
+ *
+ * @returns {string} Google Maps URL or empty string.
+ */
+const locationHref = computed(() => {
+  const location =
+      String(
+          activity.value?.location || ''
+      ).trim()
+
+  if (!location) {
+    return ''
+  }
+
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`
+})
+
+/**
+ * Determines whether the registration deadline has passed.
+ *
+ * @returns {boolean} True when registration is closed.
+ */
+const deadlinePassed = computed(() => {
+  const deadline =
+      Number(
+          activity.value?.registrationDeadline
+      )
+
+  return (
+      Number.isFinite(deadline) &&
+      deadline > 0 &&
+      deadline <=
+      Math.floor(Date.now() / 1000)
+  )
 })
 
 /**
@@ -371,6 +888,173 @@ async function loadActivity() {
 }
 
 /**
+ * Joins the current Activity.
+ *
+ * The backend determines the authenticated user from
+ * the Firebase ID token and enforces the participant limit.
+ *
+ * @returns {Promise<void>} Resolves after the join request.
+ */
+async function joinActivity() {
+  if (
+      joining.value ||
+      !canJoin.value ||
+      !activity.value?.id
+  ) {
+    return
+  }
+
+  joining.value = true
+
+  try {
+    const response =
+        await studentConnect.joinActivity(
+            activity.value.id
+        )
+
+    if (response?.success === false) {
+      throw createApiError(response)
+    }
+
+    ElMessage.success(
+        response?.message ||
+        'You joined this activity.'
+    )
+
+    await loadActivity()
+  } catch (requestError) {
+    handleMembershipError(
+        requestError,
+        'Unable to join this activity.'
+    )
+  } finally {
+    joining.value = false
+  }
+}
+
+/**
+ * Leaves the current Activity.
+ *
+ * The backend removes the current user's membership
+ * while preserving participant history.
+ *
+ * @returns {Promise<void>} Resolves after the leave request.
+ */
+async function leaveActivity() {
+  if (
+      leaving.value ||
+      !canLeave.value ||
+      !activity.value?.id
+  ) {
+    return
+  }
+
+  leaving.value = true
+
+  try {
+    const response =
+        await studentConnect.leaveActivity(
+            activity.value.id
+        )
+
+    if (response?.success === false) {
+      throw createApiError(response)
+    }
+
+    ElMessage.success(
+        response?.message ||
+        'You left this activity.'
+    )
+
+    await loadActivity()
+  } catch (requestError) {
+    handleMembershipError(
+        requestError,
+        'Unable to leave this activity.'
+    )
+  } finally {
+    leaving.value = false
+  }
+}
+
+/**
+ * Creates a normal Error while preserving the backend error code.
+ *
+ * @param {Object} response - API response.
+ * @returns {Error} Error containing API metadata.
+ */
+function createApiError(response) {
+  const apiError =
+      new Error(
+          response?.message ||
+          'The request could not be completed.'
+      )
+
+  apiError.code =
+      response?.error ||
+      ''
+
+  return apiError
+}
+
+/**
+ * Handles join/leave errors returned by the API.
+ *
+ * @param {Error} requestError - Request error.
+ * @param {string} fallbackMessage - Default error message.
+ * @returns {void}
+ */
+function handleMembershipError(
+    requestError,
+    fallbackMessage
+) {
+  const messages = {
+    ACTIVITY_FULL:
+        'This activity is already full.',
+
+    ALREADY_JOINED:
+        'You have already joined this activity.',
+
+    NOT_PARTICIPANT:
+        'You are not a participant of this activity.',
+
+    OWNER_CANNOT_JOIN:
+        'The activity owner cannot join their own activity.',
+
+    OWNER_CANNOT_LEAVE:
+        'The activity owner cannot leave their own activity.',
+
+    REGISTRATION_CLOSED:
+        'Registration for this activity has closed.',
+
+    ACTIVITY_EXPIRED:
+        'This activity is no longer accepting participants.',
+
+    ACTIVITY_CANCELLED:
+        'This activity has been cancelled.',
+
+    ACTIVITY_NOT_FOUND:
+        'This activity could not be found.'
+  }
+
+  ElMessage.error(
+      messages[requestError?.code] ||
+      requestError?.message ||
+      fallbackMessage
+  )
+
+  if (
+      [
+        'ACTIVITY_FULL',
+        'ALREADY_JOINED',
+        'NOT_PARTICIPANT'
+      ].includes(requestError?.code)
+  ) {
+    loadActivity()
+  }
+}
+
+/**
  * Returns the derived lifecycle status.
  *
  * @returns {string} Activity status key.
@@ -382,15 +1066,13 @@ const statusKey = computed(() => {
       ).toLowerCase()
 
   if (
-      ['cancelled', 'completed'].includes(
-          explicitStatus
-      )
+      [
+        'cancelled',
+        'completed',
+        'expired'
+      ].includes(explicitStatus)
   ) {
     return explicitStatus
-  }
-
-  if (explicitStatus === 'expired') {
-    return 'expired'
   }
 
   const now =
@@ -466,12 +1148,14 @@ const isOwner = computed(() => {
   const currentUserId =
       props.currentUser?.id ||
       props.currentUser?.uid ||
+      props.currentUser?.userId ||
       ''
 
   const ownerId =
       activity.value?.owner?.id ||
       activity.value?.owner?.uid ||
       activity.value?.owner?.userId ||
+      activity.value?.ownerId ||
       ''
 
   return Boolean(
@@ -483,68 +1167,17 @@ const isOwner = computed(() => {
 })
 
 /**
- * Returns activity detail metadata.
- *
- * @returns {Array<Object>} Activity detail items.
- */
-const detailItems = computed(() => {
-  const items = [
-    {
-      icon: 'fi-rr-calendar',
-      label: 'Event Date',
-      value: formatDate(
-          activity.value?.eventDate
-      )
-    },
-    {
-      icon: 'fi-rr-clock',
-      label: 'Registration Deadline',
-      value:
-          activity.value?.registrationDeadline
-              ? formatDate(
-                  activity.value.registrationDeadline
-              )
-              : 'Not specified'
-    }
-  ]
-
-  /*
-   * Participant limit is informational only.
-   * Do not show it when the API does not provide
-   * a valid positive integer.
-   */
-  if (hasParticipantsLimit.value) {
-    items.push({
-      icon: 'fi-rr-users',
-      label: 'Participant Limit',
-      value: `Up to ${participantsLimit.value} participants`
-    })
-  }
-
-  items.push(
-      {
-        icon: 'fi-rr-marker',
-        label: 'Location',
-        value: activity.value?.location
-      },
-      {
-        icon: 'fi-rr-phone-call',
-        label: 'Contact',
-        value: activity.value?.contact
-      }
-  )
-
-  return items
-})
-
-/**
  * Formats a Unix timestamp for detail display.
+ *
+ * Existing timestamps are rounded to the nearest
+ * 15-minute interval for a cleaner visual presentation.
  *
  * @param {number|string} value - Unix timestamp in seconds.
  * @returns {string} Formatted date.
  */
 function formatDate(value) {
-  const timestamp = Number(value)
+  const timestamp =
+      Number(value)
 
   if (
       !Number.isFinite(timestamp) ||
@@ -556,18 +1189,43 @@ function formatDate(value) {
   const date =
       new Date(timestamp * 1000)
 
-  if (Number.isNaN(date.getTime())) {
+  if (
+      Number.isNaN(
+          date.getTime()
+      )
+  ) {
     return 'Date unavailable'
+  }
+
+  const minutes =
+      date.getMinutes()
+
+  const roundedMinutes =
+      Math.round(minutes / 15) * 15
+
+  if (
+      roundedMinutes === 60
+  ) {
+    date.setHours(
+        date.getHours() + 1
+    )
+
+    date.setMinutes(0)
+  } else {
+    date.setMinutes(
+        roundedMinutes
+    )
   }
 
   return new Intl.DateTimeFormat(
       'en-MY',
       {
-        day: '2-digit',
+        day: 'numeric',
         month: 'short',
         year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
       }
   ).format(date)
 }
@@ -674,6 +1332,10 @@ function updatePageMetadata() {
         hasParticipantsLimit.value
             ? participantsLimit.value
             : undefined,
+    attendeeCount:
+        hasParticipantInformation.value
+            ? participantCount.value
+            : undefined,
     location: activity.value.location
         ? {
           '@type': 'Place',
@@ -731,7 +1393,8 @@ function setMeta(
  * @returns {string|undefined} ISO date.
  */
 function toIsoDate(value) {
-  const timestamp = Number(value)
+  const timestamp =
+      Number(value)
 
   if (
       !Number.isFinite(timestamp) ||
