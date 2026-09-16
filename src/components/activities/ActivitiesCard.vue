@@ -135,7 +135,7 @@
             <p
                 class="mt-1 text-sm font-semibold leading-snug text-slate-700"
             >
-              Closes {{ formatDate(activity.registrationDeadline) }}
+              Closes at {{ formatDate(activity.registrationDeadline) }}
             </p>
           </div>
         </div>
