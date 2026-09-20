@@ -290,7 +290,7 @@
               <canvas
                   ref="chartCanvas"
                   role="img"
-                  aria-label="Student Connect activity trend chart"
+                  aria-label="Lend a Hand activity trend chart"
                   class="block h-full w-full"
                   @mousemove="handleChartMouseMove"
                   @mouseleave="handleChartMouseLeave"
@@ -347,7 +347,7 @@
             </h2>
 
             <p class="mt-1 text-xs leading-5 text-slate-500">
-              Compare activity, outcomes and capacity across Student Connect services.
+              Compare activity, outcomes and capacity across Lend a Hand services.
             </p>
           </div>
 

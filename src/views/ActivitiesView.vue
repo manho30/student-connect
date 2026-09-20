@@ -139,19 +139,58 @@
             </button>
           </div>
 
+          <!-- Sort -->
+          <div class="flex shrink-0 items-center gap-2">
+            <select
+                id="activities-sort-select"
+                v-model="sortBy"
+                class="cursor-pointer rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm font-medium text-slate-700 outline-none transition-all focus:border-brand-400 focus:bg-white focus:ring-2 focus:ring-brand-100"
+            >
+              <option value="createdAt">
+                Created date
+              </option>
+
+              <option value="eventDate">
+                Event date
+              </option>
+
+              <option value="updatedAt">
+                Updated date
+              </option>
+            </select>
+
+            <button
+                id="activities-sort-order-btn"
+                type="button"
+                class="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-slate-50 text-slate-500 transition-colors hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700"
+                :aria-label="sortOrder === 'desc' ? 'Sort descending' : 'Sort ascending'"
+                :title="sortOrder === 'desc' ? 'Descending' : 'Ascending'"
+                @click="toggleSortOrder"
+            >
+              <i
+                  :class="
+            sortOrder === 'desc'
+              ? 'fi fi-rr-sort-amount-down'
+              : 'fi fi-rr-sort-amount-up'
+          "
+                  class="text-sm"
+              ></i>
+            </button>
+          </div>
+
           <!-- Search Result Count -->
           <div
               class="flex shrink-0 items-center justify-between gap-2 rounded-xl bg-slate-50 px-3 py-2.5 text-xs"
           >
-            <span class="font-semibold text-slate-500">
-              Results
-            </span>
+    <span class="font-semibold text-slate-500">
+      Results
+    </span>
 
             <span
                 class="rounded-full bg-white px-2 py-0.5 font-bold text-slate-700 shadow-xs"
             >
-              {{ filteredActivityCount }}
-            </span>
+      {{ filteredActivityCount }}
+    </span>
           </div>
         </div>
 
@@ -330,6 +369,8 @@ const activities = ref([])
 const loading = ref(false)
 const loadError = ref('')
 const searchQuery = ref('')
+const sortBy = ref('createdAt')
+const sortOrder = ref('desc')
 const now = ref(
     Math.floor(Date.now() / 1000)
 )
@@ -403,28 +444,38 @@ function matchesSearch(activity) {
   return searchableText.includes(query)
 }
 
+
 /**
  * Returns currently active activities after applying search.
+ *
+ * Activities remain active until the actual event date passes,
+ * even when registration has already closed.
  *
  * @returns {Array<Object>} Filtered and sorted active activities.
  */
 const activeActivities = computed(() => {
   return activities.value
       .filter((activity) => {
+        const status =
+            getStatus(activity)
+
         return (
-            getStatus(activity) === 'open' &&
+            [
+              'open',
+              'registration_closed'
+            ].includes(status) &&
             matchesSearch(activity)
         )
       })
-      .sort(
-          (left, right) =>
-              getTimestamp(left.eventDate) -
-              getTimestamp(right.eventDate)
-      )
+      .sort(compareActivities)
 })
 
 /**
  * Returns archived activities after applying search.
+ *
+ * An activity is archived only after its event date has passed,
+ * or when it has an explicit terminal status such as cancelled
+ * or completed. Registration closing alone does not archive it.
  *
  * Only inactive activities updated within the last 72 hours
  * are included.
@@ -437,33 +488,51 @@ const archivedActivities = computed(() => {
         const status =
             getStatus(activity)
 
-        if (status === 'open') {
+        if (
+            status === 'open' ||
+            status === 'registration_closed'
+        ) {
           return false
         }
 
-        const timestamp =
+        const eventDate =
+            getTimestamp(
+                activity.eventDate
+            )
+
+        const updatedTimestamp =
             getTimestamp(
                 activity.updatedAt ||
                 activity.createdAt
             )
 
+        // Cancelled/completed activities can enter the archive
+        // based on their latest update time.
+        if (
+            status === 'cancelled' ||
+            status === 'completed'
+        ) {
+          return (
+              updatedTimestamp > 0 &&
+              now.value - updatedTimestamp <=
+              72 * 60 * 60 &&
+              matchesSearch(activity)
+          )
+        }
+
+        // Expired activities enter the archive only when
+        // the actual event date has passed.
         return (
-            timestamp > 0 &&
-            now.value - timestamp <= 72 * 60 * 60 &&
+            status === 'expired' &&
+            eventDate > 0 &&
+            eventDate <= now.value &&
+            updatedTimestamp > 0 &&
+            now.value - updatedTimestamp <=
+            72 * 60 * 60 &&
             matchesSearch(activity)
         )
       })
-      .sort(
-          (left, right) =>
-              getTimestamp(
-                  right.updatedAt ||
-                  right.createdAt
-              ) -
-              getTimestamp(
-                  left.updatedAt ||
-                  left.createdAt
-              )
-      )
+      .sort(compareActivities)
 })
 
 /**
@@ -477,6 +546,20 @@ const filteredActivityCount = computed(() => {
       archivedActivities.value.length
   )
 })
+
+/**
+ * Toggles the activity sorting direction.
+ *
+ * @returns {void}
+ */
+function toggleSortOrder() {
+  sortOrder.value =
+      sortOrder.value === 'desc'
+          ? 'asc'
+          : 'desc'
+}
+
+
 
 /**
  * Clears the current activity search.
@@ -521,12 +604,39 @@ function getTimestamp(value) {
 }
 
 /**
+ * Compares two activities using the selected sort field
+ * and direction.
+ *
+ * @param {Object} left - First activity.
+ * @param {Object} right - Second activity.
+ * @returns {number} Sort comparison result.
+ */
+function compareActivities(left, right) {
+  const leftTimestamp =
+      getTimestamp(
+          left?.[sortBy.value]
+      )
+
+  const rightTimestamp =
+      getTimestamp(
+          right?.[sortBy.value]
+      )
+
+  const difference =
+      rightTimestamp - leftTimestamp
+
+  return sortOrder.value === 'desc'
+      ? difference
+      : -difference
+}
+
+/**
  * Derives the effective activity lifecycle status.
  *
+ * Registration closing does not archive the activity.
+ * An activity remains active until its event date has passed.
  * Explicit terminal statuses returned by the backend always
- * take precedence. Otherwise, an activity becomes expired when
- * its registration deadline has passed, or when its event date
- * has passed if there is no registration deadline.
+ * take precedence.
  *
  * @param {Object} activity - Activity record.
  * @returns {string} Status key.
@@ -540,17 +650,11 @@ function getStatus(activity) {
   if (
       [
         'cancelled',
-        'completed',
-        'expired'
+        'completed'
       ].includes(explicit)
   ) {
     return explicit
   }
-
-  const registrationDeadline =
-      getTimestamp(
-          activity?.registrationDeadline
-      )
 
   const eventDate =
       getTimestamp(
@@ -558,18 +662,22 @@ function getStatus(activity) {
       )
 
   if (
-      registrationDeadline > 0 &&
-      registrationDeadline <= now.value
-  ) {
-    return 'expired'
-  }
-
-  if (
-      registrationDeadline <= 0 &&
       eventDate > 0 &&
       eventDate <= now.value
   ) {
     return 'expired'
+  }
+
+  const registrationDeadline =
+      getTimestamp(
+          activity?.registrationDeadline
+      )
+
+  if (
+      registrationDeadline > 0 &&
+      registrationDeadline <= now.value
+  ) {
+    return 'registration_closed'
   }
 
   return 'open'

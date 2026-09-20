@@ -22,7 +22,7 @@
           >
             <img
                 src="@/assets/icon.png"
-                alt="Student Connect Logo"
+                alt="Lend a Hand Logo"
                 class="h-8 w-8 object-contain"
             />
           </div>
@@ -30,7 +30,7 @@
           <span
               class="font-bold text-lg sm:text-xl tracking-tight text-brand-950"
           >
-            Student Connect
+            Lend a Hand
           </span>
         </router-link>
 
@@ -331,12 +331,12 @@
         <div class="flex min-w-0 items-center gap-3">
           <a
               href="/"
-              aria-label="Student Connect Home"
+              aria-label="Lend a Hand Home"
               class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-white shadow-sm ring-1 ring-slate-200 transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <img
                 src="/src/assets/icon.png"
-                alt="Student Connect Logo"
+                alt="Lend a Hand Logo"
                 width="28"
                 height="28"
                 loading="lazy"
@@ -349,7 +349,7 @@
                 href="/"
                 class="text-sm font-semibold text-slate-900 no-underline transition-opacity hover:opacity-80"
             >
-              Student Connect
+              Lend a Hand
             </a>
 
             <p class="mt-0.5 text-xs text-slate-500">

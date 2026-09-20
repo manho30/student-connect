@@ -7,7 +7,7 @@
       </h1>
 
       <p class="mt-1 text-sm text-slate-500">
-        Manage your Student Connect account
+        Manage your account
       </p>
     </header>
 
@@ -88,7 +88,7 @@
           </h3>
 
           <p class="mt-1 text-xs text-slate-400">
-            Information associated with your Student Connect account
+            Information associated with your account
           </p>
         </div>
 
@@ -356,7 +356,7 @@
             </h4>
 
             <p class="mt-0.5 text-xs text-slate-500">
-              Sign out from this Student Connect account.
+              Sign out from this account.
             </p>
           </div>
         </div>
@@ -1255,7 +1255,7 @@ const providerName = computed(() => {
 })
 
 /**
- * Navigates to a Student Connect application route.
+ * Navigates to a Lend a Hand application route.
  *
  * @param {string} path - Target application path.
  * @returns {Promise<void>} Resolves after navigation completes.

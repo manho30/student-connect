@@ -99,7 +99,7 @@
               </h2>
 
               <p class="mt-0.5 text-xs text-slate-400">
-                Your activity across Student Connect
+                Your activity across Lend a Hand
               </p>
             </div>
           </div>

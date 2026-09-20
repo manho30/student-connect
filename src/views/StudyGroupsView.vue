@@ -386,7 +386,7 @@ const filters = [
 ]
 
 /**
- * Loads the latest study groups list from the Student Connect API.
+ * Loads the latest study groups list from the Lend a Hand API.
  *
  * @returns {Promise<void>}
  */

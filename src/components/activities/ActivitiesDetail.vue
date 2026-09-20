@@ -517,7 +517,7 @@ const organizerName = computed(() => {
       activity.value?.owner?.name ||
       activity.value?.owner?.displayName ||
       activity.value?.owner?.email ||
-      'Student Connect student'
+      'Lend a Hand student'
   )
 })
 
@@ -841,7 +841,7 @@ const deadlinePassed = computed(() => {
 const posterAlt = computed(() => {
   return activity.value?.title
       ? `${activity.value.title} poster`
-      : 'Student Connect activity poster'
+      : 'Lend a Hand activity poster'
 })
 
 /**
@@ -1242,11 +1242,11 @@ function updatePageMetadata() {
 
   const title =
       activity.value.title ||
-      'Activity | Student Connect'
+      'Activity | Lend a Hand'
 
   const description =
       activity.value.description ||
-      'Discover this activity on Student Connect.'
+      'Discover this activity on Lend a Hand.'
 
   const image =
       activity.value.posterUrl ||
@@ -1256,7 +1256,7 @@ function updatePageMetadata() {
       activityUrl.value
 
   document.title =
-      `${title} | Student Connect`
+      `${title} | Lend a Hand`
 
   setMeta(
       'description',
@@ -1295,7 +1295,7 @@ function updatePageMetadata() {
 
   setMeta(
       'og:site_name',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -1446,7 +1446,7 @@ function updateStructuredData(data) {
 async function shareActivity() {
   const title =
       activity.value?.title ||
-      'Student Connect Activity'
+      'Lend a Hand Activity'
 
   const text =
       activity.value?.description
@@ -1508,7 +1508,7 @@ watch(
 onMounted(loadActivity)
 
 onUnmounted(() => {
-  document.title = 'Student Connect'
+  document.title = 'Lend a Hand'
 
   const structuredData =
       document.getElementById(

@@ -1,8 +1,8 @@
-# 🎓 Student Connect
+# 🎓 Lend a Hand
 
 > **Connect. Share. Help. Learn.**
 
-Student Connect is a student-focused community platform designed to help students connect, share resources, support each other, and discover campus opportunities through **Carpool, Errands, Study, and Activities**.
+Lend a Hand is a student-focused community platform designed to help students connect, share resources, support each other, and discover campus opportunities through **Carpool, Errands, Study, and Activities**.
 
 🚧 **Status:** Innovation Competition Prototype
 
@@ -222,7 +222,7 @@ Sensitive authentication credentials are not hard-coded into the application.
 ## 🧭 Application Modules
 
 ```text
-Student Connect
+Lend a Hand
 │
 ├── 🚗 Carpool
 │   ├── Listing
@@ -450,7 +450,7 @@ This project is developed as an **innovation competition prototype**.
 
 <div align="center">
 
-### 🎓 Student Connect
+### 🎓 Lend a Hand
 
 **Connect. Share. Help. Learn.**
 

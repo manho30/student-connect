@@ -1,5 +1,5 @@
 /**
- * Centralized Student Connect backend API client.
+ * Centralized Lend a Hand backend API client.
  *
  * @module studentConnect
  */
@@ -9,7 +9,7 @@ import { getCurrentUser, getIdToken } from '@/services/auth'
 const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
 
 /**
- * Sends an HTTP request to the Student Connect backend.
+ * Sends an HTTP request to the Lend a Hand backend.
  *
  * @param {string} path - API endpoint path.
  * @param {Object} [options={}] - Fetch request options.
@@ -48,7 +48,7 @@ async function request(path, options = {}, auth = true) {
     })
   } catch (error) {
     const networkError = new Error(
-      `Unable to connect to the Student Connect backend at ${url}.`
+      `Unable to connect to the Lend a Hand backend at ${url}.`
     )
 
     networkError.name = 'BackendNetworkError'

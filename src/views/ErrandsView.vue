@@ -271,7 +271,7 @@ const errandId = computed(() => {
 })
 
 /**
- * Loads the latest errands list from the Student Connect API.
+ * Loads the latest errands list from the Lend a Hand API.
  *
  * @returns {Promise<void>}
  */

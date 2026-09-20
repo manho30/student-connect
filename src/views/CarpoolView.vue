@@ -752,7 +752,7 @@ function getCarpoolSearchText(carpool) {
 }
 
 /**
- * Loads the latest carpools list from the Student Connect API.
+ * Loads the latest carpools list from the Lend a Hand API.
  *
  * @returns {Promise<void>}
  */
@@ -964,7 +964,7 @@ function handleEdit(carpool) {
 }
 
 /**
- * Joins a carpool through the Student Connect API.
+ * Joins a carpool through the Lend a Hand API.
  *
  * @param {string|number} id - Carpool identifier.
  * @returns {Promise<void>}
@@ -1030,7 +1030,7 @@ async function handleJoin(id) {
 }
 
 /**
- * Leaves a carpool through the Student Connect API.
+ * Leaves a carpool through the Lend a Hand API.
  *
  * @param {string|number} id - Carpool identifier.
  * @returns {Promise<void>}

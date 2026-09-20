@@ -1054,7 +1054,7 @@ function updatePageMetadata() {
           : `Join the ${subject} study group at ${location}.`
 
   const title =
-      `${titleText} | Student Connect`
+      `${titleText} | Lend a Hand`
 
   document.title = title
 
@@ -1089,7 +1089,7 @@ function updatePageMetadata() {
 
   setMeta(
       'og:site_name',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -1112,7 +1112,7 @@ function updatePageMetadata() {
 }
 
 /**
- * Restores the default Student Connect document metadata.
+ * Restores the default Lend a Hand document metadata.
  *
  * @returns {void}
  */
@@ -1121,22 +1121,22 @@ function resetPageMetadata() {
       window.location.origin
 
   document.title =
-      'Student Connect'
+      'Lend a Hand'
 
   setMeta(
       'description',
-      'Student Connect helps students find carpools, errands, study groups, and campus activities.'
+      'Lend a Hand helps students find carpools, errands, study groups, and campus activities.'
   )
 
   setMeta(
       'og:title',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
   setMeta(
       'og:description',
-      'Student Connect helps students connect and collaborate on campus.',
+      'Lend a Hand helps students connect and collaborate on campus.',
       'property'
   )
 
@@ -1148,7 +1148,7 @@ function resetPageMetadata() {
 
   setMeta(
       'og:site_name',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -1159,12 +1159,12 @@ function resetPageMetadata() {
 
   setMeta(
       'twitter:title',
-      'Student Connect'
+      'Lend a Hand'
   )
 
   setMeta(
       'twitter:description',
-      'Student Connect helps students connect and collaborate on campus.'
+      'Lend a Hand helps students connect and collaborate on campus.'
   )
 
   setCanonicalUrl(origin)
@@ -1215,7 +1215,7 @@ async function shareStudy() {
           .trim()
 
   const title =
-      `${titleText} | Student Connect`
+      `${titleText} | Lend a Hand`
 
   const description =
       `Join the ${subject} study group at ${location}.`

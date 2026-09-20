@@ -586,7 +586,7 @@
             class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3"
         >
           <div class="text-xs text-slate-500">
-            Student Connect Errand #{{ errand.id }}
+            Lend a Hand Errand #{{ errand.id }}
           </div>
 
           <div class="flex items-center gap-3 w-full sm:w-auto">
@@ -894,7 +894,7 @@ function updatePageMetadata() {
           : `A student errand request at ${location}.`
 
   const title =
-      `${titleText} | Student Connect`
+      `${titleText} | Lend a Hand`
 
   document.title = title
 
@@ -929,7 +929,7 @@ function updatePageMetadata() {
 
   setMeta(
       'og:site_name',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -952,21 +952,21 @@ function updatePageMetadata() {
 }
 
 /**
- * Restores the default Student Connect metadata.
+ * Restores the default Lend a Hand metadata.
  *
  * @returns {void} Restores default page metadata.
  */
 function resetPageMetadata() {
-  document.title = 'Student Connect'
+  document.title = 'Lend a Hand'
 
   setMeta(
       'description',
-      'Student Connect helps students connect, share rides, and discover campus services.'
+      'Lend a Hand helps students connect, share rides, and discover campus services.'
   )
 
   setMeta(
       'og:title',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -990,7 +990,7 @@ function resetPageMetadata() {
 
   setMeta(
       'og:site_name',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -1001,7 +1001,7 @@ function resetPageMetadata() {
 
   setMeta(
       'twitter:title',
-      'Student Connect'
+      'Lend a Hand'
   )
 
   setMeta(
@@ -1041,7 +1041,7 @@ async function shareErrand() {
   const description =
       String(
           errand.value.description ||
-          'Check out this student errand on Student Connect.'
+          'Check out this student errand on Lend a Hand.'
       )
           .replace(/\s+/g, ' ')
           .trim()

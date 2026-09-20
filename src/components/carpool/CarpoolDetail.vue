@@ -834,7 +834,7 @@ function updatePageMetadata() {
       'Unknown destination'
 
   const title =
-      `${originName} → ${destinationName} | Student Connect`
+      `${originName} → ${destinationName} | Lend a Hand`
 
   const description =
       `Join this student carpool from ${originName} to ${destinationName}.`
@@ -872,7 +872,7 @@ function updatePageMetadata() {
 
   setMeta(
       'og:site_name',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -893,21 +893,21 @@ function updatePageMetadata() {
 }
 
 /**
- * Resets the page metadata to the Student Connect defaults.
+ * Resets the page metadata to the Lend a Hand defaults.
  *
  * @returns {void} Restores the default document metadata.
  */
 function resetPageMetadata() {
-  document.title = 'Student Connect'
+  document.title = 'Lend a Hand'
 
   setMeta(
       'description',
-      'Student Connect helps students connect, share rides, and discover campus services.'
+      'Lend a Hand helps students connect, share rides, and discover campus services.'
   )
 
   setMeta(
       'og:title',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -931,7 +931,7 @@ function resetPageMetadata() {
 
   setMeta(
       'og:site_name',
-      'Student Connect',
+      'Lend a Hand',
       'property'
   )
 
@@ -942,7 +942,7 @@ function resetPageMetadata() {
 
   setMeta(
       'twitter:title',
-      'Student Connect'
+      'Lend a Hand'
   )
 
   setMeta(
@@ -976,7 +976,7 @@ async function shareCarpool() {
       'Unknown destination'
 
   const title =
-      `${originName} → ${destinationName} | Student Connect`
+      `${originName} → ${destinationName} | Lend a Hand`
 
   const description =
       `Join this student carpool from ${originName} to ${destinationName}.`
@@ -1023,7 +1023,7 @@ async function shareCarpool() {
 }
 
 /**
- * Fetches a specific carpool resource from the Student Connect API.
+ * Fetches a specific carpool resource from the Lend a Hand API.
  *
  * The backend-generated ID is passed through unchanged.
  *
@@ -1111,7 +1111,7 @@ onUnmounted(() => {
 })
 
 /**
- * Navigates to an internal Student Connect route.
+ * Navigates to an internal Lend a Hand route.
  *
  * @param {string} path - Target application route.
  * @returns {void} Performs router navigation.
@@ -1145,7 +1145,7 @@ function navigateToEdit() {
 }
 
 /**
- * Joins the current carpool through the Student Connect API.
+ * Joins the current carpool through the Lend a Hand API.
  *
  * The frontend prevents joining after departure, while the backend
  * remains responsible for final authorization and capacity validation.
@@ -1207,7 +1207,7 @@ async function handleJoin() {
 }
 
 /**
- * Deletes the current carpool through the Student Connect API.
+ * Deletes the current carpool through the Lend a Hand API.
  *
  * The backend remains responsible for participant membership updates and
  * carpool deletion.
@@ -1267,7 +1267,7 @@ async function handleDelete() {
 }
 
 /**
- * Leaves the current carpool through the Student Connect API.
+ * Leaves the current carpool through the Lend a Hand API.
  *
  * The backend remains responsible for participant membership updates.
  *

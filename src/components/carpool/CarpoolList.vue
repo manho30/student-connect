@@ -122,7 +122,7 @@ defineProps({
   /**
    * Collection of carpool resources returned by the API.
    *
-   * Each carpool is expected to use the latest Student Connect
+   * Each carpool is expected to use the latest Lend a Hand
    * resource structure, including a backend-generated id.
    */
   carpools: {
